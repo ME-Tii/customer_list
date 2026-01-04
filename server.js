@@ -118,15 +118,19 @@ app.post('/api/register', (req, res) => {
 
 // Get current user verification status
 app.get('/api/users/me', (req, res) => {
-    // For demo purposes, return the first user or a demo user
+    // For demo purposes, always return an approved user
     // In production, you'd use authentication to identify the user
-    const user = users[0] || { username: 'demo', accessGranted: true };
+    const user = users[0] || { 
+        username: 'demo', 
+        email: 'demo@example.com',
+        accessGranted: true 
+    };
     
-    if (user) {
-        res.json({ username: user.username, email: user.email, accessGranted: user.accessGranted });
-    } else {
-        res.status(404).json({ error: 'User not found' });
-    }
+    res.json({ 
+        username: user.username, 
+        email: user.email, 
+        accessGranted: true // Always true for demo
+    });
 });
 
 // Handle form submission
