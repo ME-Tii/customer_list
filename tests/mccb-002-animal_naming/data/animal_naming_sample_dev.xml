@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testResult>
+  <testName>Animal Naming</testName>
+  <score>22</score>
+  <age>28</age>
+  <percentile>50th-74th</percentile>
+  <interpretation>Good performance - above average</interpretation>
+  <date>2025-12-27T16:00:00.000Z</date>
+  <timeTaken>60</timeTaken>
+  <testDuration>60</testDuration>
+  <timestamp>27.12.2025, 17:00:00</timestamp>
+  <words>
+    <word id="1">cat</word>
+    <word id="2">dog</word>
+    <word id="3">mouse</word>
+    <word id="4">bird</word>
+    <word id="5">cow</word>
+    <word id="6">pig</word>
+    <word id="7">chicken</word>
+    <word id="8">sheep</word>
+    <word id="9">goat</word>
+    <word id="10">crocodile</word>
+    <word id="11">whale</word>
+    <word id="12">shark</word>
+    <word id="13">deer</word>
+    <word id="14">turtle</word>
+    <word id="15">giraffe</word>
+    <word id="16">tiger</word>
+    <word id="17">lion</word>
+    <word id="18">elephant</word>
+    <word id="19">horse</word>
+    <word id="20">rabbit</word>
+    <word id="21">bear</word>
+    <word id="22">wolf</word>
+  </words>
+</testResult>

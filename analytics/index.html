@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCCB Analytics Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .upload-section {
+            background: #e8f4f8;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #3498db;
+        }
+        .file-input {
+            margin: 10px 0;
+        }
+        #fileInput {
+            display: none;
+        }
+        #selectedFilesInfo {
+            display: inline-block;
+            margin-left: 10px;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        .btn {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        .btn-success {
+            background-color: #27ae60;
+            color: white;
+        }
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .data-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .summary-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+        }
+        .summary-card h3 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+        .summary-card p {
+            margin: 5px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            max-height: 500px;
+            overflow: hidden;
+        }
+        .chart-container canvas {
+            max-height: 400px !important;
+            height: 400px !important;
+        }
+        .chart-container h3 {
+            margin: 0 0 20px 0;
+            color: #2c3e50;
+            text-align: center;
+        }
+        .test-details {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        .test-item {
+            border-bottom: 1px solid #dee2e6;
+            padding: 15px 0;
+        }
+        .test-item:last-child {
+            border-bottom: none;
+        }
+        .test-name {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 18px;
+        }
+        .test-date {
+            color: #6c757d;
+            font-size: 14px;
+        }
+        .hidden {
+            display: none;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+        }
+        .test-overview {
+            margin-bottom: 30px;
+        }
+        .unifying-score-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        .score-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            min-width: 300px;
+        }
+        .score-display {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .score-max {
+            font-size: 24px;
+        }
+        .dataset-views {
+            margin-bottom: 30px;
+        }
+        .dataset-tabs {
+            display: flex;
+            border-bottom: 2px solid #e9ecef;
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-size: 16px;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .tab-btn:hover {
+            background-color: #f8f9fa;
+        }
+        .tab-btn.active {
+            border-bottom-color: #3498db;
+            color: #3498db;
+            font-weight: bold;
+        }
+        .dataset-section {
+            padding: 20px 0;
+        }
+        .test-type-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        .test-type-section h4 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .test-list {
+            margin-top: 15px;
+        }
+        .test-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: white;
+            margin-bottom: 8px;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+        }
+        .test-score {
+            font-weight: bold;
+            color: #28a745;
+        }
+        .session-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+        }
+        .session-section h4 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .test-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #3498db;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .test-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+        .test-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        .test-header h5 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 16px;
+            line-height: 1.3;
+        }
+        .test-type-badge {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .test-metrics {
+            margin-bottom: 15px;
+        }
+        .primary-score {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2c3e50;
+            line-height: 1;
+        }
+        .score-details {
+            font-size: 14px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        .test-info {
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+        .test-date {
+            font-weight: bold;
+        }
+        .test-performance {
+            font-weight: bold;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .details-filters {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .details-filters label {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-right: 5px;
+        }
+        .details-filters select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 150px;
+        }
+        .details-summary {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+        }
+            opacity: 0.8;
+        }
+        .score-interpretation {
+            font-size: 16px;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+        .detailed-metrics {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        .test-metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .test-metric-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-left: 4px solid #3498db;
+        }
+        .improvement-graph-container {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin: 15px 0;
+            border: 1px solid #e0e0e0;
+        }
+        .test-type-section {
+            margin-bottom: 30px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            background: #fafafa;
+        }
+        .test-type-section h4 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .metric-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3498db;
+        }
+        .metric-trend {
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .trend-up {
+            color: #27ae60;
+        }
+        .trend-down {
+            color: #e74c3c;
+        }
+        .trend-stable {
+            color: #f39c12;
+        }
+        .user-info-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+        }
+        .user-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .user-input label {
+            font-weight: bold;
+            color: #2c3e50;
+            min-width: 100px;
+        }
+        .user-input input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .user-input input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>MCCB Analytics Dashboard</h1>
+        
+        <div class="upload-section">
+            <h2>Import Test Data</h2>
+            <p>Upload XML files from MCCB tests or select entire data folders to analyze performance data.</p>
+            
+            <!-- User Information Section -->
+            <div class="user-info-section">
+                <h3>User Information</h3>
+                <div class="user-input">
+                    <label for="userName">User Name:</label>
+                    <input type="text" id="userName" placeholder="Enter your name" onchange="updateUserName()">
+                </div>
+            </div>
+            
+            <div class="file-input">
+                <button id="chooseFilesBtn" class="btn btn-success" type="button" onclick="selectFiles()">Choose XML files</button>
+                <span id="selectedFilesInfo"></span>
+                <input type="file" id="fileInput" accept=".xml" multiple onchange="handleFileInputChange()">
+                <input type="file" id="folderInput" webkitdirectory directory style="display: none;" onchange="handleFolderInputChange()">
+                <button class="btn btn-success" onclick="selectFolder()">Select Folder</button>
+                <button class="btn btn-success" onclick="autoDetectFolders()">Auto-Detect Data Folders</button>
+                <button class="btn btn-primary" onclick="exportData()">Export Results</button>
+                <button class="btn btn-danger" onclick="clearAllData()">Clear Current Data</button>
+            </div>
+            <div id="uploadStatus"></div>
+        </div>
+
+        <div id="dataSection" class="hidden">
+            <div class="data-summary">
+                <div class="summary-card">
+                    <h3>Total Tests</h3>
+                    <p id="totalTests">0</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Test Types</h3>
+                    <p id="testTypes">0</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Date Range</h3>
+                    <p id="dateRange">-</p>
+                </div>
+                <div class="summary-card">
+                    <h3>Average Performance</h3>
+                    <p id="avgPerformance">-</p>
+                </div>
+            </div>
+
+            <div class="test-overview">
+                <h3>Detailed Test Overview</h3>
+                
+                <!-- Dataset Type Views -->
+                <div class="dataset-views">
+                    <div class="dataset-tabs">
+                        <button class="tab-btn active" onclick="showDatasetView('improvement')">Improvement Tracking</button>
+                        <button class="tab-btn" onclick="showDatasetView('complete')">Complete MCCB Sessions</button>
+                        <button class="tab-btn" onclick="showDatasetView('all')">All Data</button>
+                    </div>
+                    
+                    <div id="improvementSection" class="dataset-section">
+                        <p>No improvement tracking data available</p>
+                    </div>
+                    
+                    <div id="completeSection" class="dataset-section hidden">
+                        <p>No complete MCCB sessions available</p>
+                    </div>
+                    
+                    <div id="allDataSection" class="dataset-section hidden">
+                        <div class="test-details">
+                            <h3>All Test Data</h3>
+                            <div id="testList"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Unifying Score Section -->
+                <div class="unifying-score-container">
+                    <div class="score-card">
+                        <h3>Overall Cognitive Performance Score</h3>
+                        <div class="score-display">
+                            <span id="unifyingScore">-</span>
+                            <span class="score-max">/100</span>
+                        </div>
+                        <div id="scoreInterpretation" class="score-interpretation"></div>
+                    </div>
+                </div>
+
+                <!-- Performance Timeline -->
+                <div class="chart-container">
+                    <h3>Performance Timeline</h3>
+                    <canvas id="performanceTimeline"></canvas>
+                </div>
+
+                <!-- Test Type Comparison -->
+                <div class="chart-container">
+                    <h3>Performance by Test Type</h3>
+                    <canvas id="testTypeComparison"></canvas>
+                </div>
+
+                <!-- Error Analysis -->
+                <div class="chart-container">
+                    <h3>Error Analysis & Failed Attempts</h3>
+                    <canvas id="errorAnalysis"></canvas>
+                    <div id="errorDetails" style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px;"></div>
+                </div>
+
+                <!-- Progress Tracking - Only for Improvement Tracking (1.1.1 data), not Complete MCCB Sessions (1.2.3) -->
+                <div id="progressTrackingContainer" class="chart-container" style="display: none;">
+                    <h3>Progress Tracking - Improvement Over Time</h3>
+                    <canvas id="progressTracking"></canvas>
+                    <div id="progressDetails" style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 5px;"></div>
+                </div>
+
+                <!-- Detailed Test Metrics -->
+                <div class="detailed-metrics">
+                    <h3>Test-by-Test Breakdown</h3>
+                    <div id="testMetricsGrid"></div>
+                </div>
+            </div>
+
+            <div class="test-details">
+                <h3>Test Details</h3>
+                <div id="testDetailsContainer">
+                    <div class="details-summary">
+                        <h4>Summary Statistics</h4>
+                        <div id="detailsSummary"></div>
+                    </div>
+                    <div id="testList"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="loadingIndicator" class="loading hidden">
+            <p>Processing data...</p>
+        </div>
+    </div>
+
+    <script src="analytics.js"></script>
+
+    <script>
+        function selectFiles() {
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput) fileInput.click();
+        }
+
+        // Tab switching function
+        function showDatasetView(viewType) {
+            // Hide all sections
+            document.querySelectorAll('.dataset-section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab-btn').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show/hide progress tracking based on view type
+            const progressContainer = document.getElementById('progressTrackingContainer');
+            if (progressContainer) {
+                if (viewType === 'improvement') {
+                    progressContainer.style.display = 'block';
+                } else {
+                    progressContainer.style.display = 'none';
+                }
+            }
+            
+            // Show selected section and activate tab
+            if (viewType === 'improvement') {
+                document.getElementById('improvementSection').classList.remove('hidden');
+                document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
+            } else if (viewType === 'complete') {
+                document.getElementById('completeSection').classList.remove('hidden');
+                document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
+            } else if (viewType === 'all') {
+                document.getElementById('allDataSection').classList.remove('hidden');
+                document.querySelector('.tab-btn:nth-child(3)').classList.add('active');
+            }
+        }
+        
+        // Filter test details function
+        function filterTestDetails() {
+            const analytics = window.analytics || new MCCBAnalytics();
+            analytics.updateTestList();
+        }
+    </script>
+
+    <script>
+        // Auto-load detected data on page load
+        async function loadDetectedData() {
+            try {
+                const response = await fetch('detected_data.json');
+                const testData = await response.json();
+                
+                if (testData && testData.length > 0) {
+                    window.analytics.testData = testData;
+                    window.analytics.updateDashboard();
+                    window.analytics.showUploadStatus(`Auto-loaded ${testData.length} tests from data folders`, 'success');
+                }
+            } catch (error) {
+                console.log('No detected data file found or error loading data');
+            }
+        }
+        
+        // Override the DOMContentLoaded event to include auto-loading
+        document.addEventListener('DOMContentLoaded', () => {
+            window.analytics = new MCCBAnalytics();
+            loadDetectedData(); // Auto-load detected data
+        });
+    </script>
+</body>
+</html>

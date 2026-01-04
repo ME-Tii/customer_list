@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BACS_Test_Results>
+    <Test_Info>
+        <Test_Name>BACS Symbol Coding Test</Test_Name>
+        <Test_Date>2025-12-27</Test_Date>
+        <Test_Time>16:05:00</Test_Time>
+    </Test_Info>
+    <Results>
+        <Score>58</Score>
+        <Max_Score>150</Max_Score>
+        <Percentage>38.67%</Percentage>
+        <Time_Taken_Seconds>120</Time_Taken_Seconds>
+        <Time_Per_Item>2.07</Time_Per_Item>
+    </Results>
+</BACS_Test_Results>

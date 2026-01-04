@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hopkins Verbal Learning Test—Revised™ (HVLT-R™)</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Hopkins Verbal Learning Test—Revised™ (HVLT-R™)</h1>
+            <div class="developer-controls">
+                <label for="developerMode">
+                    <input type="checkbox" id="developerMode"> Developer Mode
+                </label>
+                <div id="developerPanel" class="developer-panel" style="display: none;">
+                    <h3>Developer Controls</h3>
+                    <button id="skipToRecall">Skip to Recall</button>
+                    <button id="skipToDelayedRecall">Skip to Delayed Recall</button>
+                    <button id="skipToRecognition">Skip to Recognition</button>
+                    <button id="showResults">Show Results</button>
+                    <button id="resetTest">Reset Test</button>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <!-- Welcome Screen -->
+            <div id="welcomeScreen" class="screen active">
+                <h2>Welcome to the HVLT-R™</h2>
+                <p>This test assesses verbal learning and memory through a word list learning task.</p>
+                <p>You will be shown a list of 12 words, asked to recall them multiple times, and then tested again after a delay.</p>
+                <p>The test takes approximately 15-20 minutes to complete.</p>
+                <button id="startTest" class="primary-button">Begin Test</button>
+            </div>
+
+            <!-- Learning Trials -->
+            <div id="learningTrial" class="screen">
+                <h2>Learning Trial <span id="trialNumber">1</span> of 3</h2>
+                <p>Please listen carefully and try to remember the following 12 words:</p>
+                <div id="wordDisplay" class="word-display">
+                    <!-- Words will be displayed here -->
+                </div>
+                <div id="wordPresentation" class="word-presentation" style="display: none;">
+                    <div class="current-word" id="currentWord"></div>
+                    <div class="word-counter" id="wordCounter">Word 1 of 12</div>
+                </div>
+                <button id="startWordPresentation" class="primary-button">Start Word Presentation</button>
+                <button id="proceedToRecall" class="primary-button" style="display: none;">Proceed to Recall</button>
+            </div>
+
+            <!-- Immediate Recall -->
+            <div id="immediateRecall" class="screen">
+                <h2>Immediate Recall - Trial <span id="recallTrialNumber">1</span></h2>
+                <p>Please type all the words you can remember from the list, in any order.</p>
+                <p>Separate words with commas or spaces. Don't worry about spelling.</p>
+                <textarea id="recallInput" rows="4" placeholder="Enter the words you remember..."></textarea>
+                <div class="button-group">
+                    <button id="submitRecall" class="primary-button">Submit Recall</button>
+                    <button id="clearRecall" class="secondary-button">Clear</button>
+                </div>
+                <div id="recallFeedback" class="feedback"></div>
+            </div>
+
+            <!-- Delay Period -->
+            <div id="delayPeriod" class="screen">
+                <h2>Delay Period</h2>
+                <p>Please wait for 20-25 minutes. During this time, you will complete some non-verbal tasks.</p>
+                <div id="delayTimer">
+                    <div class="timer-display">25:00</div>
+                    <p>This timer is for demonstration purposes. In a real test, this would be filled with other activities.</p>
+                    <button id="skipDelay" class="primary-button">Skip Delay (Demo Mode)</button>
+                </div>
+            </div>
+
+            <!-- Delayed Recall -->
+            <div id="delayedRecall" class="screen">
+                <h2>Delayed Recall</h2>
+                <p>Please recall as many words as you can from the original list.</p>
+                <textarea id="delayedRecallInput" rows="4" placeholder="Enter the words you remember..."></textarea>
+                <div class="button-group">
+                    <button id="submitDelayedRecall" class="primary-button">Submit Recall</button>
+                    <button id="clearDelayedRecall" class="secondary-button">Clear</button>
+                </div>
+                <div id="delayedRecallFeedback" class="feedback"></div>
+            </div>
+
+            <!-- Recognition Trial -->
+            <div id="recognitionTrial" class="screen">
+                <h2>Recognition Trial</h2>
+                <p>For each word below, indicate whether it was on the original list (YES) or not (NO).</p>
+                <div id="recognitionWords" class="recognition-words">
+                    <!-- Recognition words will be generated here -->
+                </div>
+                <button id="submitRecognition" class="primary-button">Submit Recognition</button>
+                <div id="recognitionFeedback" class="feedback"></div>
+            </div>
+
+            <!-- Results -->
+            <div id="resultsScreen" class="screen">
+                <h2>Test Results</h2>
+                <div id="resultsContent" class="results-content">
+                    <!-- Results will be displayed here -->
+                </div>
+                <div class="button-group">
+                    <button id="downloadResults" class="primary-button">Download Results</button>
+                    <button id="restartTest" class="secondary-button">Restart Test</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

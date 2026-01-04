@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Public Chat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #00ff00;
+            overflow: hidden;
+        }
+
+        .chat-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: rgba(0, 20, 0, 0.9);
+            border-right: 2px solid #00ff00;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 15px;
+            border-bottom: 1px solid #00ff00;
+            background: rgba(0, 50, 0, 0.8);
+        }
+
+        .sidebar-header h2 {
+            color: #00ffff;
+            font-size: 1.2em;
+        }
+
+        .user-info {
+            padding: 15px;
+            border-bottom: 1px solid #00ff00;
+        }
+
+        .user-name {
+            color: #ffff00;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .user-status {
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .online-users {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .online-user {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 8px;
+            background: rgba(0, 50, 0, 0.5);
+            border-radius: 5px;
+        }
+
+        .online-indicator {
+            width: 8px;
+            height: 8px;
+            background: #00ff00;
+            border-radius: 50%;
+            margin-right: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .main-chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 15px;
+            border-bottom: 2px solid #00ff00;
+            background: rgba(0, 50, 0, 0.8);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header h1 {
+            color: #00ff00;
+            font-size: 1.3em;
+        }
+
+        .chat-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9em;
+        }
+
+        .stat {
+            color: #888;
+        }
+
+        .stat-value {
+            color: #00ffff;
+            font-weight: bold;
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            animation: slideIn 0.3s ease;
+            position: relative;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .message.own {
+            align-self: flex-end;
+            background: rgba(0, 255, 0, 0.2);
+            border: 1px solid #00ff00;
+        }
+
+        .message.other {
+            align-self: flex-start;
+            background: rgba(0, 50, 0, 0.8);
+            border: 1px solid #666;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.8em;
+        }
+
+        .message-author {
+            color: #00ffff;
+            font-weight: bold;
+        }
+
+        .message-time {
+            color: #888;
+        }
+
+        .message-content {
+            color: #00ff00;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .message.system {
+            background: rgba(255, 165, 0, 0.1);
+            border-left: 3px solid #ffa500;
+            margin: 5px 0;
+        }
+
+        .system-message {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            font-size: 0.9em;
+        }
+
+        .system-icon {
+            color: #ffa500;
+            font-size: 1.2em;
+        }
+
+        .system-content {
+            flex: 1;
+            color: #ffa500;
+            font-weight: bold;
+        }
+
+        .system-time {
+            color: #888;
+            font-size: 0.8em;
+        }
+
+        .message-input-container {
+            padding: 15px;
+            border-top: 2px solid #00ff00;
+            background: rgba(0, 50, 0, 0.8);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .message-input {
+            flex: 1;
+            background: rgba(0, 20, 0, 0.9);
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: #00ffff;
+        }
+
+        .send-btn {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .send-btn:hover {
+            background: #00cc00;
+        }
+
+        .send-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+
+        .typing-indicator {
+            padding: 10px;
+            color: #888;
+            font-style: italic;
+            display: none;
+        }
+
+        .typing-indicator.show {
+            display: block;
+        }
+
+        .back-btn {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 0.9em;
+        }
+
+        .back-btn:hover {
+            background: #00cc00;
+        }
+
+        .chat-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 0 15px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            margin: 2px;
+        }
+
+        .logout-btn {
+            background: #ff4444;
+            color: white;
+        }
+
+        .logout-btn:hover {
+            background: #cc0000;
+        }
+
+        .control-btn:hover {
+            background: rgba(0, 255, 0, 0.2);
+        }
+
+        .emoji-panel {
+            display: none;
+            background: rgba(0, 50, 0, 0.9);
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 5px;
+        }
+
+        .emoji-panel.show {
+            display: grid;
+        }
+
+        .emoji {
+            cursor: pointer;
+            padding: 5px;
+            text-align: center;
+            border-radius: 3px;
+        }
+
+        .emoji:hover {
+            background: rgba(0, 255, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>💬 PUBLIC CHAT</h2>
+            </div>
+            
+            <div class="user-info">
+                <div class="user-name" id="currentUserName">Loading...</div>
+                <div class="user-status">🟢 Online</div>
+            </div>
+
+            <div class="chat-controls">
+                <button class="control-btn" onclick="toggleEmojis()">😊</button>
+                <button class="control-btn" onclick="clearChat()">🗑️ Clear</button>
+                <button class="control-btn logout-btn" onclick="logout()">🚪 Logout</button>
+                <a href="/dashboard" class="back-btn">← Dashboard</a>
+            </div>
+
+            <div class="emoji-panel" id="emojiPanel">
+                <span class="emoji" onclick="addEmoji('😊')">😊</span>
+                <span class="emoji" onclick="addEmoji('😂')">😂</span>
+                <span class="emoji" onclick="addEmoji('❤️')">❤️</span>
+                <span class="emoji" onclick="addEmoji('👍')">👍</span>
+                <span class="emoji" onclick="addEmoji('🎉')">🎉</span>
+                <span class="emoji" onclick="addEmoji('🔥')">🔥</span>
+                <span class="emoji" onclick="addEmoji('💯')">💯</span>
+                <span class="emoji" onclick="addEmoji('🤔')">🤔</span>
+                <span class="emoji" onclick="addEmoji('😎')">😎</span>
+                <span class="emoji" onclick="addEmoji('🚀')">🚀</span>
+                <span class="emoji" onclick="addEmoji('💪')">💪</span>
+                <span class="emoji" onclick="addEmoji('🌟')">🌟</span>
+                <span class="emoji" onclick="addEmoji('⚡')">⚡</span>
+                <span class="emoji" onclick="addEmoji('💎')">💎</span>
+                <span class="emoji" onclick="addEmoji('🎯')">🎯</span>
+                <span class="emoji" onclick="addEmoji('🏆')">🏆</span>
+            </div>
+            
+            <div class="online-users">
+                <h3 style="margin-bottom: 10px; color: #00ffff;">👥 Online Users</h3>
+                <div id="onlineUsersList"></div>
+            </div>
+        </div>
+
+        <div class="main-chat">
+            <div class="chat-header">
+                <h1>Public Chat Room</h1>
+                <div class="chat-stats">
+                    <div class="stat">Messages: <span class="stat-value" id="messageCount">0</span></div>
+                    <div class="stat">Online: <span class="stat-value" id="onlineCount">0</span></div>
+                </div>
+            </div>
+
+            <div class="messages-container" id="messagesContainer">
+                <div class="typing-indicator" id="typingIndicator">
+                    Someone is typing...
+                </div>
+            </div>
+
+            <div class="message-input-container">
+                <div class="input-group">
+                    <input 
+                        type="text" 
+                        class="message-input" 
+                        id="messageInput" 
+                        placeholder="Type your message... (Press Enter to send)"
+                        onkeypress="handleKeyPress(event)"
+                        oninput="handleTyping()"
+                    >
+                    <button class="send-btn" id="sendBtn" onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let messages = [];
+        let currentUser = null;
+        let messageCount = 0;
+        let typingTimer = null;
+
+        // Get current user from localStorage
+        function getCurrentUser() {
+            const username = localStorage.getItem('username');
+            console.log('localStorage username:', username);
+            if (!username) {
+                console.log('No username found, redirecting to login');
+                window.location.href = '/';
+                return;
+            }
+            return username;
+        }
+
+        // Initialize chat
+        function initChat() {
+            console.log('Chat initializing...');
+            currentUser = getCurrentUser();
+            console.log('Current user from localStorage:', currentUser);
+            document.getElementById('currentUserName').textContent = currentUser;
+            
+            // Send heartbeat immediately to mark as online
+            console.log('Sending initial heartbeat...');
+            sendHeartbeat();
+            
+            loadMessages();
+            updateOnlineUsers();
+            
+            // Auto-refresh messages every 2 seconds
+            setInterval(loadMessages, 2000);
+            
+            // Update online users every 5 seconds
+            setInterval(updateOnlineUsers, 5000);
+            
+            // Send heartbeat every 2 minutes to stay "online"
+            setInterval(sendHeartbeat, 120000);
+        }
+
+        // Load messages from server
+        async function loadMessages() {
+            try {
+                const response = await fetch('/api/messages', { credentials: 'include' });
+                
+                if (response.ok) {
+                    const serverMessages = await response.json();
+                    
+                    // Only add new messages to prevent blinking
+                    if (messages.length === 0) {
+                        // Initial load - render all messages
+                        messages = serverMessages;
+                        renderMessages();
+                    } else {
+                        // Check for new messages and only add them
+                        const newMessages = serverMessages.slice(messages.length);
+                        if (newMessages.length > 0) {
+                            messages = serverMessages;
+                            addNewMessages(newMessages);
+                        }
+                    }
+                } else {
+                    console.log('Failed to load messages, status:', response.status);
+                }
+            } catch (error) {
+                console.error('Error loading messages:', error);
+            }
+        }
+
+        // Add only new messages to prevent blinking
+        function addNewMessages(newMessages) {
+            const container = document.getElementById('messagesContainer');
+            const typingIndicator = document.getElementById('typingIndicator');
+            
+            newMessages.forEach((message) => {
+                const messageDiv = document.createElement('div');
+                
+                if (message.username === 'SYSTEM') {
+                    messageDiv.className = 'message system';
+                    const time = new Date(message.timestamp).toLocaleTimeString();
+                    messageDiv.innerHTML = `
+                        <div class="system-message">
+                            <div class="system-icon">⚡</div>
+                            <div class="system-content">${escapeHtml(message.content)}</div>
+                            <div class="system-time">${time}</div>
+                        </div>
+                    `;
+                } else {
+                    messageDiv.className = `message ${message.username === currentUser ? 'own' : 'other'}`;
+                    const time = new Date(message.timestamp).toLocaleTimeString();
+                    messageDiv.innerHTML = `
+                        <div class="message-header">
+                            <span class="message-author">${message.username}</span>
+                            <span class="message-time">${time}</span>
+                        </div>
+                        <div class="message-content">${escapeHtml(message.content)}</div>
+                    `;
+                }
+                
+                container.insertBefore(messageDiv, typingIndicator);
+            });
+            
+            // Update stats
+            document.getElementById('messageCount').textContent = messages.length;
+            
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Render messages (for initial load only)
+        function renderMessages() {
+            const container = document.getElementById('messagesContainer');
+            const typingIndicator = document.getElementById('typingIndicator');
+            
+            // Clear existing messages except typing indicator
+            const existingMessages = container.querySelectorAll('.message');
+            existingMessages.forEach(msg => msg.remove());
+            
+            messages.forEach((message, index) => {
+                const messageDiv = document.createElement('div');
+                
+                if (message.username === 'SYSTEM') {
+                    messageDiv.className = 'message system';
+                    const time = new Date(message.timestamp).toLocaleTimeString();
+                    messageDiv.innerHTML = `
+                        <div class="system-message">
+                            <div class="system-icon">⚡</div>
+                            <div class="system-content">${escapeHtml(message.content)}</div>
+                            <div class="system-time">${time}</div>
+                        </div>
+                    `;
+                } else {
+                    messageDiv.className = `message ${message.username === currentUser ? 'own' : 'other'}`;
+                    const time = new Date(message.timestamp).toLocaleTimeString();
+                    messageDiv.innerHTML = `
+                        <div class="message-header">
+                            <span class="message-author">${message.username}</span>
+                            <span class="message-time">${time}</span>
+                        </div>
+                        <div class="message-content">${escapeHtml(message.content)}</div>
+                    `;
+                }
+                
+                container.insertBefore(messageDiv, typingIndicator);
+            });
+            
+            // Update stats
+            document.getElementById('messageCount').textContent = messages.length;
+            
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Send message
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const content = input.value.trim();
+            
+            if (!content) return;
+            
+            const messageData = {
+                username: currentUser,
+                content: content,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Clear input immediately
+            input.value = '';
+            
+            try {
+                const response = await fetch('/api/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(messageData)
+                });
+                
+                if (response.ok) {
+                    // Add message to local array immediately for instant display
+                    messages.push(messageData);
+                    renderMessages();
+                    
+                    // Also refresh from server to ensure consistency
+                    setTimeout(loadMessages, 500);
+                } else {
+                    // Put text back if failed
+                    input.value = content;
+                    alert('Failed to send message');
+                }
+            } catch (error) {
+                // Put text back if failed
+                input.value = content;
+                console.error('Error sending message:', error);
+                alert('Network error sending message');
+            }
+        }
+
+        // Handle key press
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Handle typing indicator
+        function handleTyping() {
+            // Send typing indicator (simplified)
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(() => {
+                // Stop typing indicator after 3 seconds
+            }, 3000);
+        }
+
+        // Update online users
+        async function updateOnlineUsers() {
+            try {
+                console.log('Updating online users...');
+                const response = await fetch('/api/online-users', { credentials: 'include' });
+                
+                console.log('Online users response status:', response.status);
+                if (response.ok) {
+                    const onlineUsers = await response.json();
+                    console.log('Online users:', onlineUsers);
+                    renderOnlineUsers(onlineUsers);
+                } else {
+                    console.error('Failed to load online users');
+                }
+            } catch (error) {
+                console.error('Error loading online users:', error);
+            }
+        }
+
+        // Send heartbeat to stay online
+        async function sendHeartbeat() {
+            try {
+                console.log('Sending heartbeat...');
+                const response = await fetch('/api/heartbeat', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                
+                console.log('Heartbeat response status:', response.status);
+                if (!response.ok) {
+                    console.error('Heartbeat failed');
+                }
+            } catch (error) {
+                console.error('Heartbeat error:', error);
+            }
+        }
+
+        // Render online users
+        function renderOnlineUsers(onlineUsers) {
+            const container = document.getElementById('onlineUsersList');
+            
+            if (onlineUsers.length === 0) {
+                container.innerHTML = '<div style="color: #888;">No users online</div>';
+            } else {
+                container.innerHTML = onlineUsers.map(user => `
+                    <div class="online-user">
+                        <div class="online-indicator"></div>
+                        <div>${escapeHtml(user.username)}</div>
+                    </div>
+                `).join('');
+            }
+            
+            document.getElementById('onlineCount').textContent = onlineUsers.length;
+        }
+
+        // Toggle emoji panel
+        function toggleEmojis() {
+            const panel = document.getElementById('emojiPanel');
+            panel.classList.toggle('show');
+        }
+
+        // Add emoji to input
+        function addEmoji(emoji) {
+            const input = document.getElementById('messageInput');
+            input.value += emoji;
+            input.focus();
+            toggleEmojis(); // Close emoji panel
+        }
+
+        // Clear chat
+        function clearChat() {
+            if (confirm('Clear all messages? This will only affect your view.')) {
+                messages = [];
+                renderMessages();
+            }
+        }
+
+        // Logout function
+        async function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                try {
+                    console.log('Attempting logout...');
+                    const response = await fetch('/api/logout', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'include'
+                    });
+                    
+                    console.log('Logout response status:', response.status);
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        console.log('Logout result:', result);
+                        
+                        // Clear localStorage
+                        localStorage.clear();
+                        
+                        // Redirect to login page
+                        window.location.href = '/';
+                    } else {
+                        const errorText = await response.text();
+                        console.error('Logout failed:', errorText);
+                        alert('Logout failed: ' + errorText);
+                    }
+                } catch (error) {
+                    console.error('Logout error:', error);
+                    alert('Logout error: ' + error.message);
+                }
+            }
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Initialize on load
+        initChat();
+    </script>
+</body>
+</html>

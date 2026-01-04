@@ -1,0 +1,272 @@
+body {
+    font-family: 'Arial', sans-serif;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px 20px 0;
+    line-height: 1.6;
+    color: #333;
+    overflow-x: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Main container */
+.container {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 40px);
+    overflow: hidden;
+}
+
+/* Header section with legend */
+.test-header {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Scrollable test content */
+.test-content {
+    max-height: 60vh;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    padding: 10px 0 0;
+    margin: 10px 0 20px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    background: white;
+    margin-top: 0;
+}
+
+/* Ensure first row is visible */
+.test-content:first-child {
+    padding-top: 0;
+}
+
+h1, h2 {
+    color: #2c3e50;
+    text-align: center;
+}
+
+.instructions {
+    background-color: #e8f4f8;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    border-left: 4px solid #3498db;
+    position: relative;
+    z-index: 2;
+}
+
+/* Test header */
+.test-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #2c3e50;
+    color: white;
+    padding: 0 20px;
+    height: 50px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.test-title {
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.test-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Legend container */
+.legend-container {
+    background: white;
+    padding: 10px 20px;
+    border-bottom: 1px solid #eee;
+    position: sticky;
+    top: 50px; /* Height of the header */
+    z-index: 99;
+    margin: 0 -20px 15px -20px;
+}
+
+/* Key grid styling */
+#keyGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 10px;
+    margin: 10px 15px 15px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.test-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px 10px;
+    margin-top: -5px;
+}
+
+#testGrid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 10px;
+    margin: 0;
+    padding: 10px;
+    text-align: center;
+    align-content: start;
+    min-height: auto;
+}
+
+#testGrid > div {
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+}
+
+.key {
+    font-weight: bold;
+    padding: 15px;
+    background-color: #e8f4f8;
+    border-radius: 6px;
+    font-size: 1.2em; /* Larger font for better visibility */
+    margin: 5px; /* Added margin for better spacing */
+    text-align: center;
+    min-width: 60px; /* Ensure consistent width */
+}
+
+.symbol {
+    font-size: 2em; /* Increased from 1.5em */
+    padding: 15px 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    min-height: 70px; /* Increased from 50px */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    box-sizing: border-box;
+    margin: 2px;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 1.5em; /* Increased from 1.2em */
+    box-sizing: border-box;
+    height: 70px; /* Match increased symbol height */
+    transition: border-color 0.2s;
+}
+
+input[type="text"]:focus {
+    border-color: #3498db;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.timer {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #e74c3c;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 3px 10px;
+    border-radius: 12px;
+    display: inline-block;
+    min-width: 60px;
+    text-align: center;
+}
+
+button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 10px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+    width: 100%;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+.score-display {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    margin: 20px 0;
+}
+
+.results-container {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+}
+
+.submit-btn {
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    padding: 5px 15px;
+    font-size: 0.95em;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    height: 32px;
+}
+
+.submit-btn:hover {
+    background-color: #27ae60;
+    transform: translateY(-1px);
+}
+
+.submit-btn:active {
+    transform: translateY(0);
+}
+
+.submit-btn:hover {
+    background-color: #27ae60;
+}
+
+.submit-btn:active {
+    transform: translateY(1px);
+}
+
+#testArea {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    overflow: hidden;
+}

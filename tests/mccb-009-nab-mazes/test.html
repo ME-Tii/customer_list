@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NAB Mazes Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .instructions {
+            background-color: #e8f4f8;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+        }
+        .maze-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .maze {
+            display: grid;
+            gap: 0;
+            border: 2px solid #333;
+            background-color: white;
+            position: relative;
+        }
+        .cell {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #ccc;
+            position: relative;
+            cursor: pointer;
+        }
+        .wall {
+            background-color: #333;
+            cursor: not-allowed;
+        }
+        .path {
+            background-color: white;
+        }
+        .start {
+            background-color: #27ae60;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .end {
+            background-color: #e74c3c;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .drawn-path {
+            background-color: #3498db !important;
+            opacity: 0.8;
+            position: relative;
+        }
+        .drawn-path::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            background-color: #2980b9;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .btn {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        .btn-success {
+            background-color: #27ae60;
+            color: white;
+        }
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+        .timer {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            color: #2c3e50;
+        }
+        .score {
+            text-align: center;
+            font-size: 18px;
+            margin: 20px 0;
+        }
+        .maze-info {
+            text-align: center;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .hidden {
+            display: none;
+        }
+        .results {
+            background-color: #f0f8f0;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .error-message {
+            color: #e74c3c;
+            text-align: center;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .success-message {
+            color: #27ae60;
+            text-align: center;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>NAB Mazes Test</h1>
+        
+        <div id="welcome-screen">
+            <div class="instructions">
+                <h2>Instructions</h2>
+                <p>Your task is to find the correct path from the <strong>START</strong> point (green) to the <strong>EXIT</strong> point (red).</p>
+                <p>Follow these rules:</p>
+                <ul>
+                    <li>Draw a continuous path from start to exit</li>
+                    <li>Do not skip any cells - click adjacent cells only</li>
+                    <li>Work as quickly and accurately as possible</li>
+                    <li>You will have a time limit for each maze</li>
+                </ul>
+                <p>Click on cells to draw your path. The path must be continuous.</p>
+            </div>
+            
+            <div class="controls">
+                <button class="btn btn-primary" onclick="startTest()">Start Test</button>
+            </div>
+        </div>
+        
+        <div id="test-screen" class="hidden">
+            <div class="maze-info">
+                <span id="maze-number">Maze 1 (Practice)</span>
+            </div>
+            
+            <div class="timer" id="timer">Time: 00:00</div>
+            
+            <div class="maze-container">
+                <div id="maze" class="maze"></div>
+            </div>
+            
+            <div id="message-area"></div>
+            
+            <div class="controls">
+                <button id="resetTest">Reset Test</button>
+                <button class="btn btn-secondary" onclick="clearPath()">Clear Path</button>
+                <button class="btn btn-danger" onclick="skipMaze()">Skip Maze</button>
+                <button class="btn btn-primary hidden" onclick="nextMaze()" id="next-btn">Next Maze</button>
+            </div>
+            
+            <div class="score">
+                <span id="score-display">Score: 0/7</span>
+            </div>
+        </div>
+        
+        <div id="results-screen" class="hidden">
+            <div class="results">
+                <h2>Test Complete!</h2>
+                <div id="final-results"></div>
+                <div class="controls">
+                    <button class="btn btn-success" onclick="exportResults()">Export Results (XML)</button>
+                    <button class="btn btn-primary" onclick="restartTest()">Restart Test</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Maze configurations
+        const mazes = [
+            {
+                name: "Maze 1 (Practice)",
+                timeLimit: 120, // 2 minutes
+                grid: [
+                    [1,1,1,1,1,1,1,1,1,1],
+                    [2,0,0,0,1,0,0,0,0,1],
+                    [1,1,1,0,1,0,1,1,0,1],
+                    [1,0,0,0,0,0,0,1,0,1],
+                    [1,0,1,1,1,1,0,1,0,1],
+                    [1,0,0,0,0,1,0,0,0,1],
+                    [1,1,1,1,0,1,1,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,1],
+                    [1,0,1,1,1,1,1,1,0,3],
+                    [1,1,1,1,1,1,1,1,1,1]
+                ],
+                solution: []
+            },
+            {
+                name: "Maze 2",
+                timeLimit: 180, // 3 minutes
+                grid: [
+                    [1,1,1,1,1,1,1,1,1,1,1,1],
+                    [2,0,0,0,0,1,0,0,0,0,0,1],
+                    [1,1,1,1,0,1,0,1,1,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,1,0,1],
+                    [1,0,1,1,1,1,1,1,0,1,0,1],
+                    [1,0,0,0,0,0,0,1,0,0,0,1],
+                    [1,1,1,0,1,1,0,1,1,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,1],
+                    [1,0,1,1,1,1,1,1,1,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,1,0,1],
+                    [1,1,1,1,1,1,1,1,0,1,0,3],
+                    [1,1,1,1,1,1,1,1,1,1,1,1]
+                ],
+                solution: []
+            },
+            {
+                name: "Maze 3",
+                timeLimit: 240, // 4 minutes
+                grid: [
+                    [1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                    [2,0,0,0,0,0,1,0,0,0,0,0,0,1],
+                    [1,1,1,1,1,0,1,0,1,1,1,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,1,0,1],
+                    [1,0,1,1,1,1,1,1,1,1,0,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,1,0,0,0,1],
+                    [1,1,1,0,1,1,1,1,0,1,1,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                    [1,0,1,1,1,1,1,1,1,1,1,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,1,0,1],
+                    [1,1,1,1,1,1,1,1,1,1,0,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                    [1,0,1,1,1,1,1,1,1,1,1,1,0,3],
+                    [1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+                ],
+                solution: []
+            },
+            {
+                name: "Maze 4",
+                timeLimit: 300, // 5 minutes
+                grid: [
+                    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                    [2,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+                    [1,1,1,1,1,1,0,1,0,1,1,1,1,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
+                    [1,0,1,1,1,1,1,1,1,1,1,1,0,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1],
+                    [1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                    [1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
+                    [1,1,1,1,1,1,1,1,1,1,1,1,0,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                    [1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,3],
+                    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+                ],
+                solution: []
+            },
+            {
+                name: "Maze 5",
+                timeLimit: 360, // 6 minutes
+                grid: [
+                    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                    [2,0,1,0,0,1,0,0,0,1,0,0,1,0,0,1,0,1],
+                    [1,0,1,0,1,1,0,1,0,1,1,0,1,0,1,1,0,1],
+                    [1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1],
+                    [1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
+                    [1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0,1],
+                    [1,0,0,0,0,1,0,0,0,1,0,0,0,1,0,1,0,1],
+                    [1,1,1,0,1,1,1,1,0,1,1,1,0,1,0,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1],
+                    [1,0,1,1,1,1,1,1,1,1,1,1,0,1,0,1,0,1],
+                    [1,0,0,0,0,0,0,1,0,0,0,0,0,1,0,1,0,1],
+                    [1,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1],
+                    [1,0,1,1,1,1,1,1,1,1,1,1,0,1,0,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1],
+                    [1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1,0,3],
+                    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+                ],
+                solution: [] // No predefined solution needed
+            },
+            {
+                name: "Maze 6",
+                timeLimit: 420, // 7 minutes
+                grid: [
+                    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                    [2,0,1,0,0,1,0,0,0,1,0,0,1,0,0,1,0,0,0,1],
+                    [1,0,1,0,1,1,0,1,0,1,1,0,1,0,1,1,0,1,0,1],
+                    [1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,1],
+                    [1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,0,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1],
+                    [1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0,1,0,1],
+                    [1,0,0,0,0,1,0,0,0,1,0,0,0,1,0,1,0,1,0,1],
+                    [1,1,1,0,1,1,1,1,0,1,1,1,0,1,0,1,0,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1],
+                    [1,0,1,1,1,1,1,1,1,1,1,1,0,1,0,1,0,1,0,1],
+                    [1,0,0,0,0,0,0,1,0,0,0,0,0,1,0,1,0,1,0,1],
+                    [1,1,1,0,1,1,0,1,1,1,1,1,0,1,0,1,0,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1],
+                    [1,0,1,1,1,1,1,1,1,1,1,1,0,1,0,1,0,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1],
+                    [1,1,1,0,1,1,1,1,1,1,1,1,1,1,0,1,0,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1],
+                    [1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0,3],
+                    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+                ],
+                solution: [] // No predefined solution needed
+            },
+            {
+                name: "Maze 7",
+                timeLimit: 480, // 8 minutes
+                grid: [
+                    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                    [2,0,1,0,0,1,0,0,0,1,0,0,1,0,0,1,0,0,0,1,0,1],
+                    [1,0,1,0,1,1,0,1,0,1,1,0,1,0,1,1,0,1,0,1,1,1],
+                    [1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,1],
+                    [1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1],
+                    [1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0,1,1,1,0,1],
+                    [1,0,0,0,0,1,0,0,0,1,0,0,0,1,0,1,0,0,0,1,0,1],
+                    [1,1,1,0,1,1,1,1,0,1,1,1,0,1,0,1,1,1,0,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,1],
+                    [1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,0,1,0,1],
+                    [1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
+                    [1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,1,1,0,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
+                    [1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
+                    [1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
+                    [1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1],
+                    [1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0,3],
+                    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+                ],
+                solution: [] // No predefined solution needed
+            },
+            {
+                name: "Maze 8",
+                timeLimit: 600, // 10 minutes
+                grid: [
+                    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+                    [2,0,1,0,0,1,0,0,0,1,0,0,1,0,0,1,0,0,0,1,0,0,0,1],
+                    [1,0,1,0,1,1,0,1,0,1,1,0,1,0,1,1,0,1,0,1,1,1,0,1],
+                    [1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1],
+                    [1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1],
+                    [1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0,1,1,1,1,1,0,1],
+                    [1,0,0,0,0,1,0,0,0,1,0,0,0,1,0,1,0,0,0,1,0,0,0,1],
+                    [1,1,1,0,1,1,1,1,0,1,1,1,0,1,0,1,1,1,0,1,1,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1],
+                    [1,0,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,0,1],
+                    [1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                    [1,1,1,0,1,1,0,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                    [1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                    [1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                    [1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                    [1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1],
+                    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+                    [1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0,3],
+                    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+                ],
+                solution: [] // No predefined solution needed
+            }
+        ];
+
+        let currentMazeIndex = 0;
+        let currentPath = [];
+        let isDrawing = false;
+        let isHovering = false;
+        let hoverTimeout;
+        let startTime;
+        let timerInterval;
+        let scores = [];
+        let times = [];
+
+        function startTest() {
+            document.getElementById('welcome-screen').classList.add('hidden');
+            document.getElementById('test-screen').classList.remove('hidden');
+            currentMazeIndex = 0;
+            scores = [];
+            times = [];
+            loadMaze();
+        }
+
+        function loadMaze() {
+            const maze = mazes[currentMazeIndex];
+            document.getElementById('maze-number').textContent = maze.name;
+            document.getElementById('next-btn').classList.add('hidden');
+            
+            // Clear previous maze
+            const mazeContainer = document.getElementById('maze');
+            mazeContainer.innerHTML = '';
+            
+            // Create grid
+            mazeContainer.style.gridTemplateColumns = `repeat(${maze.grid[0].length}, 30px)`;
+            
+            for (let row = 0; row < maze.grid.length; row++) {
+                for (let col = 0; col < maze.grid[row].length; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    
+                    if (maze.grid[row][col] === 1) {
+                        cell.classList.add('wall');
+                    } else if (maze.grid[row][col] === 2) {
+                        cell.classList.add('start');
+                        cell.textContent = 'S';
+                        cell.onclick = () => cellClick(row, col);
+                    } else if (maze.grid[row][col] === 3) {
+                        cell.classList.add('end');
+                        cell.textContent = 'E';
+                        cell.onclick = () => cellClick(row, col);
+                    } else {
+                        cell.classList.add('path');
+                        cell.onmouseenter = () => cellHover(row, col);
+                        cell.onmouseleave = () => cellLeave(row, col);
+                    }
+                    
+                    mazeContainer.appendChild(cell);
+                }
+            }
+            
+            // Reset path and timer
+            currentPath = [];
+            isDrawing = false;
+            startTimer();
+            updateScore();
+        }
+
+        function cellHover(row, col) {
+            if (isHovering) return;
+            
+            const maze = mazes[currentMazeIndex];
+            
+            // Check if it's a valid cell (not a wall)
+            if (maze.grid[row][col] === 1) return;
+            
+            // Find start position
+            let startRow, startCol;
+            for (let r = 0; r < maze.grid.length; r++) {
+                for (let c = 0; c < maze.grid[r].length; c++) {
+                    if (maze.grid[r][c] === 2) {
+                        startRow = r;
+                        startCol = c;
+                        break;
+                    }
+                }
+            }
+            
+            // If this is the first hover, it must be the start
+            if (currentPath.length === 0) {
+                if (row === startRow && col === startCol) {
+                    isHovering = true;
+                    hoverTimeout = setTimeout(() => {
+                        currentPath.push([row, col]);
+                        isDrawing = true;
+                        highlightCell(row, col);
+                        console.log('First cell hovered, path now:', currentPath);
+                        isHovering = false;
+                    }, 500); // 500ms delay
+                } else {
+                    showMessage('You must start at the "S" (Start) point!', 'error');
+                }
+            } else {
+                // Check if the cell is adjacent to the last cell in path
+                const lastCell = currentPath[currentPath.length - 1];
+                const rowDiff = Math.abs(row - lastCell[0]);
+                const colDiff = Math.abs(col - lastCell[1]);
+                
+                if ((rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1)) {
+                    // Check if we're backtracking - only block if going back to the immediate previous cell
+                    if (currentPath.length > 1 && row === currentPath[currentPath.length - 2][0] && col === currentPath[currentPath.length - 2][1]) {
+                        showMessage('You cannot backtrack on your path!', 'error');
+                        return;
+                    }
+                    
+                    isHovering = true;
+                    hoverTimeout = setTimeout(() => {
+                        currentPath.push([row, col]);
+                        highlightCell(row, col);
+                        console.log('About to call drawLine with path:', currentPath);
+                        drawLine();
+                        console.log('drawLine returned');
+                        isHovering = false;
+                        
+                        // Check if reached the end
+                        if (maze.grid[row][col] === 3) {
+                            checkSolution();
+                        }
+                    }, 300); // 300ms delay for subsequent cells
+                } else {
+                    showMessage('You can only hover over adjacent cells!', 'error');
+                }
+            }
+        }
+        
+        function cellLeave(row, col) {
+            if (hoverTimeout) {
+                clearTimeout(hoverTimeout);
+                isHovering = false;
+            }
+        }
+        
+        function cellClick(row, col) {
+            // Keep click function for start/end cells
+            console.log('cellClick called:', row, col);
+            const maze = mazes[currentMazeIndex];
+            
+            // Check if it's a valid cell (not a wall)
+            if (maze.grid[row][col] === 1) return;
+            
+            // Find start position
+            let startRow, startCol;
+            for (let r = 0; r < maze.grid.length; r++) {
+                for (let c = 0; c < maze.grid[r].length; c++) {
+                    if (maze.grid[r][c] === 2) {
+                        startRow = r;
+                        startCol = c;
+                        break;
+                    }
+                }
+            }
+            
+            // If this is the first click, it must be the start
+            if (currentPath.length === 0) {
+                if (row === startRow && col === startCol) {
+                    currentPath.push([row, col]);
+                    isDrawing = true;
+                    highlightCell(row, col);
+                    console.log('First cell clicked, path now:', currentPath);
+                } else {
+                    showMessage('You must start at the "S" (Start) point!', 'error');
+                }
+            } else {
+                // Check if the cell is adjacent to the last cell in path
+                const lastCell = currentPath[currentPath.length - 1];
+                const rowDiff = Math.abs(row - lastCell[0]);
+                const colDiff = Math.abs(col - lastCell[1]);
+                
+                if ((rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1)) {
+                    // Check if we're backtracking
+                    const alreadyInPath = currentPath.some(cell => cell[0] === row && cell[1] === col);
+                    if (alreadyInPath) {
+                        showMessage('You cannot backtrack on your path!', 'error');
+                        return;
+                    }
+                    
+                    currentPath.push([row, col]);
+                    highlightCell(row, col);
+                    console.log('About to call drawLine with path:', currentPath);
+                    drawLine();
+                    console.log('drawLine returned');
+                    
+                    // Check if reached the end
+                    if (maze.grid[row][col] === 3) {
+                        checkSolution();
+                    }
+                } else {
+                    showMessage('You can only click on adjacent cells!', 'error');
+                }
+            }
+        }
+
+        function highlightCell(row, col) {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                if (cell.dataset.row == row && cell.dataset.col == col) {
+                    cell.classList.add('drawn-path');
+                }
+            });
+        }
+
+        function drawLine() {
+            console.log('drawLine called with path:', currentPath);
+            
+            // Clear existing lines
+            const existingLines = document.querySelectorAll('.path-line');
+            existingLines.forEach(line => line.remove());
+            
+            if (currentPath.length < 2) {
+                console.log('Path too short, not drawing lines');
+                return;
+            }
+            
+            const mazeContainer = document.getElementById('maze');
+            const cellSize = 30;
+            
+            for (let i = 0; i < currentPath.length - 1; i++) {
+                const [row1, col1] = currentPath[i];
+                const [row2, col2] = currentPath[i + 1];
+                
+                // Calculate center positions of cells
+                const x1 = col1 * cellSize + cellSize / 2;
+                const y1 = row1 * cellSize + cellSize / 2;
+                const x2 = col2 * cellSize + cellSize / 2;
+                const y2 = row2 * cellSize + cellSize / 2;
+                
+                const line = document.createElement('div');
+                line.className = 'path-line';
+                line.style.position = 'absolute';
+                line.style.background = '#2980b9'; // Changed back to blue
+                line.style.zIndex = '10';
+                line.style.borderRadius = '2px';
+                
+                // Calculate line length and angle
+                const deltaX = x2 - x1;
+                const deltaY = y2 - y1;
+                const length = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                const angle = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
+                
+                // Position and rotate the line
+                line.style.width = Math.max(length, 4) + 'px';
+                line.style.height = '4px';
+                line.style.left = x1 + 'px';
+                line.style.top = (y1 - 2) + 'px';
+                line.style.transformOrigin = '0 50%';
+                line.style.transform = `rotate(${angle}deg)`;
+                
+                console.log('Creating line from', [x1, y1], 'to', [x2, y2], 'length:', length, 'angle:', angle);
+                mazeContainer.appendChild(line);
+            }
+        }
+
+        function clearPath() {
+            currentPath = [];
+            isDrawing = false;
+            document.querySelectorAll('.drawn-path').forEach(cell => {
+                cell.classList.remove('drawn-path');
+            });
+            clearMessage();
+        }
+
+        function checkSolution() {
+            const maze = mazes[currentMazeIndex];
+            const endTime = Date.now();
+            const timeTaken = Math.floor((endTime - startTime) / 1000);
+            
+            // Check if path reaches the end
+            const lastCell = currentPath[currentPath.length - 1];
+            let endRow, endCol;
+            for (let r = 0; r < maze.grid.length; r++) {
+                for (let c = 0; c < maze.grid[r].length; c++) {
+                    if (maze.grid[r][c] === 3) {
+                        endRow = r;
+                        endCol = c;
+                        break;
+                    }
+                }
+            }
+            
+            if (!lastCell || lastCell[0] !== endRow || lastCell[1] !== endCol) {
+                showMessage('Your path must reach the "E" (Exit) point!', 'error');
+                return;
+            }
+            
+            // Check if path reaches the end point (simplified validation)
+            const isCorrect = true; // Any path that reaches E is correct
+            
+            if (isCorrect) {
+                stopTimer();
+                showMessage('Correct! Well done!', 'success');
+                
+                // Don't score practice maze (index 0)
+                if (currentMazeIndex > 0) {
+                    scores.push(1);
+                    times.push(timeTaken);
+                }
+                
+                updateScore();
+                document.getElementById('next-btn').classList.remove('hidden');
+            } else {
+                showMessage('This is not the correct path. Try again!', 'error');
+            }
+        }
+        
+        function checkPathMatchesSolution() {
+            const maze = mazes[currentMazeIndex];
+            const solution = maze.solution;
+            
+            console.log('Current path:', currentPath);
+            console.log('Expected solution:', solution);
+            
+            // Check if path length matches solution length
+            if (currentPath.length !== solution.length) {
+                console.log('Path length mismatch:', currentPath.length, 'vs', solution.length);
+                return false;
+            }
+            
+            // Check if all cells in path match solution
+            for (let i = 0; i < currentPath.length; i++) {
+                const pathCell = currentPath[i];
+                const solutionCell = solution[i];
+                
+                if (pathCell[0] !== solutionCell[0] || pathCell[1] !== solutionCell[1]) {
+                    console.log('Cell mismatch at index', i, ':', pathCell, 'vs', solutionCell);
+                    return false;
+                }
+            }
+            
+            console.log('Path matches solution!');
+            return true;
+        }
+
+        function skipMaze() {
+            if (confirm('Are you sure you want to skip this maze? You will receive 0 points for this maze.')) {
+                stopTimer();
+                
+                // Don't score practice maze (index 0)
+                if (currentMazeIndex > 0) {
+                    scores.push(0); // No score for skipped maze
+                    times.push(mazes[currentMazeIndex].timeLimit); // Record full time limit
+                }
+                
+                showMessage('Maze skipped. Moving to next maze.', 'warning');
+                updateScore();
+                
+                setTimeout(() => {
+                    nextMaze();
+                }, 1500);
+            }
+        }
+
+        function nextMaze() {
+            currentMazeIndex++;
+            if (currentMazeIndex < mazes.length) {
+                loadMaze();
+                clearMessage();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            stopTimer();
+            document.getElementById('test-screen').classList.add('hidden');
+            document.getElementById('results-screen').classList.remove('hidden');
+            
+            const totalScore = scores.reduce((sum, score) => sum + score, 0);
+            const maxScore = mazes.length - 1; // Excluding practice maze
+            
+            let resultsHTML = `
+                <h3>Your Results</h3>
+                <p><strong>Total Score:</strong> ${totalScore}/${maxScore}</p>
+                <p><strong>Percentage:</strong> ${Math.round((totalScore / maxScore) * 100)}%</p>
+                <h4>Individual Maze Results:</h4>
+                <ul>
+            `;
+            
+            for (let i = 1; i < mazes.length; i++) {
+                const score = scores[i - 1] || 0;
+                const time = times[i - 1] || 0;
+                resultsHTML += `<li>${mazes[i].name}: ${score}/1 (${time}s)</li>`;
+            }
+            
+            resultsHTML += '</ul>';
+            document.getElementById('final-results').innerHTML = resultsHTML;
+        }
+
+        function restartTest() {
+            document.getElementById('results-screen').classList.add('hidden');
+            document.getElementById('welcome-screen').classList.remove('hidden');
+            currentMazeIndex = 0;
+            scores = [];
+            times = [];
+        }
+
+        function exportResults() {
+            const totalScore = scores.reduce((sum, score) => sum + score, 0);
+            const maxScore = mazes.length - 1; // Excluding practice maze
+            const percentage = Math.round((totalScore / maxScore) * 100);
+            
+            // Convert data to XML format
+            function jsonToXml(data) {
+                let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+                xml += '<testResult>\n';
+                
+                // Add test metadata
+                xml += `  <testName>${escapeXml(data.testName)}</testName>\n`;
+                xml += `  <timestamp>${escapeXml(data.timestamp)}</timestamp>\n`;
+                xml += `  <date>${escapeXml(data.date)}</date>\n`;
+                
+                // Add summary scores
+                xml += '  <summaryScores>\n';
+                xml += `    <totalScore>${escapeXml(data.totalScore)}</totalScore>\n`;
+                xml += `    <maxScore>${escapeXml(data.maxScore)}</maxScore>\n`;
+                xml += `    <percentage>${escapeXml(data.percentage)}</percentage>\n`;
+                xml += '  </summaryScores>\n';
+                
+                // Add individual maze results
+                xml += '  <mazeResults>\n';
+                data.mazeResults.forEach((maze, index) => {
+                    xml += `    <maze id="${index + 1}">\n`;
+                    xml += `      <name>${escapeXml(maze.name)}</name>\n`;
+                    xml += `      <score>${escapeXml(maze.score)}</score>\n`;
+                    xml += `      <maxScore>1</maxScore>\n`;
+                    xml += `      <timeTaken>${escapeXml(maze.timeTaken)}</timeTaken>\n`;
+                    xml += `      <timeLimit>${escapeXml(maze.timeLimit)}</timeLimit>\n`;
+                    xml += `      <completed>${escapeXml(maze.completed)}</completed>\n`;
+                    xml += '    </maze>\n';
+                });
+                xml += '  </mazeResults>\n';
+                
+                xml += '</testResult>';
+                return xml;
+            }
+            
+            // Helper function to escape XML special characters
+            function escapeXml(unsafe) {
+                if (unsafe === null || unsafe === undefined) return '';
+                return unsafe.toString()
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&apos;');
+            }
+            
+            // Prepare maze results data
+            const mazeResults = [];
+            for (let i = 1; i < mazes.length; i++) {
+                const score = scores[i - 1] || 0;
+                const time = times[i - 1] || 0;
+                const completed = score > 0;
+                
+                mazeResults.push({
+                    name: mazes[i].name,
+                    score: score,
+                    timeTaken: time,
+                    timeLimit: mazes[i].timeLimit,
+                    completed: completed
+                });
+            }
+            
+            // Prepare data for export
+            const data = {
+                testName: 'NAB Mazes Test',
+                timestamp: new Date().toISOString(),
+                date: new Date().toLocaleString(),
+                totalScore: totalScore,
+                maxScore: maxScore,
+                percentage: percentage,
+                mazeResults: mazeResults
+            };
+            
+            // Generate XML and trigger download
+            const xmlData = jsonToXml(data);
+            const blob = new Blob([xmlData], { type: 'application/xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `NAB_Mazes_Results_${new Date().toISOString().split('T')[0]}.xml`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showMessage('Results exported as XML file', 'success');
+        }
+
+        function startTimer() {
+            startTime = Date.now();
+            const maze = mazes[currentMazeIndex];
+            
+            timerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                const remaining = maze.timeLimit - elapsed;
+                
+                if (remaining <= 0) {
+                    stopTimer();
+                    showMessage('Time is up! Moving to next maze.', 'error');
+                    setTimeout(() => {
+                        if (currentMazeIndex > 0) {
+                            scores.push(0); // No score for time limit exceeded
+                            times.push(maze.timeLimit);
+                        }
+                        nextMaze();
+                    }, 2000);
+                } else {
+                    const minutes = Math.floor(remaining / 60);
+                    const seconds = remaining % 60;
+                    document.getElementById('timer').textContent = 
+                        `Time: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+        }
+
+        function updateScore() {
+            const totalScore = scores.reduce((sum, score) => sum + score, 0);
+            const maxScore = mazes.length - 1; // Excluding practice maze
+            document.getElementById('score-display').textContent = `Score: ${totalScore}/${maxScore}`;
+        }
+
+        function showMessage(message, type) {
+            const messageArea = document.getElementById('message-area');
+            messageArea.innerHTML = `<div class="${type}-message">${message}</div>`;
+        }
+
+        function clearMessage() {
+            document.getElementById('message-area').innerHTML = '';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+Received POST to /api/process-folder-files
+Authentication successful
+=== handle_process_folder_files START ===
+Received POST to /api/process-folder-files
+Authentication successful
+=== handle_process_folder_files START ===
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7FzxzxmtfaZ9AYWl
+Boundary: b'----WebKitFormBoundary7FzxzxmtfaZ9AYWl'
+Content-Length: 21603
+Read 21603 bytes of data
+Found 11 parts in multipart data
+Received POST to /api/process-folder-files
+Authentication successful
+=== handle_process_folder_files START ===
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryT8ZrQtCI9RBjHByZ
+Boundary: b'----WebKitFormBoundaryT8ZrQtCI9RBjHByZ'
+Content-Length: 21603
+Read 21603 bytes of data
+Found 11 parts in multipart data
+Processing part 0, length: 0
+Part content preview: b''
+Processing part 1, length: 11109
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/MCCB_Complete_Test_Suite.xml'
+Found form-data with filename in part 1
+Processing part 2, length: 1107
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/HVLT_R_Results.xml"\r\nContent'
+Found form-data with filename in part 2
+Processing part 3, length: 2124
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/CPT_IP_Results.xml"\r\nContent'
+Found form-data with filename in part 3
+Processing part 4, length: 1083
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/BVMT_R_Results.xml"\r\nContent'
+Found form-data with filename in part 4
+Processing part 5, length: 1662
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/NAB_Mazes_Results.xml"\r\nCont'
+Found form-data with filename in part 5
+Processing part 6, length: 1139
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/Letter_Number_Span_Results.x'
+Found form-data with filename in part 6
+Processing part 7, length: 1147
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/WMS_III_Spatial_Span_Results'
+Found form-data with filename in part 7
+Processing part 8, length: 1112
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/Animal_Naming_Results.xml"\r\n'
+Found form-data with filename in part 8
+Processing part 9, length: 716
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/Trail_Making_Results.xml"\r\nC'
+Found form-data with filename in part 9
+Processing part 10, length: 4
+Part content preview: b'--\r\n'
+Received POST to /api/process-folder-files
+Authentication successful
+=== handle_process_folder_files START ===
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryZBRpT31BrCEZnBrb
+Boundary: b'----WebKitFormBoundaryZBRpT31BrCEZnBrb'
+Content-Length: 21603
+Read 21603 bytes of data
+Found 11 parts in multipart data
+Processing part 0, length: 0
+Part content preview: b''
+Processing part 1, length: 11109
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/MCCB_Complete_Test_Suite.xml'
+Found form-data with filename in part 1
+Processing part 2, length: 1107
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/HVLT_R_Results.xml"\r\nContent'
+Found form-data with filename in part 2
+Processing part 3, length: 2124
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/CPT_IP_Results.xml"\r\nContent'
+Found form-data with filename in part 3
+Processing part 4, length: 1083
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/BVMT_R_Results.xml"\r\nContent'
+Found form-data with filename in part 4
+Processing part 5, length: 1662
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/NAB_Mazes_Results.xml"\r\nCont'
+Found form-data with filename in part 5
+Processing part 6, length: 1139
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/Letter_Number_Span_Results.x'
+Found form-data with filename in part 6
+Processing part 7, length: 1147
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/WMS_III_Spatial_Span_Results'
+Found form-data with filename in part 7
+Processing part 8, length: 1112
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/Animal_Naming_Results.xml"\r\n'
+Found form-data with filename in part 8
+Processing part 9, length: 716
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/Trail_Making_Results.xml"\r\nC'
+Found form-data with filename in part 9
+Processing part 10, length: 4
+Part content preview: b'--\r\n'
+Received POST to /api/process-folder-files
+Authentication successful
+=== handle_process_folder_files START ===
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryAVtxQhIK1VmA8rx9
+Boundary: b'----WebKitFormBoundaryAVtxQhIK1VmA8rx9'
+Content-Length: 21603
+Read 21603 bytes of data
+Found 11 parts in multipart data
+Processing part 0, length: 0
+Part content preview: b''
+Processing part 1, length: 11109
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/MCCB_Complete_Test_Suite.xml'
+Found form-data with filename in part 1
+Processing part 2, length: 1107
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/HVLT_R_Results.xml"\r\nContent'
+Found form-data with filename in part 2
+Processing part 3, length: 2124
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/CPT_IP_Results.xml"\r\nContent'
+Found form-data with filename in part 3
+Processing part 4, length: 1083
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/BVMT_R_Results.xml"\r\nContent'
+Found form-data with filename in part 4
+Processing part 5, length: 1662
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/NAB_Mazes_Results.xml"\r\nCont'
+Found form-data with filename in part 5
+Processing part 6, length: 1139
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/Letter_Number_Span_Results.x'
+Found form-data with filename in part 6
+Processing part 7, length: 1147
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/WMS_III_Spatial_Span_Results'
+Found form-data with filename in part 7
+Processing part 8, length: 1112
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/Animal_Naming_Results.xml"\r\n'
+Found form-data with filename in part 8
+Processing part 9, length: 716
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/Trail_Making_Results.xml"\r\nC'
+Found form-data with filename in part 9
+Processing part 10, length: 4
+Part content preview: b'--\r\n'
+Received POST to /api/process-folder-files
+Authentication successful
+=== handle_process_folder_files START ===
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryRLVvkTO8BtUlMGCA
+Boundary: b'----WebKitFormBoundaryRLVvkTO8BtUlMGCA'
+Content-Length: 21603
+Read 21603 bytes of data
+Found 11 parts in multipart data
+Processing part 0, length: 0
+Part content preview: b''
+Processing part 1, length: 11109
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/MCCB_Complete_Test_Suite.xml'
+Found form-data with filename in part 1
+Processing part 2, length: 1107
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/HVLT_R_Results.xml"\r\nContent'
+Found form-data with filename in part 2
+Processing part 3, length: 2124
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/CPT_IP_Results.xml"\r\nContent'
+Found form-data with filename in part 3
+Processing part 4, length: 1083
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/BVMT_R_Results.xml"\r\nContent'
+Found form-data with filename in part 4
+Processing part 5, length: 1662
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/NAB_Mazes_Results.xml"\r\nCont'
+Found form-data with filename in part 5
+Processing part 6, length: 1139
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/Letter_Number_Span_Results.x'
+Found form-data with filename in part 6
+Processing part 7, length: 1147
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/WMS_III_Spatial_Span_Results'
+Found form-data with filename in part 7
+Processing part 8, length: 1112
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/Animal_Naming_Results.xml"\r\n'
+Found form-data with filename in part 8
+Processing part 9, length: 716
+Part content preview (first 100): b'\r\nContent-Disposition: form-data; name="files[]"; filename="test_upload/Trail_Making_Results.xml"\r\nC'
+Found form-data with filename in part 9
+Processing part 10, length: 4
+Part content preview: b'--\r\n'
+Received POST to /api/process-folder-files
+Authentication successful
+Received POST to /api/process-folder-files
+Authentication successful
+Final filename: None
+Ends with .xml: No filename
+Final filename: None
+Ends with .xml: No filename
+Final filename: None
+Ends with .xml: No filename
+Final filename: None
+Ends with .xml: No filename
+Final filename: None
+Ends with .xml: No filename
+Final filename: None
+Ends with .xml: No filename
+Final filename: None
+Ends with .xml: No filename
+Final filename: None
+Ends with .xml: No filename
+Final filename: None
+Ends with .xml: No filename

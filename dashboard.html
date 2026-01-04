@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Transfer Monitor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #00ff00;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .monitor {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(0, 20, 0, 0.9);
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 15px;
+            border-bottom: 1px solid #00ff00;
+            background: rgba(0, 50, 0, 0.8);
+        }
+
+        .header h1 {
+            font-size: 1.2em;
+            color: #00ff00;
+        }
+
+        .status-line {
+            color: #ffff00;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .log-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 8px;
+            border-left: 3px solid #00ff00;
+            background: rgba(0, 30, 0, 0.5);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .log-time {
+            color: #888;
+            font-size: 0.8em;
+        }
+
+        .log-direction {
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 0 10px;
+        }
+
+        .upload {
+            color: #ff6b6b;
+            border-left-color: #ff6b6b;
+        }
+
+        .download {
+            color: #4ecdc4;
+            border-left-color: #4ecdc4;
+        }
+
+        .log-data {
+            margin-top: 5px;
+            font-size: 0.9em;
+            color: #ccc;
+        }
+
+        .server-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .online {
+            background: #00ff00;
+            color: #000;
+        }
+
+        .offline {
+            background: #ff0000;
+            color: #fff;
+        }
+
+        .controls {
+            padding: 10px;
+            border-top: 1px solid #00ff00;
+            display: flex;
+            gap: 10px;
+        }
+
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropbtn {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .dropbtn:hover {
+            background: #00cc00;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: rgba(0, 20, 0, 0.95);
+            min-width: 160px;
+            border: 1px solid #00ff00;
+            border-radius: 4px;
+            z-index: 1000;
+        }
+
+        .dropdown-content a {
+            color: #00ff00;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            font-family: 'Courier New', monospace;
+        }
+
+        .dropdown-content a:hover {
+            background-color: rgba(0, 255, 0, 0.2);
+        }
+
+        .dropdown.show .dropdown-content {
+            display: block;
+        }
+
+        button {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #00cc00;
+        }
+
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+
+        .stats {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 20, 0, 0.9);
+            border: 1px solid #00ff00;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .stat-line {
+            margin-bottom: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="server-status offline" id="serverStatus">
+        OFFLINE
+    </div>
+
+<div class="stats">
+            <div class="stat-line">Uploads: <span id="uploadCount">0</span></div>
+            <div class="stat-line">Downloads: <span id="downloadCount">0</span></div>
+            <div class="stat-line">Total Bytes: <span id="totalBytes">0</span></div>
+            <div class="stat-line">Online Users: <span id="onlineUsersCount">0</span></div>
+        </div>
+
+    <div class="monitor">
+        <div class="header">
+            <h1>📡 DATA TRANSFER MONITOR</h1>
+            <div class="status-line" id="statusLine">Initializing...</div>
+            <div class="dropdown">
+                <button class="dropbtn" onclick="toggleDropdown()">☰ Menu</button>
+                <div class="dropdown-content" id="dropdownContent">
+                    <a href="/dashboard">Dashboard</a>
+                    <a href="/user-access">User Access</a>
+                    <a href="/data-directory">📁 Data Directory</a>
+                    <a href="/chat">💬 Chat</a>
+                    <a href="#" onclick="logout()">Logout</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="log-container" id="logContainer">
+        </div>
+
+        <div class="controls">
+            <button onclick="clearLogs()">Clear Logs</button>
+            <button onclick="toggleMonitoring()" id="monitorBtn">Stop Monitoring</button>
+            <button onclick="exportLogs()">Export Logs</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        let isMonitoring = true;
+        let logs = [];
+        let uploadCount = 0;
+        let downloadCount = 0;
+        let totalBytes = 0;
+
+        function addLog(type, data, direction) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = {
+                time: timestamp,
+                type: type,
+                direction: direction,
+                data: data
+            };
+            
+            logs.push(logEntry);
+            
+            if (direction === 'upload') {
+                uploadCount++;
+            } else {
+                downloadCount++;
+            }
+            
+            // Estimate bytes (rough calculation)
+            const estimatedBytes = JSON.stringify(data).length * 2; // rough Unicode estimate
+            totalBytes += estimatedBytes;
+            
+            updateStats();
+            
+            const logContainer = document.getElementById('logContainer');
+            const logDiv = document.createElement('div');
+            logDiv.className = `log-entry ${direction}`;
+            logDiv.innerHTML = `
+                <span class="log-time">[${timestamp}]</span>
+                <span class="log-direction ${direction}">${direction}</span>
+                <span class="log-type">${type}</span>
+                ${data ? `<div class="log-data">${JSON.stringify(data, null, 2)}</div>` : ''}
+            `;
+            
+            logContainer.appendChild(logDiv);
+            logContainer.scrollTop = logContainer.scrollHeight;
+            
+            // Limit logs to 100 entries
+            if (logContainer.children.length > 100) {
+                logContainer.removeChild(logContainer.firstChild);
+                logs.shift();
+            }
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function updateStats() {
+            document.getElementById('uploadCount').textContent = uploadCount;
+            document.getElementById('downloadCount').textContent = downloadCount;
+            document.getElementById('totalBytes').textContent = formatBytes(totalBytes);
+}
+
+        async function checkServerStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/`);
+                if (response.ok) {
+                    document.getElementById('serverStatus').className = 'server-status online';
+                    document.getElementById('serverStatus').textContent = '🟢';
+                    document.getElementById('statusLine').textContent = `Server connected at ${API_BASE}`;
+                    return true;
+                }
+            } catch (error) {
+                document.getElementById('serverStatus').className = 'server-status offline';
+                document.getElementById('serverStatus').textContent = '🔴';
+                document.getElementById('statusLine').textContent = 'Server disconnected';
+                return false;
+            }
+        }
+
+        async function checkServerStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/`);
+                if (response.ok) {
+                    document.getElementById('serverStatus').className = 'server-status online';
+                    document.getElementById('serverStatus').textContent = '🟢';
+                    document.getElementById('statusLine').textContent = `Server connected at ${API_BASE}`;
+                    return true;
+                }
+            } catch (error) {
+                document.getElementById('serverStatus').className = 'server-status offline';
+                document.getElementById('serverStatus').textContent = '🔴';
+                document.getElementById('statusLine').textContent = 'Server disconnected';
+                return false;
+            }
+        }
+
+        async function updateOnlineUsers() {
+            try {
+                const response = await fetch("/api/online-users");
+                if (response.ok) {
+                    const onlineUsers = await response.json();
+                    document.getElementById("onlineUsersCount").textContent = onlineUsers.length;
+                } else {
+                    document.getElementById("onlineUsersCount").textContent = "0";
+                }
+} catch (error) {
+                console.error("Error fetching online users:", error);
+                document.getElementById("onlineUsersCount").textContent = "0";
+            }
+        }
+        
+        // Intercept fetch calls to monitor uploads
+        const originalFetch = window.fetch;
+        window.fetch = function(...args) {
+            const [url, options] = args;
+            
+            if (url.startsWith(API_BASE) && options && options.method === 'POST') {
+                const uploadData = JSON.parse(options.body);
+                addLog(`POST ${url}`, uploadData, 'upload');
+            }
+            
+            return originalFetch.apply(this, args);
+        };
+
+        function clearLogs() {
+            document.getElementById('logContainer').innerHTML = '';
+            logs = [];
+            uploadCount = 0;
+            downloadCount = 0;
+            totalBytes = 0;
+            updateStats();
+        }
+
+        function toggleMonitoring() {
+            isMonitoring = !isMonitoring;
+            const btn = document.getElementById('monitorBtn');
+            btn.textContent = isMonitoring ? 'Stop Monitoring' : 'Start Monitoring';
+            
+            addLog('Monitoring', isMonitoring ? 'Started' : 'Stopped', 'download');
+        }
+
+        function exportLogs() {
+            const logText = logs.map(log => 
+                `[${log.time}] ${log.direction.toUpperCase()} ${log.type}\n${JSON.stringify(log.data, null, 2)}\n`
+            ).join('\n---\n');
+            
+            const blob = new Blob([logText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `data-transfer-logs-${new Date().toISOString().split('T')[0]}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function toggleDropdown() {
+            document.querySelector('.dropdown').classList.toggle('show');
+        }
+        
+        async function logout() {
+            try {
+                // Call server logout endpoint to log the activity
+                await fetch('/api/logout', { method: 'POST' });
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+            
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('username');
+            window.location.href = '/';
+        }
+        
+        // Close dropdown when clicking outside
+        window.onclick = function(event) {
+            if (!event.target.matches('.dropbtn')) {
+                const dropdowns = document.getElementsByClassName('dropdown');
+                for (let i = 0; i < dropdowns.length; i++) {
+                    const openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+
+        // Start monitoring
+        addLog('System', 'Data Transfer Monitor initialized - passive mode', 'download');
+        
+        // Just check server status periodically
+        setInterval(checkServerStatus, 10000);
+        
+        // Update online users every 10 seconds
+        setInterval(updateOnlineUsers, 10000);
+        
+        // Initial online users load
+        updateOnlineUsers();
+    </script>
+</body>
+</html>

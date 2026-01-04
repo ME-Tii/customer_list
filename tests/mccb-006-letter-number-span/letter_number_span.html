@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCCB - Letter-Number Span</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .letter-number-container {
+            text-align: center;
+            margin: 20px auto;
+            max-width: 800px;
+        }
+        
+        .display-box {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 30px 0;
+            min-height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .input-area {
+            margin: 20px 0;
+        }
+        
+        .input-area input {
+            font-size: 24px;
+            padding: 10px;
+            width: 300px;
+            text-align: center;
+            text-transform: uppercase;
+        }
+        
+        .feedback {
+            min-height: 30px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        
+        .correct {
+            color: green;
+        }
+        
+        .incorrect {
+            color: red;
+        }
+        
+        .instructions {
+            background-color: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .test-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .test-header h3 {
+            margin: 0;
+            color: #495057;
+        }
+        
+        .test-controls {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .end-test-btn {
+            background-color: #dc3545 !important;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .end-test-btn:hover {
+            background-color: #c82333 !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>MCCB - Letter-Number Span</h1>
+        
+        <div id="instructions" class="instructions">
+            <h3>Instructions:</h3>
+            <p>You will hear a sequence of letters and numbers. After each sequence, enter the numbers in numerical order first, followed by the letters in alphabetical order.</p>
+            <p>For example, if you hear: <strong>B 3 A 2</strong>, you should enter: <strong>2 3 A B</strong></p>
+            <p>Click "Start Test" when you're ready to begin.</p>
+            <button id="startBtn" class="btn">Start Test</button>
+        </div>
+        
+        <div id="testArea" style="display: none;">
+            <div class="test-header">
+                <h3>Letter-Number Span Test</h3>
+                <div class="test-controls">
+                    <button id="endTestBtn" class="btn end-test-btn">End Test Early</button>
+                </div>
+            </div>
+            <div class="display-box" id="sequenceDisplay"></div>
+            <div class="input-area">
+                <input type="text" id="userInput" placeholder="Enter your answer..." autocomplete="off">
+                <button id="submitBtn" class="btn">Submit</button>
+                <button id="restartDuringTestBtn" class="btn" style="background-color: #e74c3c; margin-left: 10px; display: none;">
+                    <i class="fas fa-undo"></i> Restart Test
+                </button>
+            </div>
+            <div class="feedback" id="feedback"></div>
+            <div class="progress">
+                <p>Trial: <span id="trialCount">1</span> of 10</p>
+                <p>Score: <span id="score">0</span></p>
+            </div>
+        </div>
+        
+        <div id="results" style="display: none;">
+            <h2>Test Complete!</h2>
+            <p>Your final score: <span id="finalScore">0</span> out of 10</p>
+            <div style="margin: 20px 0;">
+                <button id="exportBtn" class="btn" style="display: none; background-color: #27ae60; margin-right: 10px;" onclick="exportResults()">
+                    <i class="fas fa-download"></i> Export Results
+                </button>
+                <button id="restartBtn" class="btn">
+                    <i class="fas fa-redo"></i> Restart Test
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="letter_number_span.js"></script>
+</body>
+</html>

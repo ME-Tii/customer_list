@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Awaiting Verification</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #00ff00;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 600px;
+            padding: 40px;
+            background: rgba(0, 20, 0, 0.9);
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+        }
+
+        .status-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        h1 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #ffff00;
+        }
+
+        .message {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .info {
+            background: rgba(0, 50, 0, 0.5);
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .info h3 {
+            color: #00ffff;
+            margin-bottom: 10px;
+        }
+
+        .info p {
+            margin-bottom: 5px;
+        }
+
+        .btn {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 1em;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #00cc00;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 0, 0.3);
+        }
+
+        .logout-btn {
+            background: #ff4444;
+            color: white;
+        }
+
+        .logout-btn:hover {
+            background: #cc0000;
+        }
+
+        .status-message {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #888;
+        }
+
+        .refresh-indicator {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="status-icon">⏳</div>
+        <h1>AWAITING VERIFICATION</h1>
+        
+        <div class="message">
+            Your account has been created successfully but requires administrator approval before accessing the dashboard.
+        </div>
+
+        <div class="info">
+            <h3>📋 What happens next?</h3>
+            <p>• An administrator will review your account</p>
+            <p>• You'll receive access once approved</p>
+            <p>• This page automatically checks your status</p>
+            <p>• Typically approved within 24 hours</p>
+        </div>
+
+        <div class="info">
+            <h3>📧 Contact Information</h3>
+            <p>Need faster approval? Contact:</p>
+            <p>Email: admin@system.com</p>
+            <p>Phone: (555) 123-4567</p>
+        </div>
+
+        <button class="btn" onclick="checkStatus()">
+            <span class="refresh-indicator">↻</span> Check Status Now
+        </button>
+        <button class="btn logout-btn" onclick="logout()">Logout</button>
+
+        <div class="status-message" id="statusMessage">
+            Last checked: <span id="lastChecked">Never</span>
+        </div>
+    </div>
+
+    <script>
+        let checkCount = 0;
+
+        function updateLastChecked() {
+            document.getElementById('lastChecked').textContent = new Date().toLocaleString();
+        }
+
+        async function checkStatus() {
+            checkCount++;
+            const statusMessage = document.getElementById('statusMessage');
+            statusMessage.innerHTML = `<span class="refresh-indicator">↻</span> Checking status...`;
+            
+            try {
+                const response = await fetch('/api/users/me');
+                const user = await response.json();
+                
+                if (response.ok && user.accessGranted) {
+                    statusMessage.innerHTML = '✅ Access granted! Redirecting...';
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 2000);
+                } else {
+                    updateLastChecked();
+                    statusMessage.innerHTML = `❌ Still awaiting approval (Checked ${checkCount} times)`;
+                }
+            } catch (error) {
+                statusMessage.innerHTML = '❌ Network error checking status';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('username');
+            window.location.href = '/';
+        }
+
+        // Auto-check every 30 seconds
+        setInterval(checkStatus, 30000);
+
+        // Initial check
+        updateLastChecked();
+        checkStatus();
+    </script>
+</body>
+</html>

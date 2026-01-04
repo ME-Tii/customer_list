@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BACS - Symbol Coding Test</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>BACS Symbol Coding Test</h1>
+        
+        <div id="instructions" class="instructions">
+            <h2>Instructions</h2>
+            <p>You will see a series of symbols paired with numbers. Using the key below, 
+            enter the number that corresponds to each symbol in the grid. You have 90 seconds to complete 
+            as many as you can. Work as quickly and accurately as possible.</p>
+            <button id="startBtn">Start Test</button>
+        </div>
+
+        <div id="testArea" style="display: none;">
+            <div class="test-header">
+                <div class="test-title">BACS Symbol Coding Test</div>
+                <div class="test-controls">
+                    <div class="timer" id="timer">1:30</div>
+                    <button id="submitBtn" class="submit-btn">Submit</button>
+                </div>
+            </div>
+            
+            <div class="legend-container">
+                <div class="coding-grid" id="keyGrid">
+                    <!-- Key will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="test-content" id="testContent">
+                <div class="coding-grid" id="testGrid">
+                    <!-- Test items will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <div id="results" class="score-display" style="display: none;">
+            <div class="results-container">
+                <h2>Test Complete</h2>
+                <p>Your score: <span id="score">0</span> correct answers out of 150</p>
+                <p>Time taken: <span id="timeTaken">0</span> seconds</p>
+                <button id="restartBtn">Restart Test</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js" defer></script>
+</body>
+</html>

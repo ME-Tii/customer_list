@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Directory - MCCB Test Results</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #00ff00;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(0, 20, 0, 0.9);
+            border: 2px solid #00ff00;
+            border-radius: 8px;
+            min-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            padding: 15px;
+            border-bottom: 2px solid #0000ff;
+            background: rgba(0, 50, 0, 0.8);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.2em;
+            color: #00ff00;
+        }
+
+        .back-btn {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background: #00cc00;
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .mccb-section {
+            background: rgba(0, 30, 0, 0.5);
+            border: 2px solid #00ff00;
+            border-radius: 5px;
+            padding: 15px;
+        }
+
+        .mccb-header {
+            color: #00ffff;
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #00ff00;
+        }
+
+        .test-list {
+            list-style: none;
+        }
+
+        .test-item {
+            margin-bottom: 8px;
+            padding: 8px;
+            background: rgba(0, 50, 0, 0.3);
+            border: 1px solid #00ff00;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .test-item:hover {
+            background: rgba(0, 100, 0, 0.3);
+            border-color: #00ffff;
+        }
+
+        .test-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .test-number {
+            font-weight: bold;
+            color: #00ffff;
+            font-size: 1.1em;
+            min-width: 20px;
+        }
+
+        .test-name {
+            color: #00ff00;
+            font-weight: 600;
+        }
+
+        .test-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .test-status-indicator {
+            display: flex;
+            align-items: center;
+        }
+
+        .test-status {
+            font-size: 0.8em;
+            padding: 2px 6px;
+            border-radius: 3px;
+            border: 1px solid;
+        }
+
+        .test-status.status-pass {
+            background: rgba(0, 255, 0, 0.2);
+            border-color: #00ff00;
+            color: #00ff00;
+        }
+
+        .test-status.status-fail {
+            background: rgba(255, 0, 0, 0.2);
+            border-color: #ff4444;
+            color: #ff4444;
+        }
+
+        .test-status.status-pending {
+            background: rgba(255, 165, 0, 0.2);
+            border-color: #ffa500;
+            color: #ffa500;
+        }
+
+        .test-link {
+            color: #00ff00;
+            text-decoration: none;
+            padding: 4px 8px;
+            border: 1px solid #00ff00;
+            border-radius: 3px;
+            font-size: 0.8em;
+            transition: all 0.3s ease;
+        }
+
+        .test-link:hover {
+            color: #00ffff;
+            border-color: #00ffff;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tests-and-analytics {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+        }
+
+        .controls-row {
+            margin-bottom: 15px;
+        }
+
+        .test-items-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .search-box {
+            background: rgba(0, 50, 0, 0.8);
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 8px;
+            font-family: 'Courier New', monospace;
+            border-radius: 4px;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #00ffff;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .filter-btn {
+            background: rgba(0, 50, 0, 0.8);
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8em;
+        }
+
+        .filter-btn:hover {
+            background: rgba(0, 100, 0, 0.8);
+        }
+
+        .filter-btn.active {
+            background: #00ff00;
+            color: #000;
+        }
+
+        .analytics-section {
+            background: rgba(0, 30, 0, 0.5);
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            padding: 15px;
+            height: fit-content;
+        }
+
+        .analytics-header {
+            color: #00ffff;
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #00ff00;
+        }
+
+        .stat-card {
+            background: rgba(0, 50, 0, 0.3);
+            border: 1px solid #00ff00;
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #888;
+            font-size: 0.8em;
+            margin-bottom: 3px;
+        }
+
+        .stat-value {
+            color: #00ff00;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(0, 50, 0, 0.5);
+            border: 1px solid #00ff00;
+            border-radius: 4px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #00ff00;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📁 DATA DIRECTORY - MCCB TEST RESULTS</h1>
+            <a href="/dashboard" class="back-btn">← Back to Dashboard</a>
+            <a href="/analytics/" class="back-btn">📊 Analytics</a>
+        </div>
+
+        <div class="content">
+            <div class="main-content">
+                <div class="controls-row">
+                    <input type="text" class="search-box" id="searchBox" placeholder="Search tests..." onkeyup="filterTests()">
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" onclick="filterByStatus('all')">All</button>
+                        <button class="filter-btn" onclick="filterByStatus('pass')">Pass</button>
+                        <button class="filter-btn" onclick="filterByStatus('fail')">Fail</button>
+                        <button class="filter-btn" onclick="filterByStatus('pending')">Pending</button>
+                    <button class="filter-btn" onclick="selectDataFolder()" style="background: #ff9800; color: white;">📁 Select Data Folder</button>
+                    <button class="filter-btn" onclick="clearTestData()" style="background: #f44336; color: white;">🗑️ Clear Data</button>
+                    </div>
+                </div>
+                
+                <input type="file" id="folderInput" webkitdirectory directory style="display: none;" onchange="handleFolderSelection(event)">
+                <div class="tests-and-analytics">
+                    <div class="test-items-grid">
+                    <li class="test-item" data-status="pending" data-test-id="1">
+                        <div class="test-left">
+                            <span class="test-number">1.</span>
+                            <span class="test-name">BACS Symbol Coding Test</span>
+                        </div>
+                        <div class="test-right">
+                            <a href="/tests/mccb-001-symbol-coding/bacs_symbol_coding.html" class="test-link">
+                                <span>View Test →</span>
+                            </a>
+                            <div class="test-status-indicator">
+                                <span class="test-status status-pending">PENDING</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="test-item" data-status="pending" data-test-id="2">
+                        <div class="test-left">
+                            <span class="test-number">2.</span>
+                            <span class="test-name">Animal Naming Test</span>
+                        </div>
+                        <div class="test-right">
+                            <a href="/tests/mccb-002-animal_naming/animal_naming.html" class="test-link">
+                                <span>View Test →</span>
+                            </a>
+                            <div class="test-status-indicator">
+                                <span class="test-status status-pending">PENDING</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="test-item" data-status="pending" data-test-id="3">
+                        <div class="test-left">
+                            <span class="test-number">3.</span>
+                            <span class="test-name">Trail Making Test</span>
+                        </div>
+                        <div class="test-right">
+                            <a href="/tests/mccb-003-trail-making/trail_making_a.html" class="test-link">
+                                <span>View Test →</span>
+                            </a>
+                            <div class="test-status-indicator">
+                                <span class="test-status status-pending">PENDING</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="test-item" data-status="pending" data-test-id="4">
+                        <div class="test-left">
+                            <span class="test-number">4.</span>
+                            <span class="test-name">CPT/IP Test</span>
+                        </div>
+                        <div class="test-right">
+                            <a href="/tests/mccb-004-cpt-ip/cpt_ip.html" class="test-link">
+                                <span>View Test →</span>
+                            </a>
+                            <div class="test-status-indicator">
+                                <span class="test-status status-pending">PENDING</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="test-item" data-status="pending" data-test-id="5">
+                        <div class="test-left">
+                            <span class="test-number">5.</span>
+                            <span class="test-name">WMS III Spatial Span Test</span>
+                        </div>
+                        <div class="test-right">
+                            <a href="/tests/mccb-005-wms-iii-spatial-span/wms_iii_spatial_span.html" class="test-link">
+                                <span>View Test →</span>
+                            </a>
+                            <div class="test-status-indicator">
+                                <span class="test-status status-pending">PENDING</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="test-item" data-status="pending" data-test-id="6">
+                        <div class="test-left">
+                            <span class="test-number">6.</span>
+                            <span class="test-name">Letter Number Span Test</span>
+                        </div>
+                        <div class="test-right">
+                            <a href="/tests/mccb-006-letter-number-span/letter_number_span.html" class="test-link">
+                                <span>View Test →</span>
+                            </a>
+                            <div class="test-status-indicator">
+                                <span class="test-status status-pending">PENDING</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="test-item" data-status="pending" data-test-id="7">
+                        <div class="test-left">
+                            <span class="test-number">7.</span>
+                            <span class="test-name">HVLT-R Test</span>
+                        </div>
+                        <div class="test-right">
+                            <a href="/tests/mccb-007-hvlt-r/index.html" class="test-link">
+                                <span>View Test →</span>
+                            </a>
+                            <div class="test-status-indicator">
+                                <span class="test-status status-pending">PENDING</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="test-item" data-status="pending" data-test-id="8">
+                        <div class="test-left">
+                            <span class="test-number">8.</span>
+                            <span class="test-name">BVMT-R Test</span>
+                        </div>
+                        <div class="test-right">
+                            <a href="/tests/mccb-008-bvmt-r/index.html" class="test-link">
+                                <span>View Test →</span>
+                            </a>
+                            <div class="test-status-indicator">
+                                <span class="test-status status-pending">PENDING</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="test-item" data-status="pending" data-test-id="9">
+                        <div class="test-left">
+                            <span class="test-number">9.</span>
+                            <span class="test-name">NAB Mazes Test</span>
+                        </div>
+                        <div class="test-right">
+                            <a href="/tests/mccb-009-nab-mazes/README.html" class="test-link">
+                                <span>View Test →</span>
+                            </a>
+                            <div class="test-status-indicator">
+                                <span class="test-status status-pending">PENDING</span>
+                            </div>
+                        </div>
+                    </li>
+                    </div>
+                    
+                    <div class="analytics-section">
+                <div class="analytics-header">📊 Test Analytics</div>
+                
+                <div class="stat-card">
+                    <div class="stat-label">Total Tests</div>
+                    <div class="stat-value" id="totalTests">9</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Pass Rate</div>
+                    <div class="stat-value" id="passRate">0%</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Passed</div>
+                    <div class="stat-value" style="color: #00ff00;" id="passedTests">0</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Failed</div>
+                    <div class="stat-value" style="color: #ff4444;" id="failedTests">0</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Pending</div>
+                    <div class="stat-value" style="color: #ffa500;" id="pendingTests">9</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Last Updated</div>
+                    <div class="stat-value" style="font-size: 0.9em;" id="lastUpdated">2026-01-03</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function filterTests() {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            const testItems = document.querySelectorAll('.test-item');
+            
+            testItems.forEach(item => {
+                const testName = item.querySelector('.test-name').textContent.toLowerCase();
+                if (testName.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function filterByStatus(status) {
+            const testItems = document.querySelectorAll('.test-item');
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            
+            // Update active button
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Filter items
+            testItems.forEach(item => {
+                if (status === 'all' || item.dataset.status === status) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function selectDataFolder() {
+            console.log('Opening folder selection dialog...');
+            const folderInput = document.getElementById('folderInput');
+            if (folderInput) {
+                folderInput.click();
+            }
+        }
+
+        function testFolderDialog() {
+            // Alternative method to open folder dialog
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.webkitdirectory = true;
+            input.style.display = 'none';
+            document.body.appendChild(input);
+            input.click();
+        }
+
+        function handleFolderSelection(event) {
+            const files = event.target.files;
+            if (files.length === 0) {
+                console.log('No files selected');
+                return;
+            }
+            
+            console.log('Selected folder with', files.length, 'files');
+            for (let i = 0; i < Math.min(5, files.length); i++) {
+                console.log(`File ${i}:`, files[i].name, files[i].size, files[i].type);
+            }
+            
+            // Show loading state
+            const button = document.querySelector('[onclick="selectDataFolder()"]');
+            const originalText = button.textContent;
+            button.textContent = '🔄 Processing...';
+            button.disabled = true;
+            
+            // Create FormData to send folder contents
+            const formData = new FormData();
+            
+            // Add all files from selected folder
+            let xmlCount = 0;
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                
+                // Only process XML files
+                if (file.name.endsWith('.xml') || file.name.endsWith('.XML')) {
+                    formData.append('files[]', file);
+                    xmlCount++;
+                    console.log('Added XML file:', file.name, 'Size:', file.size);
+                }
+            }
+            console.log('Total XML files found:', xmlCount);
+            
+            if (formData.getAll('files[]').length === 0) {
+                alert('No XML files found in selected folder. Please select a folder containing test result XML files.');
+                button.textContent = originalText;
+                button.disabled = false;
+                return;
+            }
+            
+            // Send files to server for processing
+            fetch('/api/process-folder-files', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Server response:', data);
+                if (data.success) {
+                    console.log('Processed test results:', data.results);
+                    updateTestStatuses(data.results);
+                    button.textContent = '✅ ' + data.processed + ' files processed';
+                    setTimeout(() => {
+                        button.textContent = originalText;
+                        button.disabled = false;
+                    },3000);
+                } else {
+                    alert('Error processing folder: ' + (data.error || 'Unknown error'));
+                    button.textContent = originalText;
+                    button.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error processing folder: ' + error.message);
+                button.textContent = originalText;
+                button.disabled = false;
+            });
+        }
+
+        function updateTestStatuses(results) {
+            results.forEach(result => {
+                console.log('Processing result:', result); // Debug log
+                // Find test item by test ID
+                const testItems = document.querySelectorAll('.test-item');
+                testItems.forEach(item => {
+                    const testId = item.dataset.testId;
+                    const testName = item.querySelector('.test-name').textContent.toLowerCase();
+                    
+                    // Create cleaner matching strings
+                    const cleanTestName = testName.replace(/[^a-z0-9]/g, '').toLowerCase();
+                    const cleanResultType = result.testType.replace(/[^a-z0-9]/g, '').toLowerCase();
+                    
+                    console.log('Matching:', cleanTestName, 'with', cleanResultType); // Debug log
+                    
+                    // Match test by type name
+                    if (cleanTestName.includes(cleanResultType) || cleanResultType.includes(cleanTestName)) {
+                        const statusSpan = item.querySelector('.test-status');
+                        
+                        console.log('Found match:', testName, 'Score:', result.score); // Debug log
+                        
+                        if (statusSpan) {
+                            // Update status based on score - only PASS or FAIL
+                            if (result.score >= 50) {
+                                statusSpan.className = 'test-status status-pass';
+                                statusSpan.textContent = 'PASS';
+                                item.dataset.status = 'pass';
+                                console.log('Set to PASS - Score:', result.score); // Debug log
+                            } else {
+                                statusSpan.className = 'test-status status-fail';
+                                statusSpan.textContent = 'FAIL';
+                                item.dataset.status = 'fail';
+                                console.log('Set to FAIL - Score:', result.score); // Debug log
+                            }
+                        }
+                    }
+                });
+            });
+            
+            // Update analytics
+            updateAnalytics();
+        }
+
+        function clearTestData() {
+            console.log('Clearing all test data...');
+            
+            // Confirm clear action
+            if (!confirm('Are you sure you want to clear all test data? This will set all test statuses to PENDING.')) {
+                return;
+            }
+            
+            // Reset all test items to PENDING state
+            const testItems = document.querySelectorAll('.test-item');
+            testItems.forEach(item => {
+                const statusSpan = item.querySelector('.test-status');
+                
+                if (statusSpan) {
+                    statusSpan.className = 'test-status status-pending';
+                    statusSpan.textContent = 'PENDING';
+                }
+                
+                // Reset dataset status
+                item.dataset.status = 'pending';
+            });
+            
+            // Show success message
+            const clearButton = event.target;
+            const originalText = clearButton.textContent;
+            clearButton.textContent = '✅ Cleared';
+            
+            setTimeout(() => {
+                clearButton.textContent = originalText;
+            },2000);
+            
+            // Update analytics to reflect cleared state
+            updateAnalytics();
+            
+            console.log('All test data cleared and set to PENDING');
+        }
+
+        function checkForActualTestData() {
+            // Check if there's any actual test data (not default PASS state)
+            const testItems = document.querySelectorAll('.test-item');
+            
+            for (let item of testItems) {
+                const statusSpan = item.querySelector('.test-status');
+                const dateSpan = item.querySelector('.test-date');
+                
+                // If status is PASS but date is default "2026-01-02", 
+                // it means no actual data was loaded
+                if (statusSpan && statusSpan.textContent === 'PASS' && 
+                    dateSpan && dateSpan.textContent === '2026-01-02') {
+                    return false; // Found default state, no actual data
+                }
+            }
+            
+            return true; // Found at least one item with actual data
+        }
+
+        function setAllTestsToPending() {
+            const testItems = document.querySelectorAll('.test-item');
+            
+            testItems.forEach(item => {
+                const statusSpan = item.querySelector('.test-status');
+                const dateSpan = item.querySelector('.test-date');
+                
+                if (statusSpan) {
+                    statusSpan.className = 'test-status status-pending';
+                    statusSpan.textContent = 'PENDING';
+                    item.dataset.status = 'pending';
+                }
+                
+                if (dateSpan) {
+                    dateSpan.textContent = 'No data';
+                }
+            });
+        }
+
+        function updateAnalytics() {
+            const testItems = document.querySelectorAll('.test-item');
+            let passed = 0, failed = 0, pending = 0;
+            
+            testItems.forEach(item => {
+                switch(item.dataset.status) {
+                    case 'pass': passed++; break;
+                    case 'fail': failed++; break;
+                    case 'pending': pending++; break;
+                }
+            });
+            
+            const total = 9; // Total MCCB tests (correct count)
+            const passRate = total > 0 ? ((passed / total) * 100).toFixed(1) : 0;
+            
+            document.getElementById('totalTests').textContent = total;
+            document.getElementById('passedTests').textContent = passed;
+            document.getElementById('failedTests').textContent = failed;
+            document.getElementById('pendingTests').textContent = pending;
+            document.getElementById('passRate').textContent = passRate + '%';
+            
+            // Update progress bar
+            const progressBar = document.querySelector('.progress-fill');
+            if (progressBar) {
+                progressBar.style.width = passRate + '%';
+            }
+        }
+
+        // Initialize analytics (not recursive)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if we have actual test data from previous session
+            const hasActualTestData = checkForActualTestData();
+            
+            if (!hasActualTestData) {
+                // No actual test data found, set all to PENDING
+                setAllTestsToPending();
+            }
+            
+            updateAnalytics();
+        });
+    </script>
+</body>
+</html>

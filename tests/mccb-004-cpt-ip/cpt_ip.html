@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Continuous Performance Test - Identical Pairs (CPT-IP)</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Continuous Performance Test - Identical Pairs (CPT-IP)</h1>
+            <p class="subtitle">Click the button when you see two identical numbers in a row</p>
+            <div id="stageDisplay" class="stage-display"></div>
+        </header>
+
+        <div id="instructions" class="card">
+            <h2>Instructions</h2>
+            <p>In this test, numbers will appear one at a time in the box below.</p>
+            <p>Click the <strong>SPACEBAR</strong> or the <strong>RESPOND</strong> button <strong>only</strong> when you see the <strong>same number twice in a row</strong>.</p>
+            <p>Try to respond as quickly and accurately as possible.</p>
+            <button id="startBtn" class="btn btn-primary">Start Test</button>
+        </div>
+
+        <div id="testArea" style="display: none;">
+            <div class="test-container">
+                <div class="stage-info">
+                    <div id="stageProgress">Stage 1/3</div>
+                    <div id="stimuliProgress">Stimulus 0/150</div>
+                </div>
+                <div id="stimulus" class="stimulus"></div>
+                <div class="controls">
+                    <button id="respondBtn" class="btn btn-respond">RESPOND (SPACEBAR)</button>
+                    <button id="skipStageBtn" class="btn btn-warning">Skip Stage</button>
+                    <button id="endTestBtn" class="btn btn-danger">End Test</button>
+                </div>
+                <div class="stats">
+                    <div>Time: <span id="timer">0.0</span>s</div>
+                    <div>Correct: <span id="correctCount">0</span></div>
+                    <div>Incorrect: <span id="incorrectCount">0</span></div>
+                    <div>Missed: <span id="missedCount">0</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="results" class="card" style="display: none;">
+            <h2>Test Complete</h2>
+            <div id="completionStatus" class="status"></div>
+            <div class="results-grid">
+                <div class="result-item">
+                    <span class="result-label">Total Time:</span>
+                    <span id="totalTime" class="result-value">0.0</span>s
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Correct Responses:</span>
+                    <span id="finalCorrect" class="result-value">0</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Incorrect Responses:</span>
+                    <span id="finalIncorrect" class="result-value">0</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Missed Targets:</span>
+                    <span id="finalMissed" class="result-value">0</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Average Response Time:</span>
+                    <span id="avgResponseTime" class="result-value">0.0</span>ms
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Hit Rate:</span>
+                    <span id="hitRate" class="result-value">0.0</span>%
+                </div>
+                <div class="result-item">
+                    <span class="result-label">False Alarm Rate:</span>
+                    <span id="falseAlarmRate" class="result-value">0.0</span>%
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Miss Rate:</span>
+                    <span id="missRate" class="result-value">0.0</span>%
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Overall Error Rate:</span>
+                    <span id="totalErrorRate" class="result-value">0.0</span>%
+                </div>
+            </div>
+            <div class="action-buttons">
+                <button id="saveResultsBtn" class="btn btn-primary">Save Results (XML)</button>
+                <button id="restartBtn" class="btn">Start New Test</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCCB - Animal Naming Test</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Category Fluency: Animal Naming</h1>
+        
+        <div id="instructions" class="instructions">
+            <h2>Instructions</h2>
+            <p>You will have 60 seconds to name as many different animals as you can think of. </p>
+            <p><strong>Rules:</strong></p>
+            <ul>
+                <li>Name only animals (no people, objects, or fictional creatures)</li>
+                <li>No proper names (e.g., "Lassie" is not acceptable, but "dog" is)</li>
+                <li>No repetitions of the same animal</li>
+                <li>You can use singular or plural forms, but they count as the same animal</li>
+            </ul>
+            <div class="age-input">
+                <label for="ageInput">Please enter your age for percentile comparison:</label>
+                <input type="number" id="ageInput" min="16" max="100" placeholder="Age">
+            </div>
+            <button id="startBtn" class="start-btn">Start Test</button>
+        </div>
+
+        <div id="testArea" style="display: none;">
+            <div class="test-header">
+                <div class="test-title">Animal Naming Test</div>
+                <div class="test-controls">
+                    <div class="timer" id="timer">1:00</div>
+                    <button id="submitBtn" class="submit-btn">Submit</button>
+                </div>
+            </div>
+
+            <div class="test-content">
+                <div class="input-container">
+                    <input type="text" id="animalInput" placeholder="Type an animal and press Enter (or multiple animals separated by spaces/commas)" disabled>
+                    <div id="wordList" class="word-list"></div>
+                </div>
+                
+                <div class="counter">
+                    <span id="wordCount">0</span> animals named
+                </div>
+            </div>
+        </div>
+
+        <div id="results" class="results" style="display: none;">
+            <h2>Test Complete</h2>
+            <div class="score-container">
+                <p>You named <span id="totalWords">0</span> animals in 60 seconds.</p>
+                <div id="percentileInfo" class="percentile-info" style="display: none;">
+                    <p>Percentile: <span id="percentile">-</span></p>
+                    <p id="interpretation" class="interpretation"></p>
+                </div>
+            </div>
+            
+            <div class="word-review">
+                <h3>Your Words</h3>
+                <div id="reviewList" class="review-list"></div>
+                <div class="actions">
+                    <button id="saveBtn" class="save-btn">Save Results</button>
+                    <button id="restartBtn" class="restart-btn">Try Again</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

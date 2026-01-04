@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Chat Server
+Comment=Start customer list chat server
+Exec=/home/thomasseitz22/coding_linux/customer_list/start_server.sh
+Icon=network-server
+Terminal=true
+Categories=Network;
