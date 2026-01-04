@@ -13,5 +13,20 @@
       "timestamp": "2026-01-04T19:25:56.914Z",
       "sent": "true"
     }
+  ],
+  "user1": [
+    {
+      "from_user": "user1",
+      "to_user": "user1",
+      "content": "hello",
+      "timestamp": "2026-01-04T19:31:18.810Z"
+    },
+    {
+      "from_user": "user1",
+      "to_user": "user1",
+      "content": "hello",
+      "timestamp": "2026-01-04T19:31:18.810Z",
+      "sent": "true"
+    }
   ]
 }

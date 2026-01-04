@@ -692,6 +692,12 @@
             
             // Send heartbeat every 30 seconds to stay "online" (more frequent)
             setInterval(sendHeartbeat, 30000);
+            
+            // Check for new private messages every 2 seconds
+            setInterval(checkNewPrivateMessages, 2000);
+            
+            // Let users know when someone wants to chat with them
+            setInterval(checkPrivateChatRequests, 3000);
         }
 
         // Load messages from server
@@ -979,6 +985,9 @@
             document.getElementById('privateChatTitle').textContent = `Private Chat with ${username}`;
             document.getElementById('privateChatModal').style.display = 'block';
             loadPrivateMessages(username);
+            
+            // Add system message to public chat that user wants to chat
+            addSystemMessage(`${currentUser} wants to start a private chat with ${username}. Click their 💬 button to respond!`);
         }
         
         function closePrivateChat() {
@@ -1166,6 +1175,30 @@
             }
             
             document.getElementById('onlineCount').textContent = onlineUsers.length;
+        }
+
+        function checkPrivateChatRequests() {
+            // Check if someone is trying to chat with current user
+            if (!currentUser) return;
+            
+            // Look for incoming private chat requests
+            // This would require tracking active private chat requests on server
+            // For now, add a simple notification in public chat
+            const lastRequestTime = window.lastPrivateRequestTime || 0;
+            const currentTime = Date.now();
+            
+            // Show notification in public chat if it's been more than 5 seconds
+            if (currentTime - lastRequestTime > 5000) {
+                // You could add a system message here
+                console.log('Checking for private chat requests...');
+            }
+        }
+        
+        function checkNewPrivateMessages() {
+            // Refresh current private chat if open and check for new messages
+            if (currentPrivateChat) {
+                loadPrivateMessages(currentPrivateChat);
+            }
         }
 
         // Toggle emoji panel

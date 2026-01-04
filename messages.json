@@ -343,5 +343,35 @@
     "username": "SYSTEM",
     "content": "KidWhyLit has logged in",
     "timestamp": "2026-01-04T20:25:34.905036"
+  },
+  {
+    "username": "SYSTEM",
+    "content": "KidWhyLit has logged out",
+    "timestamp": "2026-01-04T20:30:38.429168"
+  },
+  {
+    "username": "SYSTEM",
+    "content": "Unknown user has logged out",
+    "timestamp": "2026-01-04T20:30:40.640559"
+  },
+  {
+    "username": "SYSTEM",
+    "content": "user1 has logged in",
+    "timestamp": "2026-01-04T20:30:46.668452"
+  },
+  {
+    "username": "SYSTEM",
+    "content": "user1 has logged out",
+    "timestamp": "2026-01-04T20:31:27.701301"
+  },
+  {
+    "username": "SYSTEM",
+    "content": "Unknown user has logged out",
+    "timestamp": "2026-01-04T20:31:30.052816"
+  },
+  {
+    "username": "SYSTEM",
+    "content": "user1 has logged in",
+    "timestamp": "2026-01-04T20:31:38.790566"
   }
 ]
