@@ -64,9 +64,9 @@ function writeCustomerToXML(customer) {
     fs.writeFileSync(XML_FILE, updatedXML, 'utf8');
 }
 
-// Serve the HTML form
+// Serve the login page
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'form', 'index.html'));
+    res.sendFile(path.join(__dirname, 'auth.html'));
 });
 
 // Handle form submission
