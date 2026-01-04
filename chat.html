@@ -557,11 +557,11 @@
             // Auto-refresh messages every 2 seconds
             setInterval(loadMessages, 2000);
             
-            // Update online users every 5 seconds
-            setInterval(updateOnlineUsers, 5000);
+            // Update online users every 3 seconds (more frequent)
+            setInterval(updateOnlineUsers, 3000);
             
-            // Send heartbeat every 2 minutes to stay "online"
-            setInterval(sendHeartbeat, 120000);
+            // Send heartbeat every 30 seconds to stay "online" (more frequent)
+            setInterval(sendHeartbeat, 30000);
         }
 
         // Load messages from server
@@ -967,6 +967,12 @@
             return div.innerHTML;
         }
 
+        // Handle page unload to clean up session
+        window.addEventListener('beforeunload', async (event) => {
+            // Send logout request when user closes tab (using sendBeacon for reliability)
+            navigator.sendBeacon('/api/logout', JSON.stringify({}));
+        });
+        
         // Initialize on load
         initChat();
     </script>

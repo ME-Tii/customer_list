@@ -78,6 +78,12 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
             else:
                 self.send_json_response({'error': 'Authentication required'}, 401)
             return
+        elif parsed_path.path == '/api/logout':
+            if self.is_authenticated():
+                self.handle_logout()
+            else:
+                self.send_json_response({'error': 'Authentication required'}, 401)
+            return
         elif parsed_path.path.startswith('/uploads/'):
             # Serve uploaded files
             if self.is_authenticated():
@@ -354,16 +360,28 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
         try:
             from datetime import datetime, timedelta
             
-            # Clean up old sessions (inactive for more than 10 minutes)
-            cutoff_time = datetime.now() - timedelta(minutes=10)
+            # Clean up old sessions (inactive for more than 2 minutes - shorter timeout)
+            cutoff_time = datetime.now() - timedelta(minutes=2)
             active_usernames = []
             
+            print(f"Active sessions before cleanup: {len(CustomerListHandler.active_sessions)}")
+            
             for username, last_seen in CustomerListHandler.active_sessions.items():
-                if datetime.fromisoformat(last_seen) > cutoff_time:
-                    active_usernames.append(username)
-                else:
-                    # Remove inactive session
+                try:
+                    last_seen_time = datetime.fromisoformat(last_seen)
+                    if last_seen_time > cutoff_time:
+                        active_usernames.append(username)
+                    else:
+                        # Remove inactive session
+                        del CustomerListHandler.active_sessions[username]
+                        print(f"Removed inactive session for: {username}")
+                except:
+                    # Remove malformed session
                     del CustomerListHandler.active_sessions[username]
+                    print(f"Removed malformed session for: {username}")
+            
+            print(f"Active sessions after cleanup: {len(active_usernames)}")
+            print(f"Active users: {active_usernames}")
             
             # Get user details for active users
             users = self.load_users()
@@ -376,8 +394,12 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
                         'accessGranted': user.get('accessGranted', False)
                     })
             
+            print(f"Returning {len(online_users)} online users")
             self.send_json_response(online_users)
         except Exception as e:
+            print(f"Error in handle_get_online_users: {e}")
+            import traceback
+            traceback.print_exc()
             self.send_json_response({'error': str(e)}, 500)
     
     def handle_get_current_user(self):
@@ -587,6 +609,43 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
         except Exception as e:
             self.send_json_response({'error': str(e)}, 500)
     
+    def handle_logout(self):
+        try:
+            # Get username from cookie
+            cookie_header = self.headers.get('Cookie')
+            username = None
+            
+            if cookie_header:
+                if 'username=' in cookie_header:
+                    parts = cookie_header.split('username=')
+                    if len(parts) > 1:
+                        username_part = parts[1].split(';')[0].strip()
+                        if username_part:
+                            username = username_part
+            
+            if username:
+                # Remove user from active sessions
+                if username in CustomerListHandler.active_sessions:
+                    del CustomerListHandler.active_sessions[username]
+                    print(f"Logged out and removed session for: {username}")
+                
+                # Add logout notification to chat
+                self.add_system_message(f"{username} has logged out")
+                
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.send_cors_headers()
+                self.send_header('Set-Cookie', 'session=deleted; Path=/; HttpOnly; Max-Age=0')
+                self.end_headers()
+                self.wfile.write(json.dumps({'message': 'Logged out successfully'}).encode())
+            else:
+                self.send_json_response({'error': 'No session found'}, 401)
+        except Exception as e:
+            print(f"Error in handle_logout: {e}")
+            import traceback
+            traceback.print_exc()
+            self.send_json_response({'error': str(e)}, 500)
+    
     def handle_heartbeat(self):
         try:
             # Get username from cookie
@@ -604,11 +663,17 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
             if username:
                 # Update last seen time for this session
                 from datetime import datetime
-                CustomerListHandler.active_sessions[username] = datetime.now().isoformat()
-                self.send_json_response({'status': 'active'})
+                current_time = datetime.now().isoformat()
+                CustomerListHandler.active_sessions[username] = current_time
+                print(f"Heartbeat from {username} at {current_time}")
+                self.send_json_response({'status': 'active', 'timestamp': current_time})
             else:
+                print(f"Heartbeat failed - no username found in cookie: {cookie_header}")
                 self.send_json_response({'error': 'No session found'}, 401)
         except Exception as e:
+            print(f"Error in handle_heartbeat: {e}")
+            import traceback
+            traceback.print_exc()
             self.send_json_response({'error': str(e)}, 500)
     
     def handle_scan_test_folders(self):
