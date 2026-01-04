@@ -10,6 +10,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'form')));
+app.use(express.static(__dirname));
 
 // XML file path
 const XML_FILE = path.join(__dirname, 'customers.xml');
@@ -66,11 +67,7 @@ function writeCustomerToXML(customer) {
 
 // Serve the login page
 app.get('/', (req, res) => {
-    console.log('Serving login page: auth.html');
-    const authPath = path.join(__dirname, 'auth.html');
-    console.log('Full path:', authPath);
-    console.log('File exists:', fs.existsSync(authPath));
-    res.sendFile(authPath);
+    res.sendFile('auth.html', { root: __dirname });
 });
 
 // Handle form submission
