@@ -84,6 +84,18 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
             else:
                 self.send_json_response({'error': 'Authentication required'}, 401)
             return
+        elif parsed_path.path == '/api/private-messages':
+            if self.is_authenticated():
+                self.handle_get_private_messages()
+            else:
+                self.send_json_response({'error': 'Authentication required'}, 401)
+            return
+        elif parsed_path.path == '/api/private-messages/send':
+            if self.is_authenticated():
+                self.handle_send_private_message()
+            else:
+                self.send_json_response({'error': 'Authentication required'}, 401)
+            return
         elif parsed_path.path.startswith('/uploads/'):
             # Serve uploaded files
             if self.is_authenticated():
@@ -609,42 +621,176 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
         except Exception as e:
             self.send_json_response({'error': str(e)}, 500)
     
-    def handle_logout(self):
+    def handle_get_private_messages(self):
         try:
-            # Get username from cookie
-            cookie_header = self.headers.get('Cookie')
-            username = None
+            # Get current user from cookie
+            username = self.get_username_from_cookie()
+            if not username:
+                self.send_json_response({'error': 'Not authenticated'}, 401)
+                return
             
-            if cookie_header:
-                if 'username=' in cookie_header:
-                    parts = cookie_header.split('username=')
-                    if len(parts) > 1:
-                        username_part = parts[1].split(';')[0].strip()
-                        if username_part:
-                            username = username_part
+            # Load private messages for this user
+            private_messages = self.load_private_messages()
+            user_messages = private_messages.get(username, [])
             
-            if username:
-                # Remove user from active sessions
-                if username in CustomerListHandler.active_sessions:
-                    del CustomerListHandler.active_sessions[username]
-                    print(f"Logged out and removed session for: {username}")
-                
-                # Add logout notification to chat
-                self.add_system_message(f"{username} has logged out")
-                
-                self.send_response(200)
-                self.send_header('Content-type', 'application/json')
-                self.send_cors_headers()
-                self.send_header('Set-Cookie', 'session=deleted; Path=/; HttpOnly; Max-Age=0')
-                self.end_headers()
-                self.wfile.write(json.dumps({'message': 'Logged out successfully'}).encode())
-            else:
-                self.send_json_response({'error': 'No session found'}, 401)
+            self.send_json_response(user_messages)
         except Exception as e:
-            print(f"Error in handle_logout: {e}")
+            print(f"Error in handle_get_private_messages: {e}")
+            self.send_json_response({'error': str(e)}, 500)
+    
+    def handle_send_private_message(self):
+        try:
+            # Get current user from cookie
+            from_user = self.get_username_from_cookie()
+            if not from_user:
+                self.send_json_response({'error': 'Not authenticated'}, 401)
+                return
+            
+            content_type = self.headers.get('Content-Type', '')
+            
+            if content_type.startswith('multipart/form-data'):
+                # Handle file upload in private message
+                import os
+                import uuid
+                import re
+                
+                content_length = int(self.headers['Content-Length'])
+                post_data = self.rfile.read(content_length)
+                
+                boundary_match = re.search(r'boundary=([^;]+)', content_type)
+                if not boundary_match:
+                    self.send_json_response({'error': 'Invalid multipart boundary'}, 400)
+                    return
+                
+                boundary = '--' + boundary_match.group(1)
+                parts = post_data.split(boundary.encode())
+                
+                message_data = {'from_user': from_user}
+                
+                for part in parts:
+                    if b'Content-Disposition:' in part:
+                        disposition_match = re.search(b'name="([^"]+)"', part)
+                        if disposition_match:
+                            field_name = disposition_match.group(1).decode()
+                            
+                            if field_name == 'to_user':
+                                content_match = re.search(b'\r\n\r\n(.+)', part, re.DOTALL)
+                                if content_match:
+                                    message_data['to_user'] = content_match.group(1).decode().strip()
+                            
+                            elif field_name == 'content':
+                                content_match = re.search(b'\r\n\r\n(.+)', part, re.DOTALL)
+                                if content_match:
+                                    content = content_match.group(1).decode().strip()
+                                    if content:
+                                        message_data['content'] = content
+                            
+                            elif field_name == 'file':
+                                filename_match = re.search(b'filename="([^"]+)"', part)
+                                if filename_match:
+                                    original_filename = filename_match.group(1).decode()
+                                    
+                                    if original_filename:
+                                        content_type_match = re.search(b'Content-Type:\s*([^\r\n]+)', part)
+                                        file_type = content_type_match.group(1).decode() if content_type_match else 'application/octet-stream'
+                                        
+                                        content_match = re.search(b'\r\n\r\n(.*)\r\n$', part, re.DOTALL)
+                                        if content_match:
+                                            file_content = content_match.group(1)
+                                            
+                                            file_ext = os.path.splitext(original_filename)[1]
+                                            safe_filename = f"{uuid.uuid4().hex}{file_ext}"
+                                            
+                                            uploads_dir = 'uploads'
+                                            if not os.path.exists(uploads_dir):
+                                                os.makedirs(uploads_dir)
+                                            
+                                            file_path = os.path.join(uploads_dir, safe_filename)
+                                            with open(file_path, 'wb') as f:
+                                                f.write(file_content)
+                                            
+                                            message_data['filename'] = safe_filename
+                                            message_data['originalname'] = original_filename
+                                            message_data['filetype'] = file_type
+            
+            else:
+                # Handle regular JSON message
+                content_length = int(self.headers.get('Content-Length', '0'))
+                post_data = self.rfile.read(content_length)
+                message_data = json.loads(post_data.decode('utf-8'))
+                message_data['from_user'] = from_user
+            
+            # Validate required fields
+            if not message_data.get('to_user'):
+                self.send_json_response({'error': 'To user is required'}, 400)
+                return
+            
+            # Add timestamp if not present
+            if 'timestamp' not in message_data:
+                from datetime import datetime
+                message_data['timestamp'] = datetime.now().isoformat()
+            
+            # Save private message
+            private_messages = self.load_private_messages()
+            to_user = message_data['to_user']
+            
+            if to_user not in private_messages:
+                private_messages[to_user] = []
+            
+            private_messages[to_user].append(message_data)
+            
+            # Also save to sender's sent messages
+            if from_user not in private_messages:
+                private_messages[from_user] = []
+            
+            # Mark as sent message for sender
+            sender_message = message_data.copy()
+            sender_message['sent'] = 'true'
+            private_messages[from_user].append(sender_message)
+            
+            self.save_private_messages(private_messages)
+            
+            self.send_json_response({'success': True, 'message': message_data})
+            
+        except Exception as e:
+            print(f"Error in handle_send_private_message: {e}")
             import traceback
             traceback.print_exc()
             self.send_json_response({'error': str(e)}, 500)
+    
+    def get_username_from_cookie(self):
+        """Extract username from cookie"""
+        cookie_header = self.headers.get('Cookie')
+        if not cookie_header or 'username=' not in cookie_header:
+            return None
+        
+        try:
+            parts = cookie_header.split('username=')
+            if len(parts) > 1:
+                username_part = parts[1].split(';')[0].strip()
+                return username_part if username_part else None
+        except:
+            return None
+    
+    def load_private_messages(self):
+        """Load private messages from file"""
+        try:
+            import os
+            if os.path.exists('private_messages.json'):
+                with open('private_messages.json', 'r') as f:
+                    return json.load(f)
+        except:
+            pass
+        return {}
+    
+    def save_private_messages(self, messages):
+        """Save private messages to file"""
+        try:
+            import os
+            with open('private_messages.json', 'w') as f:
+                json.dump(messages, f, indent=2)
+        except Exception as e:
+            print(f"Error saving private messages: {e}")
     
     def handle_heartbeat(self):
         try:
