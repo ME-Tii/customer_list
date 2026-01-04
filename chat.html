@@ -1286,8 +1286,68 @@
             navigator.sendBeacon('/api/logout', JSON.stringify({}));
         });
         
+            // Check for session conflicts (multiple users in same browser)
+        function checkSessionConflict() {
+            const currentTabUser = localStorage.getItem('currentUser');
+            const currentTabId = localStorage.getItem('tabId');
+            
+            // Generate unique tab ID if not exists
+            if (!currentTabId) {
+                localStorage.setItem('tabId', 'tab_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9));
+            }
+            
+            // Check if another tab has different user
+            if (currentTabUser && currentTabUser !== currentUser) {
+                // Clear conflicting session
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('username');
+                localStorage.removeItem('currentUser');
+                
+                // Show warning and redirect
+                alert('⚠️ Session Conflict Detected!\n\nYou cannot log in as multiple users in the same browser.\n\nPlease use a different browser or incognito mode for the second user.');
+                window.location.href = '/';
+                return false;
+            }
+            
+            // Store current user for conflict detection
+            localStorage.setItem('currentUser', currentUser);
+            return true;
+        }
+        
+        // Check for new private messages every 2 seconds
+        setInterval(checkPrivateChatRequests, 2000);
+        
+        // Check for session conflicts every 2 seconds too
+        setInterval(checkSessionConflict, 2000);
+        
         // Initialize on load
-        initChat();
+        if (!checkSessionConflict()) {
+            document.addEventListener('DOMContentLoaded', initChat);
+        }
+            
+            // Check if another tab has different user
+            if (currentTabUser && currentTabUser !== currentUser) {
+                // Clear conflicting session
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('username');
+                localStorage.removeItem('currentUser');
+                
+                // Show warning and redirect
+                alert('⚠️ Session Conflict Detected!\n\nYou cannot log in as multiple users in the same browser.\n\nPlease use a different browser or incognito mode for the second user.');
+                window.location.href = '/';
+                return false;
+            }
+            
+            // Store current user for conflict detection
+            localStorage.setItem('currentUser', currentUser);
+            return true;
+        }
+        
+        // Initialize on load
+        if (initChat()) {
+            // Check for conflicts every 2 seconds
+            setInterval(checkSessionConflict, 2000);
+        }
     </script>
 </body>
 </html>
