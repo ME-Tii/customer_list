@@ -1076,7 +1076,9 @@
                 } else {
                     // Put text back if failed
                     input.value = content;
-                    alert('Failed to send private message');
+                    const errorText = await response.text();
+                    console.error('Private message failed:', errorText);
+                    alert(`Failed to send private message: ${errorText}`);
                 }
             } catch (error) {
                 // Put text back if failed

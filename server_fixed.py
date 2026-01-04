@@ -5,6 +5,9 @@ import json
 import os
 from urllib.parse import urlparse, parse_qs
 import http.cookies
+import cgi
+import io
+import re
 
 class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
     # Class variable to track active sessions
@@ -649,69 +652,52 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
             content_type = self.headers.get('Content-Type', '')
             
             if content_type.startswith('multipart/form-data'):
-                # Handle file upload in private message
-                import os
-                import uuid
-                import re
+                # Handle file upload in private message - simpler approach
+                import cgi
+                import io
                 
-                content_length = int(self.headers['Content-Length'])
-                post_data = self.rfile.read(content_length)
+                # Use cgi for multipart parsing (more reliable)
+                form = cgi.FieldStorage(
+                    fp=io.BytesIO(self.rfile.read(int(self.headers['Content-Length']))),
+                    headers=self.headers,
+                    environ={'REQUEST_METHOD': 'POST'}
+                )
                 
-                boundary_match = re.search(r'boundary=([^;]+)', content_type)
-                if not boundary_match:
-                    self.send_json_response({'error': 'Invalid multipart boundary'}, 400)
-                    return
+                # Extract form data
+                to_user = form.getvalue('to_user', '').strip()
+                content = form.getvalue('content', '').strip()
+                timestamp = form.getvalue('timestamp', '')
                 
-                boundary = '--' + boundary_match.group(1)
-                parts = post_data.split(boundary.encode())
+                message_data = {
+                    'from_user': from_user,
+                    'to_user': to_user,
+                    'content': content,
+                    'timestamp': timestamp
+                }
                 
-                message_data = {'from_user': from_user}
-                
-                for part in parts:
-                    if b'Content-Disposition:' in part:
-                        disposition_match = re.search(b'name="([^"]+)"', part)
-                        if disposition_match:
-                            field_name = disposition_match.group(1).decode()
-                            
-                            if field_name == 'to_user':
-                                content_match = re.search(b'\r\n\r\n(.+)', part, re.DOTALL)
-                                if content_match:
-                                    message_data['to_user'] = content_match.group(1).decode().strip()
-                            
-                            elif field_name == 'content':
-                                content_match = re.search(b'\r\n\r\n(.+)', part, re.DOTALL)
-                                if content_match:
-                                    content = content_match.group(1).decode().strip()
-                                    if content:
-                                        message_data['content'] = content
-                            
-                            elif field_name == 'file':
-                                filename_match = re.search(b'filename="([^"]+)"', part)
-                                if filename_match:
-                                    original_filename = filename_match.group(1).decode()
-                                    
-                                    if original_filename:
-                                        content_type_match = re.search(b'Content-Type:\s*([^\r\n]+)', part)
-                                        file_type = content_type_match.group(1).decode() if content_type_match else 'application/octet-stream'
-                                        
-                                        content_match = re.search(b'\r\n\r\n(.*)\r\n$', part, re.DOTALL)
-                                        if content_match:
-                                            file_content = content_match.group(1)
-                                            
-                                            file_ext = os.path.splitext(original_filename)[1]
-                                            safe_filename = f"{uuid.uuid4().hex}{file_ext}"
-                                            
-                                            uploads_dir = 'uploads'
-                                            if not os.path.exists(uploads_dir):
-                                                os.makedirs(uploads_dir)
-                                            
-                                            file_path = os.path.join(uploads_dir, safe_filename)
-                                            with open(file_path, 'wb') as f:
-                                                f.write(file_content)
-                                            
-                                            message_data['filename'] = safe_filename
-                                            message_data['originalname'] = original_filename
-                                            message_data['filetype'] = file_type
+                # Handle file upload if present
+                if 'file' in form and form['file'].filename:
+                    file_item = form['file']
+                    filename = file_item.filename
+                    
+                    if filename:
+                        import os
+                        import uuid
+                        
+                        file_ext = os.path.splitext(filename)[1]
+                        safe_filename = f"{uuid.uuid4().hex}{file_ext}"
+                        
+                        uploads_dir = 'uploads'
+                        if not os.path.exists(uploads_dir):
+                            os.makedirs(uploads_dir)
+                        
+                        file_path = os.path.join(uploads_dir, safe_filename)
+                        with open(file_path, 'wb') as f:
+                            f.write(file_item.file.read())
+                        
+                        message_data['filename'] = safe_filename
+                        message_data['originalname'] = filename
+                        message_data['filetype'] = file_item.type or 'application/octet-stream'
             
             else:
                 # Handle regular JSON message
@@ -726,7 +712,7 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
                 return
             
             # Add timestamp if not present
-            if 'timestamp' not in message_data:
+            if 'timestamp' not in message_data or not message_data['timestamp']:
                 from datetime import datetime
                 message_data['timestamp'] = datetime.now().isoformat()
             
@@ -750,6 +736,7 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
             
             self.save_private_messages(private_messages)
             
+            print(f"Private message sent: {message_data}")
             self.send_json_response({'success': True, 'message': message_data})
             
         except Exception as e:
