@@ -887,10 +887,12 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
 
 if __name__ == '__main__':
-    PORT = 8004
-    Handler = CustomerListHandler
-    
+    import os
     import socket
+    
+    # Use PORT from environment variable (Render) or default to 8004
+    PORT = int(os.environ.get('PORT', 8004))
+    Handler = CustomerListHandler
     
     # Get local IP address
     hostname = socket.gethostname()
