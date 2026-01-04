@@ -78,6 +78,36 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
             else:
                 self.send_json_response({'error': 'Authentication required'}, 401)
             return
+        elif parsed_path.path.startswith('/uploads/'):
+            # Serve uploaded files
+            if self.is_authenticated():
+                file_path = parsed_path.path[1:]  # Remove leading '/'
+                try:
+                    with open(file_path, 'rb') as f:
+                        content = f.read()
+                    
+                    # Determine content type
+                    if file_path.endswith('.jpg') or file_path.endswith('.jpeg'):
+                        content_type = 'image/jpeg'
+                    elif file_path.endswith('.png'):
+                        content_type = 'image/png'
+                    elif file_path.endswith('.gif'):
+                        content_type = 'image/gif'
+                    elif file_path.endswith('.pdf'):
+                        content_type = 'application/pdf'
+                    elif file_path.endswith('.txt'):
+                        content_type = 'text/plain'
+                    else:
+                        content_type = 'application/octet-stream'
+                    
+                    self.send_response(200)
+                    self.send_header('Content-type', content_type)
+                    self.end_headers()
+                    self.wfile.write(content)
+                except FileNotFoundError:
+                    self.send_error(404, 'File not found')
+            else:
+                self.redirect_to_login()
         else:
             # Try to serve static files
             return super().do_GET()
@@ -191,15 +221,74 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
     
     def handle_add_message(self):
         try:
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
-            data = json.loads(post_data.decode('utf-8'))
+            content_type = self.headers.get('Content-Type', '')
+            
+            if content_type.startswith('multipart/form-data'):
+                # Handle file upload
+                import cgi
+                import io
+                
+                # Parse multipart data
+                form = cgi.FieldStorage(
+                    fp=io.BytesIO(self.rfile.read(int(self.headers['Content-Length']))),
+                    headers=self.headers,
+                    environ={'REQUEST_METHOD': 'POST'}
+                )
+                
+                username = form.getvalue('username', 'anonymous')
+                content = form.getvalue('content', '')
+                timestamp = form.getvalue('timestamp', '')
+                
+                # Check for file upload
+                file_item = None
+                if 'file' in form:
+                    file_item = form['file']
+                
+                # Create message data
+                message_data = {
+                    'username': username,
+                    'content': content,
+                    'timestamp': timestamp
+                }
+                
+                # Handle file if uploaded
+                if file_item and file_item.filename:
+                    filename = file_item.filename
+                    originalname = filename
+                    filetype = file_item.type
+                    
+                    # Create safe filename
+                    import uuid
+                    import os
+                    file_ext = os.path.splitext(filename)[1]
+                    safe_filename = f"{uuid.uuid4().hex}{file_ext}"
+                    
+                    # Ensure uploads directory exists
+                    uploads_dir = 'uploads'
+                    if not os.path.exists(uploads_dir):
+                        os.makedirs(uploads_dir)
+                    
+                    # Save file
+                    file_path = os.path.join(uploads_dir, safe_filename)
+                    with open(file_path, 'wb') as f:
+                        f.write(file_item.file.read())
+                    
+                    # Add file info to message
+                    message_data['filename'] = safe_filename
+                    message_data['originalname'] = originalname
+                    message_data['filetype'] = filetype
+                
+            else:
+                # Handle regular JSON message
+                content_length = int(self.headers['Content-Length'])
+                post_data = self.rfile.read(content_length)
+                message_data = json.loads(post_data.decode('utf-8'))
             
             messages = self.load_messages()
-            messages.append(data)
+            messages.append(message_data)
             self.save_messages(messages)
             
-            self.send_json_response({'success': True})
+            self.send_json_response({'success': True, 'message': message_data})
         except Exception as e:
             self.send_json_response({'error': str(e)}, 500)
     
