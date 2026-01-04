@@ -223,64 +223,97 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
         try:
             content_type = self.headers.get('Content-Type', '')
             
-            if content_type.startswith('multipart/form-data'):
-                # Handle file upload
-                import cgi
-                import io
+            # Check if it's a file upload
+            if 'multipart/form-data' in content_type:
+                # Simple file upload handling
+                import os
+                import uuid
+                import re
                 
-                # Parse multipart data
-                form = cgi.FieldStorage(
-                    fp=io.BytesIO(self.rfile.read(int(self.headers['Content-Length']))),
-                    headers=self.headers,
-                    environ={'REQUEST_METHOD': 'POST'}
-                )
+                # Read all data
+                content_length = int(self.headers['Content-Length'])
+                post_data = self.rfile.read(content_length)
                 
-                username = form.getvalue('username', 'anonymous')
-                content = form.getvalue('content', '')
-                timestamp = form.getvalue('timestamp', '')
+                # Extract boundary from content type
+                boundary_match = re.search(r'boundary=([^;]+)', content_type)
+                if not boundary_match:
+                    self.send_json_response({'error': 'Invalid multipart boundary'}, 400)
+                    return
                 
-                # Check for file upload
-                file_item = None
-                if 'file' in form:
-                    file_item = form['file']
+                boundary = '--' + boundary_match.group(1)
+                parts = post_data.split(boundary.encode())
                 
-                # Create message data
-                message_data = {
-                    'username': username,
-                    'content': content,
-                    'timestamp': timestamp
-                }
+                message_data = {}
                 
-                # Handle file if uploaded
-                if file_item and file_item.filename:
-                    filename = file_item.filename
-                    originalname = filename
-                    filetype = file_item.type
-                    
-                    # Create safe filename
-                    import uuid
-                    import os
-                    file_ext = os.path.splitext(filename)[1]
-                    safe_filename = f"{uuid.uuid4().hex}{file_ext}"
-                    
-                    # Ensure uploads directory exists
-                    uploads_dir = 'uploads'
-                    if not os.path.exists(uploads_dir):
-                        os.makedirs(uploads_dir)
-                    
-                    # Save file
-                    file_path = os.path.join(uploads_dir, safe_filename)
-                    with open(file_path, 'wb') as f:
-                        f.write(file_item.file.read())
-                    
-                    # Add file info to message
-                    message_data['filename'] = safe_filename
-                    message_data['originalname'] = originalname
-                    message_data['filetype'] = filetype
+                for part in parts:
+                    if b'Content-Disposition:' in part:
+                        # Extract form field name from Content-Disposition header
+                        disposition_match = re.search(b'name="([^"]+)"', part)
+                        if disposition_match:
+                            field_name = disposition_match.group(1).decode()
+                            
+                            # Handle different field types
+                            if field_name == 'username':
+                                content_match = re.search(b'\r\n\r\n(.+)', part, re.DOTALL)
+                                if content_match:
+                                    message_data['username'] = content_match.group(1).decode().strip()
+                            
+                            elif field_name == 'content':
+                                content_match = re.search(b'\r\n\r\n(.+)', part, re.DOTALL)
+                                if content_match:
+                                    content = content_match.group(1).decode().strip()
+                                    if content:  # Only include if not empty
+                                        message_data['content'] = content
+                            
+                            elif field_name == 'timestamp':
+                                content_match = re.search(b'\r\n\r\n(.+)', part, re.DOTALL)
+                                if content_match:
+                                    message_data['timestamp'] = content_match.group(1).decode().strip()
+                            
+                            elif field_name == 'file':
+                                # Handle file upload
+                                filename_match = re.search(b'filename="([^"]+)"', part)
+                                if filename_match:
+                                    original_filename = filename_match.group(1).decode()
+                                    
+                                    if original_filename:  # Only process if file was actually selected
+                                        # Extract content type
+                                        content_type_match = re.search(b'Content-Type:\s*([^\r\n]+)', part)
+                                        file_type = content_type_match.group(1).decode() if content_type_match else 'application/octet-stream'
+                                        
+                                        # Extract file content
+                                        content_match = re.search(b'\r\n\r\n(.*)\r\n$', part, re.DOTALL)
+                                        if content_match:
+                                            file_content = content_match.group(1)
+                                            
+                                            # Create safe filename
+                                            file_ext = os.path.splitext(original_filename)[1]
+                                            safe_filename = f"{uuid.uuid4().hex}{file_ext}"
+                                            
+                                            # Ensure uploads directory exists
+                                            uploads_dir = 'uploads'
+                                            if not os.path.exists(uploads_dir):
+                                                os.makedirs(uploads_dir)
+                                            
+                                            # Save file
+                                            file_path = os.path.join(uploads_dir, safe_filename)
+                                            with open(file_path, 'wb') as f:
+                                                f.write(file_content)
+                                            
+                                            message_data['filename'] = safe_filename
+                                            message_data['originalname'] = original_filename
+                                            message_data['filetype'] = file_type
+                
+                # Ensure required fields are present
+                if 'username' not in message_data:
+                    message_data['username'] = 'anonymous'
+                if 'timestamp' not in message_data:
+                    from datetime import datetime
+                    message_data['timestamp'] = datetime.now().isoformat()
                 
             else:
                 # Handle regular JSON message
-                content_length = int(self.headers['Content-Length'])
+                content_length = int(self.headers.get('Content-Length', '0'))
                 post_data = self.rfile.read(content_length)
                 message_data = json.loads(post_data.decode('utf-8'))
             
@@ -289,7 +322,11 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
             self.save_messages(messages)
             
             self.send_json_response({'success': True, 'message': message_data})
+            
         except Exception as e:
+            print(f"Error in handle_add_message: {e}")
+            import traceback
+            traceback.print_exc()
             self.send_json_response({'error': str(e)}, 500)
     
     def add_system_message(self, content):
