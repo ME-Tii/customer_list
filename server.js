@@ -78,8 +78,29 @@ app.get('/test', (req, res) => {
     res.json({ message: 'Server is working', timestamp: new Date().toISOString() });
 });
 
-// Simple user storage (in production, use a proper database)
-let users = [];
+// Load users from JSON file
+function loadUsers() {
+    try {
+        if (fs.existsSync('users.json')) {
+            const data = fs.readFileSync('users.json', 'utf8');
+            return JSON.parse(data);
+        }
+    } catch (error) {
+        console.error('Error loading users:', error);
+    }
+    return [];
+}
+
+// Save users to JSON file
+function saveUsers(users) {
+    try {
+        fs.writeFileSync('users.json', JSON.stringify(users, null, 2), 'utf8');
+    } catch (error) {
+        console.error('Error saving users:', error);
+    }
+}
+
+let users = loadUsers();
 
 // Login endpoint
 app.post('/api/login', (req, res) => {
@@ -112,6 +133,7 @@ app.post('/api/register', (req, res) => {
     
     const newUser = { username, password, email, accessGranted: false, createdAt: new Date().toISOString() };
     users.push(newUser);
+    saveUsers(users);
     
     res.status(201).json({ message: 'Registration successful', user: { username: newUser.username, email: newUser.email, accessGranted: false } });
 });
@@ -149,6 +171,7 @@ app.put('/api/users/access', (req, res) => {
     }
     
     user.accessGranted = accessGranted;
+    saveUsers(users);
     res.json({ message: `Access ${accessGranted ? 'granted' : 'revoked'} for ${username}` });
 });
 
@@ -162,6 +185,7 @@ app.delete('/api/users/delete', (req, res) => {
     }
     
     users.splice(userIndex, 1);
+    saveUsers(users);
     res.json({ message: `User ${username} deleted` });
 });
 
