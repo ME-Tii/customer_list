@@ -1019,7 +1019,21 @@
             const container = document.getElementById('privateChatMessages');
             const messages = privateMessages[username] || [];
             
-            container.innerHTML = messages.map(msg => {
+            // Deduplicate messages by ID to prevent duplicates
+            const uniqueMessages = [];
+            const seenIds = new Set();
+            
+            messages.forEach(msg => {
+                // Create unique ID for this message
+                const messageId = `${msg.from_user}-${msg.to_user}-${msg.timestamp}-${msg.content || ''}`;
+                
+                if (!seenIds.has(messageId)) {
+                    seenIds.add(messageId);
+                    uniqueMessages.push(msg);
+                }
+            });
+            
+            container.innerHTML = uniqueMessages.map(msg => {
                 const isSent = msg.sent === 'true' || msg.sent === true;
                 const time = new Date(msg.timestamp).toLocaleTimeString();
                 
