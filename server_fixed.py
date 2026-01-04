@@ -632,10 +632,20 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_json_response({'error': 'Not authenticated'}, 401)
                 return
             
-            # Load private messages for this user
+            # Load all private messages and filter for this user (as sender OR receiver)
             private_messages = self.load_private_messages()
-            user_messages = private_messages.get(username, [])
+            user_messages = []
             
+            for message_list in private_messages.values():
+                for message in message_list:
+                    # Include messages where current user is sender OR receiver
+                    if (message.get('from_user') == username) or (message.get('to_user') == username):
+                        user_messages.append(message)
+            
+            # Sort by timestamp
+            user_messages.sort(key=lambda x: x.get('timestamp', ''))
+            
+            print(f"Private messages for {username}: {len(user_messages)} messages")
             self.send_json_response(user_messages)
         except Exception as e:
             print(f"Error in handle_get_private_messages: {e}")
