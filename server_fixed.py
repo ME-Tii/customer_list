@@ -122,12 +122,17 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
     def serve_protected_page(self, page_path):
         """Serve a page only if user is authenticated"""
         if self.is_authenticated():
-            self.path = page_path
-            super().do_GET()
-            return
+            try:
+                with open(page_path.lstrip('/'), 'r') as f:
+                    content = f.read()
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(content.encode())
+            except FileNotFoundError:
+                self.send_error(404, f'Page {page_path} not found')
         else:
             self.redirect_to_login()
-            return
     
     def handle_login(self):
         try:
