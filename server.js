@@ -108,10 +108,23 @@ app.post('/api/register', (req, res) => {
         return res.status(400).json({ error: 'Username already exists' });
     }
     
-    const newUser = { username, password, email, createdAt: new Date().toISOString() };
+    const newUser = { username, password, email, accessGranted: false, createdAt: new Date().toISOString() };
     users.push(newUser);
     
     res.status(201).json({ message: 'Registration successful', user: { username: newUser.username, email: newUser.email } });
+});
+
+// Get current user verification status
+app.get('/api/users/me', (req, res) => {
+    // For demo purposes, return the first user or a demo user
+    // In production, you'd use authentication to identify the user
+    const user = users[0] || { username: 'demo', accessGranted: true };
+    
+    if (user) {
+        res.json({ username: user.username, email: user.email, accessGranted: user.accessGranted });
+    } else {
+        res.status(404).json({ error: 'User not found' });
+    }
 });
 
 // Handle form submission
