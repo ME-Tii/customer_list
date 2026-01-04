@@ -76,6 +76,44 @@ app.get('/', (req, res) => {
     res.sendFile('auth.html', { root: __dirname });
 });
 
+// Simple user storage (in production, use a proper database)
+let users = [];
+
+// Login endpoint
+app.post('/api/login', (req, res) => {
+    const { username, password } = req.body;
+    
+    if (!username || !password) {
+        return res.status(400).json({ error: 'Username and password required' });
+    }
+    
+    const user = users.find(u => u.username === username && u.password === password);
+    
+    if (user) {
+        res.json({ message: 'Login successful', user: { username: user.username, email: user.email } });
+    } else {
+        res.status(401).json({ error: 'Invalid credentials' });
+    }
+});
+
+// Register endpoint
+app.post('/api/register', (req, res) => {
+    const { username, password, email } = req.body;
+    
+    if (!username || !password || !email) {
+        return res.status(400).json({ error: 'All fields required' });
+    }
+    
+    if (users.find(u => u.username === username)) {
+        return res.status(400).json({ error: 'Username already exists' });
+    }
+    
+    const newUser = { username, password, email, createdAt: new Date().toISOString() };
+    users.push(newUser);
+    
+    res.status(201).json({ message: 'Registration successful', user: { username: newUser.username, email: newUser.email } });
+});
+
 // Handle form submission
 app.post('/api/customers', (req, res) => {
     const { name, surname, email, newsletter } = req.body;
