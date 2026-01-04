@@ -1181,6 +1181,18 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
         elif parsed_path.path == '/api/heartbeat':
             self.handle_heartbeat()
             return
+        elif parsed_path.path == '/api/private-messages':
+            if self.is_authenticated():
+                self.handle_get_private_messages()
+            else:
+                self.send_json_response({'error': 'Authentication required'}, 401)
+            return
+        elif parsed_path.path == '/api/private-messages/send':
+            if self.is_authenticated():
+                self.handle_send_private_message()
+            else:
+                self.send_json_response({'error': 'Authentication required'}, 401)
+            return
         elif parsed_path.path == '/api/scan-test-folders':
             if self.is_authenticated():
                 self.handle_scan_test_folders()
