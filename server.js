@@ -9,6 +9,14 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Serve the login page (before static middleware)
+app.get('/', (req, res) => {
+    console.log('Root route hit, serving auth.html');
+    res.sendFile('auth.html', { root: __dirname });
+});
+
+// Static file serving
 app.use(express.static(path.join(__dirname, 'form')));
 app.use(express.static(__dirname));
 
@@ -68,12 +76,6 @@ function writeCustomerToXML(customer) {
 // Test route
 app.get('/test', (req, res) => {
     res.json({ message: 'Server is working', timestamp: new Date().toISOString() });
-});
-
-// Serve the login page
-app.get('/', (req, res) => {
-    console.log('Root route hit, serving auth.html');
-    res.sendFile('auth.html', { root: __dirname });
 });
 
 // Simple user storage (in production, use a proper database)
