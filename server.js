@@ -66,6 +66,7 @@ function writeCustomerToXML(customer) {
 
 // Serve the login page
 app.get('/', (req, res) => {
+    console.log('Serving login page: auth.html');
     res.sendFile(path.join(__dirname, 'auth.html'));
 });
 
