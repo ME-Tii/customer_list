@@ -65,8 +65,14 @@ function writeCustomerToXML(customer) {
     fs.writeFileSync(XML_FILE, updatedXML, 'utf8');
 }
 
+// Test route
+app.get('/test', (req, res) => {
+    res.json({ message: 'Server is working', timestamp: new Date().toISOString() });
+});
+
 // Serve the login page
 app.get('/', (req, res) => {
+    console.log('Root route hit, serving auth.html');
     res.sendFile('auth.html', { root: __dirname });
 });
 
