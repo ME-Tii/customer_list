@@ -67,7 +67,10 @@ function writeCustomerToXML(customer) {
 // Serve the login page
 app.get('/', (req, res) => {
     console.log('Serving login page: auth.html');
-    res.sendFile(path.join(__dirname, 'auth.html'));
+    const authPath = path.join(__dirname, 'auth.html');
+    console.log('Full path:', authPath);
+    console.log('File exists:', fs.existsSync(authPath));
+    res.sendFile(authPath);
 });
 
 // Handle form submission
