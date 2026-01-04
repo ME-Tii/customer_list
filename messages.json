@@ -373,5 +373,20 @@
     "username": "SYSTEM",
     "content": "user1 has logged in",
     "timestamp": "2026-01-04T20:31:38.790566"
+  },
+  {
+    "username": "SYSTEM",
+    "content": "user1 has logged out",
+    "timestamp": "2026-01-04T20:37:21.620418"
+  },
+  {
+    "username": "SYSTEM",
+    "content": "Unknown user has logged out",
+    "timestamp": "2026-01-04T20:37:28.989562"
+  },
+  {
+    "username": "SYSTEM",
+    "content": "KidWhyLit has logged in",
+    "timestamp": "2026-01-04T20:37:36.669580"
   }
 ]

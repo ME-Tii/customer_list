@@ -595,17 +595,16 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
     def handle_logout(self):
         try:
             # Get username from cookie for notification
-            cookie_header = self.headers.get('Cookie')
-            username = "Unknown user"
+            username = self.get_username_from_cookie()
             
-            if cookie_header:
-                # Simple string parsing since cookie format is known
-                if 'username=' in cookie_header:
-                    parts = cookie_header.split('username=')
-                    if len(parts) > 1:
-                        username_part = parts[1].split(';')[0].strip()
-                        if username_part:
-                            username = username_part
+            if username:
+                # Remove from active sessions
+                if username in CustomerListHandler.active_sessions:
+                    del CustomerListHandler.active_sessions[username]
+                    print(f"Logged out and removed session for: {username}")
+                
+                # Add logout notification to chat
+                self.add_system_message(f"{username} has logged out")
             
             # Remove from active sessions
             if username != "Unknown user":
@@ -758,16 +757,16 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
     def get_username_from_cookie(self):
         """Extract username from cookie"""
         cookie_header = self.headers.get('Cookie')
-        if not cookie_header or 'username=' not in cookie_header:
+        if not cookie_header:
             return None
         
-        try:
-            parts = cookie_header.split('username=')
-            if len(parts) > 1:
-                username_part = parts[1].split(';')[0].strip()
-                return username_part if username_part else None
-        except:
-            return None
+        # Look for username= followed by actual username value
+        import re
+        match = re.search(r'username=([^;]+)', cookie_header)
+        if match:
+            return match.group(1).strip()
+        
+        return None
     
     def load_private_messages(self):
         """Load private messages from file"""
