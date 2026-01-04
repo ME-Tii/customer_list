@@ -113,24 +113,56 @@ app.post('/api/register', (req, res) => {
     const newUser = { username, password, email, accessGranted: false, createdAt: new Date().toISOString() };
     users.push(newUser);
     
-    res.status(201).json({ message: 'Registration successful', user: { username: newUser.username, email: newUser.email } });
+    res.status(201).json({ message: 'Registration successful', user: { username: newUser.username, email: newUser.email, accessGranted: false } });
 });
 
 // Get current user verification status
 app.get('/api/users/me', (req, res) => {
-    // For demo purposes, always return an approved user
+    // For demo purposes, return first user
     // In production, you'd use authentication to identify the user
-    const user = users[0] || { 
-        username: 'demo', 
-        email: 'demo@example.com',
-        accessGranted: true 
-    };
+    const user = users[0];
     
-    res.json({ 
-        username: user.username, 
-        email: user.email, 
-        accessGranted: true // Always true for demo
-    });
+    if (user) {
+        res.json({ 
+            username: user.username, 
+            email: user.email, 
+            accessGranted: user.accessGranted 
+        });
+    } else {
+        // No user registered yet
+        res.status(404).json({ error: 'User not found' });
+    }
+});
+
+// Get all users for admin management
+app.get('/api/users', (req, res) => {
+    res.json(users);
+});
+
+// Update user access (admin endpoint)
+app.put('/api/users/access', (req, res) => {
+    const { username, accessGranted } = req.body;
+    
+    const user = users.find(u => u.username === username);
+    if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+    }
+    
+    user.accessGranted = accessGranted;
+    res.json({ message: `Access ${accessGranted ? 'granted' : 'revoked'} for ${username}` });
+});
+
+// Delete user (admin endpoint)
+app.delete('/api/users/delete', (req, res) => {
+    const { username } = req.body;
+    
+    const userIndex = users.findIndex(u => u.username === username);
+    if (userIndex === -1) {
+        return res.status(404).json({ error: 'User not found' });
+    }
+    
+    users.splice(userIndex, 1);
+    res.json({ message: `User ${username} deleted` });
 });
 
 // Handle form submission
