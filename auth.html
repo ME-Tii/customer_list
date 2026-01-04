@@ -225,7 +225,7 @@
                     localStorage.setItem('username', username);
                     
                     // Check if user has access granted
-                    if (result.accessGranted) {
+                    if (result.user && result.user.accessGranted) {
                         setTimeout(() => {
                             window.location.href = '/dashboard';
                         }, 1500);
