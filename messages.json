@@ -313,5 +313,20 @@
     "username": "user1",
     "content": "Wie gehts?",
     "timestamp": "2026-01-04T13:25:40.929Z"
+  },
+  {
+    "username": "SYSTEM",
+    "content": "KidWhyLit has logged in",
+    "timestamp": "2026-01-04T18:16:08.529945"
+  },
+  {
+    "username": "SYSTEM",
+    "content": "KidWhyLit has logged out",
+    "timestamp": "2026-01-04T18:16:36.136291"
+  },
+  {
+    "username": "SYSTEM",
+    "content": "user1 has logged in",
+    "timestamp": "2026-01-04T18:16:44.883236"
   }
 ]

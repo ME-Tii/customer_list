@@ -289,7 +289,22 @@
 
         // Check if already logged in
         if (localStorage.getItem('isLoggedIn') === 'true') {
-            window.location.href = '/dashboard';
+            // Verify by making a quick API call to check session
+            fetch('/api/users/me', {
+                credentials: 'include'
+            }).then(response => {
+                if (response.ok) {
+                    window.location.href = '/dashboard';
+                } else {
+                    // Clear invalid session and show login
+                    localStorage.removeItem('isLoggedIn');
+                    localStorage.removeItem('username');
+                }
+            }).catch(() => {
+                // Clear session on network error
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('username');
+            });
         }
     </script>
 </body>
