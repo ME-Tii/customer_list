@@ -551,8 +551,8 @@
             </div>
 
             <div class="chat-controls">
-                <button class="control-btn" onclick="toggleEmojis()">😊</button>
-                <button class="control-btn" onclick="clearChat()">🗑️ Clear</button>
+                <button class="control-btn" onclick="toggleEmojiPanel()">😊</button>
+                <button class="control-btn" onclick="clearAllMessages()">🗑️ Clear</button>
                 <button class="control-btn logout-btn" onclick="logout()">🚪 Logout</button>
                 <a href="/dashboard" class="back-btn">← Dashboard</a>
             </div>
@@ -1220,13 +1220,20 @@
             const panel = document.getElementById('emojiPanel');
             panel.classList.toggle('show');
         }
-
+        
+        function toggleEmojiPanel() {
+            const panel = document.getElementById('emojiPanel');
+            if (panel) {
+                panel.classList.toggle('show');
+            }
+        }
+        
         // Add emoji to input
         function addEmoji(emoji) {
             const input = document.getElementById('messageInput');
             input.value += emoji;
             input.focus();
-            toggleEmojis(); // Close emoji panel
+            toggleEmojiPanel(); // Close emoji panel
         }
 
         // Clear chat
@@ -1312,6 +1319,16 @@
             // Store current user for conflict detection
             localStorage.setItem('currentUser', currentUser);
             return true;
+        }
+        
+        // Clear all messages
+        function clearAllMessages() {
+            messages = [];
+            privateMessages = {};
+            localStorage.removeItem('messages');
+            localStorage.removeItem('privateMessages');
+            renderMessages();
+            renderOnlineUsers([]);
         }
         
         // Check for new private messages every 2 seconds
