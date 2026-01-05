@@ -1004,8 +1004,7 @@
                             `;
                         }
                         
-                        messageHtml += `</div>`;
-                    } else {
+                        } else {
                             messageHtml += `
                                 <div class="message-file">
                                     <a href="/uploads/${message.filename}" target="_blank" class="message-file-link">
@@ -1238,6 +1237,22 @@
             if (isUserOnline) {
                 addSystemMessage(`${currentUser} started a private chat with ${username}`);
             }
+        }
+        
+        function addSystemMessage(content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message system';
+            const time = new Date().toLocaleTimeString();
+            messageDiv.innerHTML = `
+                <div class="system-message">
+                    <div class="system-icon">⚡</div>
+                    <div class="system-content">${escapeHtml(content)}</div>
+                    <div class="system-time">${time}</div>
+                </div>
+            `;
+            const container = document.getElementById('messagesContainer');
+            const typingIndicator = document.getElementById('typingIndicator');
+            container.insertBefore(messageDiv, typingIndicator);
         }
         
         function closePrivateChat() {
@@ -1647,7 +1662,7 @@
                     alert('Logout error: ' + error.message);
                 }
             }
-        }
+}
 
         // Escape HTML
         function escapeHtml(text) {
@@ -1832,17 +1847,6 @@
         // Check for session conflicts every 2 seconds too
         setInterval(checkSessionConflict, 2000);
         
-        // Restore all users section state
-        function restoreAllUsersState() {
-            const allUsersExpanded = localStorage.getItem('allUsersExpanded');
-            const allUsersSection = document.getElementById('allUsersSection');
-            
-            if (allUsersExpanded === 'true') {
-                allUsersSection.classList.remove('collapsed');
-            } else {
-                allUsersSection.classList.add('collapsed');
-            }
-        }
 
         // Clear all messages
         function clearAllMessages() {
@@ -1855,13 +1859,4 @@
         }
         
         // Check for new private messages every 2 seconds
-        setInterval(checkPrivateChatRequests, 2000);
-        
-        // Check for session conflicts every 2 seconds too
-        setInterval(checkSessionConflict, 2000);
-        
-        // Initialize on load
-        document.addEventListener('DOMContentLoaded', initChat);
-    </script>
-</body>
 </html>
