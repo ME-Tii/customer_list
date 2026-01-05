@@ -293,6 +293,7 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
             content_type = self.headers.get('Content-Type', '')
             
             print(f"handle_add_message called with content_type: {content_type}")
+            print(f"Request headers: {dict(self.headers)}")
             
             # Check if it's a file upload
             if 'multipart/form-data' in content_type:
@@ -372,21 +373,19 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
             messages.append(message_data)
             self.save_messages(messages)
             
-            # For file uploads, ensure session cookie is preserved
+            # For file uploads, always set the session cookie to preserve authentication
             if 'multipart/form-data' in content_type:
-                # Parse username from the uploaded message data and update session
                 username = message_data.get('username', '')
                 if username:
                     self.update_session_activity(username)
-                    # Set session cookie to preserve authentication
-                    cookie_header = self.headers.get('Cookie', '')
-                    if 'username=' not in cookie_header and 'session=' not in cookie_header:
-                        self.send_response(200)
-                        self.send_header('Content-Type', 'application/json')
-                        self.send_header('Set-Cookie', f'session=username={username}; accessGranted=true; Path=/; HttpOnly')
-                        self.end_headers()
-                        self.wfile.write(json.dumps({'success': True, 'message': message_data}).encode())
-                        return
+                    # Always send session cookie in response to preserve authentication
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.send_header('Set-Cookie', f'session=username={username}; accessGranted=true; Path=/; HttpOnly; SameSite=Lax')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({'success': True, 'message': message_data}).encode())
+                    print(f"File upload response sent with session cookie for user: {username}")
+                    return
             
             self.send_json_response({'success': True, 'message': message_data})
             
