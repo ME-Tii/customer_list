@@ -412,6 +412,10 @@
             border-radius: 5px;
             margin-top: 5px;
             cursor: pointer;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            border: 2px solid #00ff00 !important;
         }
 
         .message-image:hover {
@@ -984,7 +988,7 @@
                             messageHtml += `
                                 <div class="message-file-container">
                                     <div class="file-info">📷 ${message.originalname}</div>
-                                    <img src="${imageUrl}" alt="${message.originalname}" class="message-image" onclick="window.open('/uploads/${message.filename}', '_blank')" onerror="console.error('Failed to load image:', this.src); this.parentElement.innerHTML='<div class=\\'file-error\\'>❌ Image failed to load<br><a href=\\'/uploads/${message.filename}\\' target=\\'_blank\\'>📁 Open file</a></div>';" onload="console.log('Image loaded successfully:', this.src);">
+                                    <img src="${imageUrl}" alt="${message.originalname}" class="message-image" onclick="window.open('/uploads/${message.filename}', '_blank')" onerror="console.error('Failed to load image:', this.src); this.parentElement.innerHTML='<div class=\\'file-error\\'>❌ Image failed to load<br><a href=\\'/uploads/${message.filename}\\' target=\\'_blank\\'>📁 Open file</a></div>';" onload="console.log('Image loaded successfully:', this.src); console.log('Image dimensions:', this.naturalWidth, 'x', this.naturalHeight, 'display:', window.getComputedStyle(this).display, 'visibility:', window.getComputedStyle(this).visibility);">
                                 </div>
                             `;
                         } else {
@@ -999,6 +1003,13 @@
                     }
                     
                     messageDiv.innerHTML = messageHtml;
+                    
+                    // Debug: Check if images were actually added to DOM
+                    const images = messageDiv.querySelectorAll('.message-image');
+                    console.log('Images found in message:', images.length);
+                    images.forEach((img, i) => {
+                        console.log(`Image ${i}:`, img.src, 'display:', window.getComputedStyle(img).display, 'loaded:', img.complete);
+                    });
                 }
                 
                 container.insertBefore(messageDiv, typingIndicator);
