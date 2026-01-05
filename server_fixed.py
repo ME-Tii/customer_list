@@ -197,12 +197,20 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
                 for user in users:
                     if user['username'] == username:
                         print(f"User {username} authenticated successfully")
+                        # IMPORTANT: Update session activity to prevent timeout
+                        self.update_session_activity(username)
                         return True
             except Exception as e:
                 print(f"Error validating user: {e}")
         
         print("Authentication failed")
         return False
+    
+    def update_session_activity(self, username):
+        """Update user's session activity to prevent timeout"""
+        from datetime import datetime
+        CustomerListHandler.active_sessions[username] = datetime.now().isoformat()
+        print(f"Updated session activity for: {username}")
     
     def redirect_to_login(self):
         """Redirect user to login page"""
@@ -363,6 +371,22 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
             messages = self.load_messages()
             messages.append(message_data)
             self.save_messages(messages)
+            
+            # For file uploads, ensure session cookie is preserved
+            if 'multipart/form-data' in content_type:
+                # Parse username from the uploaded message data and update session
+                username = message_data.get('username', '')
+                if username:
+                    self.update_session_activity(username)
+                    # Set session cookie to preserve authentication
+                    cookie_header = self.headers.get('Cookie', '')
+                    if 'username=' not in cookie_header and 'session=' not in cookie_header:
+                        self.send_response(200)
+                        self.send_header('Content-Type', 'application/json')
+                        self.send_header('Set-Cookie', f'session=username={username}; accessGranted=true; Path=/; HttpOnly')
+                        self.end_headers()
+                        self.wfile.write(json.dumps({'success': True, 'message': message_data}).encode())
+                        return
             
             self.send_json_response({'success': True, 'message': message_data})
             
@@ -1190,9 +1214,14 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
             return
         # Protected endpoints - require authentication
         elif parsed_path.path == '/api/messages':
+            content_type = self.headers.get('Content-Type', '')
+            print(f"/api/messages - Content-Type: {content_type}")
+            print(f"/api/messages - Headers: {dict(self.headers)}")
+            
             if self.is_authenticated():
                 self.handle_add_message()
             else:
+                print("Authentication failed for /api/messages - redirecting to login")
                 self.send_json_response({'error': 'Authentication required'}, 401)
             return
         elif parsed_path.path == '/api/customers':
