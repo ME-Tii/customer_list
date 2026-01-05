@@ -1022,7 +1022,7 @@
                     const images = messageDiv.querySelectorAll('.message-image');
                     console.log('Images found in message:', images.length);
                     images.forEach((img, i) => {
-                        console.log(`Image ${i}:`, img.src, 'display:', window.getComputedStyle(img).display, 'loaded:', img.complete);
+                        console.log('Image ' + i + ':', img.src, 'display:', window.getComputedStyle(img).display, 'loaded:', img.complete);
                     });
                 }
                 
