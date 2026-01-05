@@ -143,7 +143,9 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
     def is_authenticated(self):
         """Check if user is authenticated via session cookie"""
         cookie_header = self.headers.get('Cookie')
+        print(f"Auth check - Cookie header: {cookie_header}")
         if not cookie_header:
+            print("No cookie header found")
             return False
         
         # Parse cookies - look for username in any format
@@ -153,11 +155,13 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
         username_match = re.search(r'username=([^;]+)', cookie_header)
         if username_match:
             username = username_match.group(1).strip()
+            print(f"Found username in cookie: {username}")
             if username:
                 # Verify user exists in users list
                 users = self.load_users()
                 for user in users:
                     if user['username'] == username:
+                        print(f"User {username} authenticated successfully")
                         return True
         
         # Also check for session cookie format
@@ -165,13 +169,16 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
             session_part = cookie_header.split('session=')[1].split(';')[0].strip()
             if 'username=' in session_part:
                 username_part = session_part.split('username=')[1].strip()
+                print(f"Found username in session: {username_part}")
                 if username_part:
                     # Verify user exists in users list
                     users = self.load_users()
                     for user in users:
                         if user['username'] == username_part:
+                            print(f"User {username_part} authenticated via session")
                             return True
         
+        print("Authentication failed")
         return False
     
     def redirect_to_login(self):
@@ -253,6 +260,8 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
     def handle_add_message(self):
         try:
             content_type = self.headers.get('Content-Type', '')
+            
+            print(f"handle_add_message called with content_type: {content_type}")
             
             # Check if it's a file upload
             if 'multipart/form-data' in content_type:
