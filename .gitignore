@@ -1,1 +1,7 @@
 node_modules/
+uploads/
+*.log
+debug.log
+server.log
+__pycache__/
+*.pyc
