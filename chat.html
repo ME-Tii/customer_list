@@ -1671,37 +1671,7 @@
             return div.innerHTML;
         }
 
-        // Send message (public or private)
-        async function sendMessage() {
-            const input = document.getElementById('messageInput');
-            const content = input.value.trim();
-            
-            if (!content && !selectedFile) return;
-            
-            // Clear input immediately
-            input.value = '';
-            
-            try {
-                if (selectedFile) {
-                    const formData = new FormData();
-                    formData.append('username', currentUser);
-                    formData.append('content', content);
-                    formData.append('timestamp', new Date().toISOString());
-                    formData.append('file', selectedFile);
-                    
-                    const response = await fetch('/api/messages', {
-                        method: 'POST',
-                        credentials: 'include',
-                        body: formData
-                    });
-                    
-                    if (response.ok) {
-                        removeFile();
-                    } else {
-                        input.value = content;
-                        alert('Failed to send file');
-                        return;
-                    }
+
                 } else {
                     const messageData = {
                         username: currentUser,
@@ -1831,16 +1801,6 @@
             }
         }
 
-        // Clear all messages
-        function clearAllMessages() {
-            messages = [];
-            privateMessages = {};
-            localStorage.removeItem('messages');
-            localStorage.removeItem('privateMessages');
-            renderMessages();
-            renderOnlineUsers([]);
-        }
-        
         // Check for new private messages every 2 seconds
         setInterval(checkPrivateChatRequests, 2000);
         
@@ -1860,5 +1820,8 @@
         
 // Check for new private messages every 2 seconds
         setInterval(checkPrivateChatRequests, 2000);
+        
+        // Initialize chat when DOM is ready
+        document.addEventListener('DOMContentLoaded', initChat);
     </script>
 </html>
