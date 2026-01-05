@@ -943,7 +943,9 @@
                     
                     // Add file attachment if exists
                     if (message.filename) {
+                        console.log('Rendering file:', message);
                         if (message.filetype && message.filetype.startsWith('image/')) {
+                            console.log('Rendering image:', message.filename, 'type:', message.filetype);
                             messageHtml += `<img src="/uploads/${message.filename}" alt="${message.originalname}" class="message-image" onclick="window.open('/uploads/${message.filename}', '_blank')">`;
                         } else {
                             messageHtml += `
@@ -1058,6 +1060,8 @@
                     
                     if (response.ok) {
                         const result = await response.json();
+                        console.log('File upload response:', result);
+                        console.log('Message data from server:', result.message);
                         messageData = result.message;
                         removeFile();
                     } else if (response.status === 401) {
