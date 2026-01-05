@@ -418,6 +418,34 @@
             opacity: 0.8;
         }
 
+        .message-file-container {
+            margin-top: 5px;
+        }
+
+        .file-info {
+            font-size: 0.8em;
+            color: #888;
+            margin-bottom: 3px;
+        }
+
+        .file-error {
+            color: #ff6666;
+            font-size: 0.9em;
+            padding: 10px;
+            border: 1px solid #ff6666;
+            border-radius: 3px;
+            background: rgba(255, 0, 0, 0.1);
+        }
+
+        .file-error a {
+            color: #00ff00;
+            text-decoration: none;
+        }
+
+        .file-error a:hover {
+            text-decoration: underline;
+        }
+
         .private-chat-btn {
             background: #0088cc;
             color: #fff;
@@ -953,7 +981,12 @@
                             const timestamp = Date.now();
                             const imageUrl = `/uploads/${message.filename}?t=${timestamp}`;
                             console.log('Image URL will be:', imageUrl);
-                            messageHtml += `<img src="${imageUrl}" alt="${message.originalname}" class="message-image" onclick="window.open('/uploads/${message.filename}', '_blank')" onerror="console.error('Failed to load image:', this.src); this.style.display='none';" onload="console.log('Image loaded successfully:', this.src);">`;
+                            messageHtml += `
+                                <div class="message-file-container">
+                                    <div class="file-info">📷 ${message.originalname}</div>
+                                    <img src="${imageUrl}" alt="${message.originalname}" class="message-image" onclick="window.open('/uploads/${message.filename}', '_blank')" onerror="console.error('Failed to load image:', this.src); this.parentElement.innerHTML='<div class=\\'file-error\\'>❌ Image failed to load<br><a href=\\'/uploads/${message.filename}\\' target=\\'_blank\\'>📁 Open file</a></div>';" onload="console.log('Image loaded successfully:', this.src);">
+                                </div>
+                            `;
                         } else {
                             messageHtml += `
                                 <div class="message-file">
