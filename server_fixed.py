@@ -58,10 +58,7 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
                 self.redirect_to_login()
                 return
         elif parsed_path.path == '/api/messages':
-            if self.is_authenticated():
-                self.handle_get_messages()
-            else:
-                self.send_json_response({'error': 'Authentication required'}, 401)
+            self.handle_get_messages()
             return
         elif parsed_path.path == '/api/users':
             if self.is_authenticated():
@@ -76,10 +73,7 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_json_response({'error': 'Authentication required'}, 401)
             return
         elif parsed_path.path == '/api/online-users':
-            if self.is_authenticated():
-                self.handle_get_online_users()
-            else:
-                self.send_json_response({'error': 'Authentication required'}, 401)
+            self.handle_get_online_users()
             return
         elif parsed_path.path == '/api/logout':
             if self.is_authenticated():
@@ -100,35 +94,36 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
                 self.send_json_response({'error': 'Authentication required'}, 401)
             return
         elif parsed_path.path.startswith('/uploads/'):
-            # Serve uploaded files
-            if self.is_authenticated():
-                file_path = parsed_path.path[1:]  # Remove leading '/'
-                try:
-                    with open(file_path, 'rb') as f:
-                        content = f.read()
-                    
-                    # Determine content type
-                    if file_path.endswith('.jpg') or file_path.endswith('.jpeg'):
-                        content_type = 'image/jpeg'
-                    elif file_path.endswith('.png'):
-                        content_type = 'image/png'
-                    elif file_path.endswith('.gif'):
-                        content_type = 'image/gif'
-                    elif file_path.endswith('.pdf'):
-                        content_type = 'application/pdf'
-                    elif file_path.endswith('.txt'):
-                        content_type = 'text/plain'
-                    else:
-                        content_type = 'application/octet-stream'
-                    
-                    self.send_response(200)
-                    self.send_header('Content-type', content_type)
-                    self.end_headers()
-                    self.wfile.write(content)
-                except FileNotFoundError:
-                    self.send_error(404, 'File not found')
-            else:
-                self.redirect_to_login()
+            # Serve uploaded files - no authentication required for image display
+            file_path = parsed_path.path[1:]  # Remove leading '/'
+            try:
+                with open(file_path, 'rb') as f:
+                    content = f.read()
+                
+                # Determine content type
+                if file_path.endswith('.jpg') or file_path.endswith('.jpeg'):
+                    content_type = 'image/jpeg'
+                elif file_path.endswith('.png'):
+                    content_type = 'image/png'
+                elif file_path.endswith('.gif'):
+                    content_type = 'image/gif'
+                elif file_path.endswith('.pdf'):
+                    content_type = 'application/pdf'
+                elif file_path.endswith('.txt'):
+                    content_type = 'text/plain'
+                else:
+                    content_type = 'application/octet-stream'
+                
+                self.send_response(200)
+                self.send_header('Content-type', content_type)
+                self.send_cors_headers()
+                self.end_headers()
+                self.wfile.write(content)
+            except FileNotFoundError:
+                self.send_error(404, 'File not found')
+            except Exception as e:
+                print(f"Error serving file {file_path}: {e}")
+                self.send_error(500, 'Internal server error')
         else:
             # Try to serve static files
             return super().do_GET()
@@ -151,7 +146,21 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
         if not cookie_header:
             return False
         
-        # Parse session cookie
+        # Parse cookies - look for username in any format
+        import re
+        
+        # Try to find username in cookie string
+        username_match = re.search(r'username=([^;]+)', cookie_header)
+        if username_match:
+            username = username_match.group(1).strip()
+            if username:
+                # Verify user exists in users list
+                users = self.load_users()
+                for user in users:
+                    if user['username'] == username:
+                        return True
+        
+        # Also check for session cookie format
         if 'session=' in cookie_header:
             session_part = cookie_header.split('session=')[1].split(';')[0].strip()
             if 'username=' in session_part:
@@ -162,6 +171,7 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
                     for user in users:
                         if user['username'] == username_part:
                             return True
+        
         return False
     
     def redirect_to_login(self):
@@ -246,84 +256,64 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
             
             # Check if it's a file upload
             if 'multipart/form-data' in content_type:
-                # Simple file upload handling
+                # Use cgi module for reliable multipart parsing
+                import cgi
+                import io
                 import os
                 import uuid
-                import re
                 
                 # Read all data
                 content_length = int(self.headers['Content-Length'])
                 post_data = self.rfile.read(content_length)
                 
-                # Extract boundary from content type
-                boundary_match = re.search(r'boundary=([^;]+)', content_type)
-                if not boundary_match:
-                    self.send_json_response({'error': 'Invalid multipart boundary'}, 400)
-                    return
-                
-                boundary = '--' + boundary_match.group(1)
-                parts = post_data.split(boundary.encode())
+                # Use cgi for multipart parsing (more reliable)
+                form = cgi.FieldStorage(
+                    fp=io.BytesIO(post_data),
+                    headers=self.headers,
+                    environ={'REQUEST_METHOD': 'POST'}
+                )
                 
                 message_data = {}
                 
-                for part in parts:
-                    if b'Content-Disposition:' in part:
-                        # Extract form field name from Content-Disposition header
-                        disposition_match = re.search(b'name="([^"]+)"', part)
-                        if disposition_match:
-                            field_name = disposition_match.group(1).decode()
-                            
-                            # Handle different field types
-                            if field_name == 'username':
-                                content_match = re.search(b'\r\n\r\n(.+)', part, re.DOTALL)
-                                if content_match:
-                                    message_data['username'] = content_match.group(1).decode().strip()
-                            
-                            elif field_name == 'content':
-                                content_match = re.search(b'\r\n\r\n(.+)', part, re.DOTALL)
-                                if content_match:
-                                    content = content_match.group(1).decode().strip()
-                                    if content:  # Only include if not empty
-                                        message_data['content'] = content
-                            
-                            elif field_name == 'timestamp':
-                                content_match = re.search(b'\r\n\r\n(.+)', part, re.DOTALL)
-                                if content_match:
-                                    message_data['timestamp'] = content_match.group(1).decode().strip()
-                            
-                            elif field_name == 'file':
-                                # Handle file upload
-                                filename_match = re.search(b'filename="([^"]+)"', part)
-                                if filename_match:
-                                    original_filename = filename_match.group(1).decode()
-                                    
-                                    if original_filename:  # Only process if file was actually selected
-                                        # Extract content type
-                                        content_type_match = re.search(b'Content-Type:\s*([^\r\n]+)', part)
-                                        file_type = content_type_match.group(1).decode() if content_type_match else 'application/octet-stream'
-                                        
-                                        # Extract file content
-                                        content_match = re.search(b'\r\n\r\n(.*)\r\n$', part, re.DOTALL)
-                                        if content_match:
-                                            file_content = content_match.group(1)
-                                            
-                                            # Create safe filename
-                                            file_ext = os.path.splitext(original_filename)[1]
-                                            safe_filename = f"{uuid.uuid4().hex}{file_ext}"
-                                            
-                                            # Ensure uploads directory exists
-                                            uploads_dir = 'uploads'
-                                            if not os.path.exists(uploads_dir):
-                                                os.makedirs(uploads_dir)
-                                            
-                                            # Save file
-                                            file_path = os.path.join(uploads_dir, safe_filename)
-                                            with open(file_path, 'wb') as f:
-                                                f.write(file_content)
-                                            
-                                            message_data['filename'] = safe_filename
-                                            message_data['originalname'] = original_filename
-                                            message_data['filetype'] = file_type
+                # Extract form data
+                if 'username' in form:
+                    message_data['username'] = form.getvalue('username', '').strip()
+                if 'content' in form:
+                    content = form.getvalue('content', '').strip()
+                    if content:  # Only include if not empty
+                        message_data['content'] = content
+                if 'timestamp' in form:
+                    message_data['timestamp'] = form.getvalue('timestamp', '').strip()
+                
+                # Handle file upload if present
+                if 'file' in form and form['file'].filename:
+                    file_item = form['file']
+                    filename = file_item.filename
+                    
+                    if filename:
+                        # Create safe filename
+                        file_ext = os.path.splitext(filename)[1]
+                        safe_filename = f"{uuid.uuid4().hex}{file_ext}"
+                        
+                        # Ensure uploads directory exists
+                        uploads_dir = 'uploads'
+                        if not os.path.exists(uploads_dir):
+                            os.makedirs(uploads_dir)
+                        
+                        # Save file
+                        file_path = os.path.join(uploads_dir, safe_filename)
+                        with open(file_path, 'wb') as f:
+                            f.write(file_item.file.read())
+                        
+                        message_data['filename'] = safe_filename
+                        message_data['originalname'] = filename
+                        message_data['filetype'] = file_item.type or 'application/octet-stream'
+                        
+                        print(f"File uploaded: {filename} -> {safe_filename}")
+                        print(f"File type: {file_item.type}")
+                        print(f"Message data: {message_data}")
+                    else:
+                        print("File selected but no filename found")
                 
                 # Ensure required fields are present
                 if 'username' not in message_data:
@@ -539,6 +529,7 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
             
             username = data.get('username')
             email = data.get('email')
+            password = data.get('password')
             
             users = self.load_users()
             
@@ -553,7 +544,7 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
             new_user = {
                 'username': username,
                 'email': email,
-                'password': 'default123', # Default password
+                'password': password,
                 'role': data.get('role', 'user'),
                 'accessGranted': data.get('accessGranted', False),
                 'created_at': data.get('createdAt', datetime.now().isoformat())
@@ -764,7 +755,25 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
         import re
         match = re.search(r'username=([^;]+)', cookie_header)
         if match:
-            return match.group(1).strip()
+            username = match.group(1).strip()
+            if username:
+                # Verify user exists in users list
+                users = self.load_users()
+                for user in users:
+                    if user['username'] == username:
+                        return username
+        
+        # Also check for session cookie format
+        if 'session=' in cookie_header:
+            session_part = cookie_header.split('session=')[1].split(';')[0].strip()
+            if 'username=' in session_part:
+                username_part = session_part.split('username=')[1].strip()
+                if username_part:
+                    # Verify user exists in users list
+                    users = self.load_users()
+                    for user in users:
+                        if user['username'] == username_part:
+                            return username_part
         
         return None
     
@@ -790,17 +799,15 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
     
     def handle_heartbeat(self):
         try:
-            # Get username from cookie
-            cookie_header = self.headers.get('Cookie')
-            username = None
+            # Get username from cookie first (preferred method)
+            username = self.get_username_from_cookie()
             
-            if cookie_header:
-                if 'username=' in cookie_header:
-                    parts = cookie_header.split('username=')
-                    if len(parts) > 1:
-                        username_part = parts[1].split(';')[0].strip()
-                        if username_part:
-                            username = username_part
+            # If not in cookie, try to get from POST body
+            if not username and self.headers.get('Content-Type') == 'application/json':
+                content_length = int(self.headers['Content-Length'])
+                post_data = self.rfile.read(content_length)
+                data = json.loads(post_data.decode('utf-8'))
+                username = data.get('username')
             
             if username:
                 # Update last seen time for this session
@@ -808,9 +815,11 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
                 current_time = datetime.now().isoformat()
                 CustomerListHandler.active_sessions[username] = current_time
                 print(f"Heartbeat from {username} at {current_time}")
+                print(f"Total active sessions: {len(CustomerListHandler.active_sessions)}")
                 self.send_json_response({'status': 'active', 'timestamp': current_time})
             else:
-                print(f"Heartbeat failed - no username found in cookie: {cookie_header}")
+                cookie_header = self.headers.get('Cookie', 'No cookie')
+                print(f"Heartbeat failed - no username found. Cookie: {cookie_header}")
                 self.send_json_response({'error': 'No session found'}, 401)
         except Exception as e:
             print(f"Error in handle_heartbeat: {e}")
@@ -1236,7 +1245,7 @@ if __name__ == '__main__':
     import socket
     
     # Use PORT from environment variable (Render) or default to 8004
-    PORT = int(os.environ.get('PORT', 8004))
+    PORT = int(os.environ.get('PORT', 3000))
     Handler = CustomerListHandler
     
     # Get local IP address
