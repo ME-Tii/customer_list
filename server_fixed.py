@@ -195,18 +195,27 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
             try:
                 # For multipart requests, check if auth info is in form data
                 content_type = self.headers.get('Content-Type', '')
+                print(f"Content-Type for form parsing: {content_type}")
                 if 'multipart/form-data' in content_type:
+                    print("Detected multipart request, parsing form data...")
                     import cgi
                     import io
                     
                     content_length = int(self.headers['Content-Length'])
+                    print(f"Content length: {content_length}")
                     post_data = self.rfile.read(content_length)
+                    print(f"Raw post data length: {len(post_data)}")
                     
                     form = cgi.FieldStorage(
                         fp=io.BytesIO(post_data),
                         headers=self.headers,
                         environ={'REQUEST_METHOD': 'POST'}
                     )
+                    
+                    print("Available form fields:")
+                    for key in form.keys():
+                        value = form.getvalue(key)
+                        print(f"  {key}: {value}")
                     
                     if 'auth_username' in form:
                         username = form.getvalue('auth_username', '').strip()
@@ -215,11 +224,17 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
                         # Verify this user has recent session activity
                         if username in CustomerListHandler.active_sessions:
                             print(f"User {username} has active session")
+                            print(f"Active sessions: {list(CustomerListHandler.active_sessions.keys())}")
                         else:
                             print(f"User {username} has no active session")
+                            print(f"Available sessions: {list(CustomerListHandler.active_sessions.keys())}")
                             username = None
+                    else:
+                        print("No auth_username found in form data")
             except Exception as e:
                 print(f"Error checking form data: {e}")
+                import traceback
+                traceback.print_exc()
         
         # Method 5: Fallback for multipart requests - check if user has recent session
         if not username:

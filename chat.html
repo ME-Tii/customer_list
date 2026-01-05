@@ -979,6 +979,14 @@
                     if (message.filename) {
                         console.log('Rendering file:', message);
                         console.log('File details - filename:', message.filename, 'originalname:', message.originalname, 'filetype:', message.filetype);
+                        
+                        // ALWAYS show file info as fallback
+                        messageHtml += `
+                            <div class="message-file-container" style="border: 2px solid yellow; padding: 10px; margin: 5px 0;">
+                                <div class="file-info" style="color: yellow; font-weight: bold;">📁 FILE: ${message.originalname || message.filename}</div>
+                                <div style="color: #888; font-size: 0.8em;">Type: ${message.filetype || 'unknown'}</div>
+                        `;
+                        
                         if (message.filetype && message.filetype.startsWith('image/')) {
                             console.log('Rendering image:', message.filename, 'type:', message.filetype);
                             // Add timestamp to prevent caching issues
@@ -986,12 +994,15 @@
                             const imageUrl = `/uploads/${message.filename}?t=${timestamp}`;
                             console.log('Image URL will be:', imageUrl);
                             messageHtml += `
-                                <div class="message-file-container">
-                                    <div class="file-info">📷 ${message.originalname}</div>
-                                    <img src="${imageUrl}" alt="${message.originalname}" class="message-image" onclick="window.open('/uploads/${message.filename}', '_blank')" onerror="console.error('Failed to load image:', this.src); this.parentElement.innerHTML='<div class=\\'file-error\\'>❌ Image failed to load<br><a href=\\'/uploads/${message.filename}\\' target=\\'_blank\\'>📁 Open file</a></div>';" onload="console.log('Image loaded successfully:', this.src); console.log('Image dimensions:', this.naturalWidth, 'x', this.naturalHeight, 'display:', window.getComputedStyle(this).display, 'visibility:', window.getComputedStyle(this).visibility);">
+                                <div style="margin-top: 5px;">
+                                    <img src="${imageUrl}" alt="${message.originalname}" class="message-image" onclick="window.open('/uploads/${message.filename}', '_blank')" onerror="console.error('Failed to load image:', this.src); this.style.display='none'; this.nextElementSibling.style.display='block';" onload="console.log('Image loaded successfully:', this.src); console.log('Image dimensions:', this.naturalWidth, 'x', this.naturalHeight, 'display:', window.getComputedStyle(this).display, 'visibility:', window.getComputedStyle(this).visibility);">
+                                    <div style="display: none; color: #ff6666; margin-top: 5px;">❌ Image failed to load - <a href="/uploads/${message.filename}" target="_blank" style="color: #00ff00;">Open file</a></div>
                                 </div>
                             `;
-                        } else {
+                        }
+                        
+                        messageHtml += `</div>`;
+                    } else {
                             messageHtml += `
                                 <div class="message-file">
                                     <a href="/uploads/${message.filename}" target="_blank" class="message-file-link">
@@ -1108,11 +1119,20 @@
                     formData.append('auth_username', currentUser);
                     formData.append('auth_timestamp', Date.now());
                     
+                    console.log('About to send file upload request...');
+                    console.log('FormData contents:');
+                    for (let [key, value] of formData.entries()) {
+                        console.log(`  ${key}: ${value instanceof File ? `File(${value.name}, ${value.size} bytes)` : value}`);
+                    }
+                    
                     const response = await fetch('/api/messages', {
                         method: 'POST',
                         credentials: 'include',
                         body: formData
                     });
+                    
+                    console.log('Upload response status:', response.status);
+                    console.log('Upload response headers:', [...response.headers.entries()]);
                     
                     if (response.ok) {
                         const result = await response.json();
@@ -1125,6 +1145,9 @@
                         await new Promise(resolve => setTimeout(resolve, 100));
                     } else if (response.status === 401) {
                         // Authentication failed - session expired
+                        console.error('401 Unauthorized - Authentication failed');
+                        const errorText = await response.text();
+                        console.error('401 Response body:', errorText);
                         alert('Your session has expired. Please log in again.');
                         window.location.href = '/';
                         return;
@@ -1173,8 +1196,14 @@
                 
             } catch (error) {
                 console.error('Error sending message:', error);
+                console.error('Error stack:', error.stack);
                 alert('Network error sending message');
             }
+            
+            // Debug final messageData state
+            console.log('Final messageData before rendering:', messageData);
+            console.log('Does messageData have filename?', !!messageData?.filename);
+            console.log('messageData keys:', messageData ? Object.keys(messageData) : 'null');
         }
 
         // Handle key press

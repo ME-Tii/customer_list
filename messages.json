@@ -1396,5 +1396,76 @@
     "username": "SYSTEM",
     "content": "KidWhyLit has logged in",
     "timestamp": "2026-01-05T03:54:09.169041"
+  },
+  {
+    "username": "SYSTEM",
+    "content": "KidWhyLit has logged out",
+    "timestamp": "2026-01-05T03:55:15.078756"
+  },
+  {
+    "username": "SYSTEM",
+    "content": "KidWhyLit has logged out",
+    "timestamp": "2026-01-05T03:55:15.114188"
+  },
+  {
+    "username": "SYSTEM",
+    "content": "None has logged out",
+    "timestamp": "2026-01-05T03:55:26.203082"
+  },
+  {
+    "username": "SYSTEM",
+    "content": "KidWhyLit has logged in",
+    "timestamp": "2026-01-05T03:55:36.741598"
+  },
+  {
+    "username": "KidWhyLit",
+    "timestamp": "2026-01-05T02:56:04.340Z",
+    "filename": "ef511bb884d944e28a0837d1fc684ac3.png",
+    "originalname": "Screenshot 2025-12-26 01.47.53.png",
+    "filetype": "image/png"
+  },
+  {
+    "username": "SYSTEM",
+    "content": "KidWhyLit has logged out",
+    "timestamp": "2026-01-05T03:56:12.782090"
+  },
+  {
+    "username": "SYSTEM",
+    "content": "KidWhyLit has logged out",
+    "timestamp": "2026-01-05T03:56:12.785615"
+  },
+  {
+    "username": "SYSTEM",
+    "content": "None has logged out",
+    "timestamp": "2026-01-05T03:56:17.767490"
+  },
+  {
+    "username": "SYSTEM",
+    "content": "KidWhyLit has logged in",
+    "timestamp": "2026-01-05T03:56:32.038857"
+  },
+  {
+    "username": "KidWhyLit",
+    "timestamp": "2026-01-05T02:57:28.771Z",
+    "filename": "f6a482c2a87e49f39dd1a87f24a3088f.png",
+    "originalname": "Screenshot 2025-12-26 01.47.53.png",
+    "filetype": "image/png"
+  },
+  {
+    "username": "KidWhyLit",
+    "timestamp": "2026-01-05T02:59:17.926Z",
+    "filename": "e6af52922f6a40979d143f6845282ce1.png",
+    "originalname": "Screenshot 2025-12-26 01.47.53.png",
+    "filetype": "image/png"
+  },
+  {
+    "username": "SYSTEM",
+    "content": "KidWhyLit has logged out",
+    "timestamp": "2026-01-05T04:02:01.344588"
+  },
+  {
+    "username": "SYSTEM",
+    "content": "KidWhyLit has logged out",
+    "timestamp": "2026-01-05T04:02:01.355380"
   }
 ]
