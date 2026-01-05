@@ -783,6 +783,9 @@
         let privateFile = null;
         let userIsScrollingPrivate = false;
         let privateChatScrollPosition = 0;
+
+        // Declare functions early to ensure they're in global scope
+        let handleKeyPress, toggleAllUsers;
         let privateChatUserScrolled = false;
         let lastMessageCount = {};
 
@@ -995,7 +998,7 @@
                             console.log('Image URL will be:', imageUrl);
                             messageHtml += `
                                 <div style="margin-top: 5px;">
-                                    <img src="${imageUrl}" alt="${message.originalname}" class="message-image" onclick="window.open('/uploads/${message.filename}', '_blank')" onerror="console.error('Failed to load image:', this.src); this.style.display='none'; this.nextElementSibling.style.display='block';" onload="console.log('Image loaded successfully:', this.src); console.log('Image dimensions:', this.naturalWidth, 'x', this.naturalHeight, 'display:', window.getComputedStyle(this).display, 'visibility:', window.getComputedStyle(this).visibility);">
+                                    <img src="${imageUrl}" alt="${message.originalname}" class="message-image" onclick='window.open("/uploads/${message.filename}", "_blank")' onerror="console.error('Failed to load image:', this.src); this.style.display='none'; this.nextElementSibling.style.display='block';" onload="console.log('Image loaded successfully:', this.src); console.log('Image dimensions:', this.naturalWidth, 'x', this.naturalHeight, 'display:', window.getComputedStyle(this).display, 'visibility:', window.getComputedStyle(this).visibility);">
                                     <div style="display: none; color: #ff6666; margin-top: 5px;">❌ Image failed to load - <a href="/uploads/${message.filename}" target="_blank" style="color: #00ff00;">Open file</a></div>
                                 </div>
                             `;
