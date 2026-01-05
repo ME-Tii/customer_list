@@ -379,11 +379,15 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
                 if username:
                     self.update_session_activity(username)
                     # Always send session cookie in response to preserve authentication
+                    response_data = {'success': True, 'message': message_data}
+                    print(f"File upload response data: {response_data}")
+                    print(f"Message data being returned: {message_data}")
+                    
                     self.send_response(200)
                     self.send_header('Content-Type', 'application/json')
                     self.send_header('Set-Cookie', f'session=username={username}; accessGranted=true; Path=/; HttpOnly; SameSite=Lax')
                     self.end_headers()
-                    self.wfile.write(json.dumps({'success': True, 'message': message_data}).encode())
+                    self.wfile.write(json.dumps(response_data).encode())
                     print(f"File upload response sent with session cookie for user: {username}")
                     return
             

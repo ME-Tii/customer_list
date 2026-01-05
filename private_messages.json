@@ -2,83 +2,50 @@
   "KidWhyLit": [
     {
       "from_user": "KidWhyLit",
-      "to_user": "KidWhyLit",
+      "to_user": "user1",
       "content": "yo",
-      "timestamp": "2026-01-04T19:25:56.914Z"
-    },
-    {
-      "from_user": "KidWhyLit",
-      "to_user": "KidWhyLit",
-      "content": "yo",
-      "timestamp": "2026-01-04T19:25:56.914Z",
+      "timestamp": "2026-01-04T23:31:03.277Z",
       "sent": "true"
     },
     {
-      "from_user": "KidWhyLit",
+      "from_user": "user1",
       "to_user": "KidWhyLit",
-      "content": "hello",
-      "timestamp": "2026-01-04T19:38:04.051Z"
+      "content": "",
+      "timestamp": "2026-01-04T23:32:33.532Z",
+      "filename": "34627fedfee14f20805c6f3cfc3d5211.png",
+      "originalname": "Screenshot 2025-12-26 01.47.53.png",
+      "filetype": "image/png"
     },
     {
       "from_user": "KidWhyLit",
-      "to_user": "KidWhyLit",
-      "content": "hello",
-      "timestamp": "2026-01-04T19:38:04.051Z",
-      "sent": "true"
-    },
-    {
-      "from_user": "KidWhyLit",
-      "to_user": "KidWhyLit",
-      "content": "hello",
-      "timestamp": "2026-01-04T19:38:12.259Z"
-    },
-    {
-      "from_user": "KidWhyLit",
-      "to_user": "KidWhyLit",
-      "content": "hello",
-      "timestamp": "2026-01-04T19:38:12.259Z",
-      "sent": "true"
-    },
-    {
-      "from_user": "KidWhyLit",
-      "to_user": "KidWhyLit",
-      "content": "hello",
-      "timestamp": "2026-01-04T19:38:37.104Z"
-    },
-    {
-      "from_user": "KidWhyLit",
-      "to_user": "KidWhyLit",
-      "content": "hello",
-      "timestamp": "2026-01-04T19:38:37.104Z",
+      "to_user": "user1",
+      "content": "nice",
+      "timestamp": "2026-01-04T23:32:53.409Z",
       "sent": "true"
     }
   ],
   "user1": [
     {
-      "from_user": "user1",
+      "from_user": "KidWhyLit",
       "to_user": "user1",
-      "content": "hello",
-      "timestamp": "2026-01-04T19:31:18.810Z"
+      "content": "yo",
+      "timestamp": "2026-01-04T23:31:03.277Z"
     },
     {
       "from_user": "user1",
-      "to_user": "user1",
-      "content": "hello",
-      "timestamp": "2026-01-04T19:31:18.810Z",
+      "to_user": "KidWhyLit",
+      "content": "",
+      "timestamp": "2026-01-04T23:32:33.532Z",
+      "filename": "34627fedfee14f20805c6f3cfc3d5211.png",
+      "originalname": "Screenshot 2025-12-26 01.47.53.png",
+      "filetype": "image/png",
       "sent": "true"
     },
     {
-      "from_user": "user1",
+      "from_user": "KidWhyLit",
       "to_user": "user1",
-      "content": "hello",
-      "timestamp": "2026-01-04T19:47:43.144Z"
-    },
-    {
-      "from_user": "user1",
-      "to_user": "user1",
-      "content": "hello",
-      "timestamp": "2026-01-04T19:47:43.144Z",
-      "sent": "true"
+      "content": "nice",
+      "timestamp": "2026-01-04T23:32:53.409Z"
     }
   ]
 }

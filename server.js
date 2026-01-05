@@ -235,6 +235,62 @@ app.get('/customers.xml', (req, res) => {
     res.sendFile(XML_FILE);
 });
 
+// Chat functionality
+const messages = [];
+const onlineUsers = new Map();
+const heartbeats = new Map();
+
+// Store and retrieve messages
+app.get('/api/messages', (req, res) => {
+    res.json(messages);
+});
+
+app.post('/api/messages', (req, res) => {
+    const message = {
+        id: messages.length + 1,
+        username: req.body.username,
+        content: req.body.content,
+        timestamp: req.body.timestamp || new Date().toISOString()
+    };
+    messages.push(message);
+    res.json(message);
+});
+
+// Heartbeat system
+app.post('/api/heartbeat', (req, res) => {
+    // Get username from session or from request body
+    const username = req.body.username || req.query.username;
+    if (username) {
+        heartbeats.set(username, Date.now());
+        onlineUsers.set(username, { username, lastSeen: Date.now() });
+    }
+    res.json({ success: true });
+});
+
+app.get('/api/online-users', (req, res) => {
+    const now = Date.now();
+    const timeout = 30000; // 30 seconds timeout
+    
+    // Remove inactive users
+    for (const [username, lastSeen] of heartbeats.entries()) {
+        if (now - lastSeen > timeout) {
+            heartbeats.delete(username);
+            onlineUsers.delete(username);
+        }
+    }
+    
+    res.json(Array.from(onlineUsers.values()));
+});
+
+app.post('/api/logout', (req, res) => {
+    const username = req.body.username || req.query.username;
+    if (username) {
+        heartbeats.delete(username);
+        onlineUsers.delete(username);
+    }
+    res.json({ success: true });
+});
+
 // Start server
 app.listen(PORT, () => {
     // Initialize XML file
@@ -244,4 +300,5 @@ app.listen(PORT, () => {
     console.log(`Form available at http://localhost:${PORT}/`);
     console.log(`API endpoint: http://localhost:${PORT}/api/customers`);
     console.log(`XML file available at http://localhost:${PORT}/customers.xml`);
+    console.log(`Chat API endpoints available`);
 });

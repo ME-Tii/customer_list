@@ -913,7 +913,9 @@
             const existingMessages = container.querySelectorAll('.message');
             existingMessages.forEach(msg => msg.remove());
             
+            console.log('renderMessages called with', messages.length, 'messages');
             messages.forEach((message, index) => {
+                console.log(`Rendering message ${index}:`, message);
                 const messageDiv = document.createElement('div');
                 
                 if (message.username === 'SYSTEM') {
@@ -944,11 +946,14 @@
                     // Add file attachment if exists
                     if (message.filename) {
                         console.log('Rendering file:', message);
+                        console.log('File details - filename:', message.filename, 'originalname:', message.originalname, 'filetype:', message.filetype);
                         if (message.filetype && message.filetype.startsWith('image/')) {
                             console.log('Rendering image:', message.filename, 'type:', message.filetype);
                             // Add timestamp to prevent caching issues
                             const timestamp = Date.now();
-                            messageHtml += `<img src="/uploads/${message.filename}?t=${timestamp}" alt="${message.originalname}" class="message-image" onclick="window.open('/uploads/${message.filename}', '_blank')" onerror="console.error('Failed to load image:', this.src); this.style.display='none';">`;
+                            const imageUrl = `/uploads/${message.filename}?t=${timestamp}`;
+                            console.log('Image URL will be:', imageUrl);
+                            messageHtml += `<img src="${imageUrl}" alt="${message.originalname}" class="message-image" onclick="window.open('/uploads/${message.filename}', '_blank')" onerror="console.error('Failed to load image:', this.src); this.style.display='none';" onload="console.log('Image loaded successfully:', this.src);">`;
                         } else {
                             messageHtml += `
                                 <div class="message-file">
@@ -1106,7 +1111,12 @@
                 }
                 
                 // Add message to local array immediately for instant display
+                console.log('About to add messageData to array:', messageData);
+                console.log('Current messages array length:', messages.length);
                 messages.push(messageData);
+                console.log('After push - messages array length:', messages.length);
+                console.log('Last message in array:', messages[messages.length - 1]);
+                
                 renderMessages();
                 
                 // Also refresh from server to ensure consistency
