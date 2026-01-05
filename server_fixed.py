@@ -151,35 +151,55 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
             print("No cookie header found")
             return False
         
-        # Parse cookies - look for username in any format
+        # Parse cookies more robustly - handle multipart requests and various cookie formats
         import re
+        username = None
         
-        # Try to find username in cookie string
+        # Try multiple approaches to extract username
+        # Method 1: Direct username pattern
         username_match = re.search(r'username=([^;]+)', cookie_header)
         if username_match:
             username = username_match.group(1).strip()
-            print(f"Found username in cookie: {username}")
-            if username:
-                # Verify user exists in users list
+            print(f"Found username via direct pattern: {username}")
+        
+        # Method 2: Extract from session cookie format
+        if not username and 'session=' in cookie_header:
+            try:
+                session_part = cookie_header.split('session=')[1].split(';')[0].strip()
+                if 'username=' in session_part:
+                    username = session_part.split('username=')[1].strip()
+                    print(f"Found username in session: {username}")
+            except (IndexError, ValueError):
+                pass
+        
+        # Method 3: Parse all cookies and look for username in any
+        if not username:
+            try:
+                cookies = {}
+                for cookie in cookie_header.split(';'):
+                    if '=' in cookie:
+                        key, value = cookie.strip().split('=', 1)
+                        cookies[key] = value
+                
+                # Check various possible keys
+                for key in ['username', 'session_username', 'user']:
+                    if key in cookies and cookies[key]:
+                        username = cookies[key].strip()
+                        print(f"Found username via key '{key}': {username}")
+                        break
+            except Exception:
+                pass
+        
+        # Validate username exists
+        if username:
+            try:
                 users = self.load_users()
                 for user in users:
                     if user['username'] == username:
                         print(f"User {username} authenticated successfully")
                         return True
-        
-        # Also check for session cookie format
-        if 'session=' in cookie_header:
-            session_part = cookie_header.split('session=')[1].split(';')[0].strip()
-            if 'username=' in session_part:
-                username_part = session_part.split('username=')[1].strip()
-                print(f"Found username in session: {username_part}")
-                if username_part:
-                    # Verify user exists in users list
-                    users = self.load_users()
-                    for user in users:
-                        if user['username'] == username_part:
-                            print(f"User {username_part} authenticated via session")
-                            return True
+            except Exception as e:
+                print(f"Error validating user: {e}")
         
         print("Authentication failed")
         return False
@@ -378,7 +398,7 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
             from datetime import datetime, timedelta
             
             # Clean up old sessions (inactive for more than 2 minutes - shorter timeout)
-            cutoff_time = datetime.now() - timedelta(minutes=2)
+            cutoff_time = datetime.now() - timedelta(minutes=15)
             active_usernames = []
             
             print(f"Active sessions before cleanup: {len(CustomerListHandler.active_sessions)}")

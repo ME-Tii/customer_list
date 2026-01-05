@@ -1060,8 +1060,15 @@
                         const result = await response.json();
                         messageData = result.message;
                         removeFile();
+                    } else if (response.status === 401) {
+                        // Authentication failed - session expired
+                        alert('Your session has expired. Please log in again.');
+                        window.location.href = '/';
+                        return;
                     } else {
-                        alert('Failed to send file');
+                        const errorText = await response.text();
+                        console.error('File upload failed:', response.status, errorText);
+                        alert('Failed to send file. Please try again.');
                         return;
                     }
                 } else {
