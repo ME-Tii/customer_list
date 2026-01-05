@@ -946,7 +946,9 @@
                         console.log('Rendering file:', message);
                         if (message.filetype && message.filetype.startsWith('image/')) {
                             console.log('Rendering image:', message.filename, 'type:', message.filetype);
-                            messageHtml += `<img src="/uploads/${message.filename}" alt="${message.originalname}" class="message-image" onclick="window.open('/uploads/${message.filename}', '_blank')">`;
+                            // Add timestamp to prevent caching issues
+                            const timestamp = Date.now();
+                            messageHtml += `<img src="/uploads/${message.filename}?t=${timestamp}" alt="${message.originalname}" class="message-image" onclick="window.open('/uploads/${message.filename}', '_blank')" onerror="console.error('Failed to load image:', this.src); this.style.display='none';">`;
                         } else {
                             messageHtml += `
                                 <div class="message-file">
@@ -1064,6 +1066,9 @@
                         console.log('Message data from server:', result.message);
                         messageData = result.message;
                         removeFile();
+                        
+                        // Small delay to ensure file is fully written
+                        await new Promise(resolve => setTimeout(resolve, 100));
                     } else if (response.status === 401) {
                         // Authentication failed - session expired
                         alert('Your session has expired. Please log in again.');
