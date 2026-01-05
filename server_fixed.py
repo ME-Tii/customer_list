@@ -61,8 +61,11 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
             self.handle_get_messages()
             return
         elif parsed_path.path == '/api/users':
+            self.handle_get_users()
+            return
+        elif parsed_path.path == '/api/users/me':
             if self.is_authenticated():
-                self.handle_get_users()
+                self.handle_get_current_user()
             else:
                 self.send_json_response({'error': 'Authentication required'}, 401)
             return
