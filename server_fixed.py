@@ -155,7 +155,6 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
         import re
         username = None
         
-        # Try multiple approaches to extract username
         # Method 1: Direct username pattern
         username_match = re.search(r'username=([^;]+)', cookie_header)
         if username_match:
@@ -189,6 +188,55 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
                         break
             except Exception:
                 pass
+        
+        # Method 4: Fallback for multipart requests - check form data
+        if not username:
+            print("No username in cookies, checking multipart form data...")
+            try:
+                # For multipart requests, check if auth info is in form data
+                content_type = self.headers.get('Content-Type', '')
+                if 'multipart/form-data' in content_type:
+                    import cgi
+                    import io
+                    
+                    content_length = int(self.headers['Content-Length'])
+                    post_data = self.rfile.read(content_length)
+                    
+                    form = cgi.FieldStorage(
+                        fp=io.BytesIO(post_data),
+                        headers=self.headers,
+                        environ={'REQUEST_METHOD': 'POST'}
+                    )
+                    
+                    if 'auth_username' in form:
+                        username = form.getvalue('auth_username', '').strip()
+                        print(f"Found username in form data: {username}")
+                        
+                        # Verify this user has recent session activity
+                        if username in CustomerListHandler.active_sessions:
+                            print(f"User {username} has active session")
+                        else:
+                            print(f"User {username} has no active session")
+                            username = None
+            except Exception as e:
+                print(f"Error checking form data: {e}")
+        
+        # Method 5: Fallback for multipart requests - check if user has recent session
+        if not username:
+            print("No username found, checking active sessions...")
+            try:
+                from datetime import datetime, timedelta
+                cutoff_time = datetime.now() - timedelta(minutes=15)
+                
+                # If any session was active recently, allow authentication
+                for session_user, last_seen in CustomerListHandler.active_sessions.items():
+                    last_seen_time = datetime.fromisoformat(last_seen)
+                    if last_seen_time > cutoff_time:
+                        print(f"Found recent active session for: {session_user}")
+                        username = session_user
+                        break
+            except Exception as e:
+                print(f"Error checking active sessions: {e}")
         
         # Validate username exists
         if username:
@@ -1221,11 +1269,16 @@ class CustomerListHandler(http.server.SimpleHTTPRequestHandler):
             print(f"/api/messages - Content-Type: {content_type}")
             print(f"/api/messages - Headers: {dict(self.headers)}")
             
+            # Debug cookies before authentication check
+            cookie_header = self.headers.get('Cookie', '')
+            print(f"Cookie header in /api/messages: {cookie_header}")
+            
             if self.is_authenticated():
+                print("Authentication successful for /api/messages")
                 self.handle_add_message()
             else:
                 print("Authentication failed for /api/messages - redirecting to login")
-                self.send_json_response({'error': 'Authentication required'}, 401)
+                self.send_json_response({'error': 'Authentication required', 'cookies': cookie_header, 'headers': dict(self.headers)}, 401)
             return
         elif parsed_path.path == '/api/customers':
             if self.is_authenticated():

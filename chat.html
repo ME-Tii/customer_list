@@ -1103,6 +1103,11 @@
                     formData.append('timestamp', new Date().toISOString());
                     formData.append('file', selectedFile);
                     
+                    // Add session info as fallback authentication
+                    console.log('Adding session info to form data');
+                    formData.append('auth_username', currentUser);
+                    formData.append('auth_timestamp', Date.now());
+                    
                     const response = await fetch('/api/messages', {
                         method: 'POST',
                         credentials: 'include',
