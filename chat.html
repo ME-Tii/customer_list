@@ -2458,9 +2458,12 @@ function renderPrivateMessages(username) {
                 return;
             }
             
+            // VISUAL DEBUG: Make container visible
+            container.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; background: red !important; min-height: 100px !important;';
+            
             if (!onlineUsers || onlineUsers.length === 0) {
                 console.log('No online users to display');
-                container.innerHTML = '<div style="color: #888;">No users found</div>';
+                container.innerHTML = '<div style="color: #888; background: yellow;">No users found</div>';
                 return;
             }
             
@@ -2470,11 +2473,19 @@ function renderPrivateMessages(username) {
                 var user = onlineUsers[i];
                 if (user && user.username) {
                     var username = escapeHtml(user.username);
-                    html = html + '<div class="online-user"><div class="online-indicator"></div><div>' + username + '</div><button class="private-chat-btn" onclick="openPrivateChat(\'' + username + '\')">💬</button></div>';
+                    html = html + '<div class="online-user" style="background: lime !important; border: 2px solid red !important; margin: 5px 0; padding: 10px;"><div class="online-indicator"></div><div>' + username + '</div><button class="private-chat-btn" onclick="openPrivateChat(\'' + username + '\')">💬</button></div>';
                 }
             }
             container.innerHTML = html;
+            
+            // EXTRA VISUAL DEBUG
+            setTimeout(() => {
+                container.style.background = 'yellow !important';
+                container.innerHTML += '<div style="background: orange; color: black; padding: 5px;">USERS SHOULD BE VISIBLE!</div>';
+            }, 500);
+            
             console.log('Online users HTML updated');
+            console.log('Container HTML after render:', container.innerHTML);
         }
 
         // Filter online users
@@ -2539,30 +2550,42 @@ function renderPrivateMessages(username) {
                 return;
             }
             
+            // VISUAL DEBUG: Force container to be visible
+            container.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; background: red !important; min-height: 200px !important;';
+            
             if (allUsers.length === 0) {
                 console.log('No all users to display');
-                container.innerHTML = '<div style="color: #888; font-size: 0.9em;">No users found</div>';
-            } else {
-                console.log('Rendering', allUsers.length, 'all users');
-                // Check which users are currently online
-                const onlineUsernames = new Set((originalOnlineUsers || []).map(user => user.username));
-                console.log('Online usernames for comparison:', Array.from(onlineUsernames));
-                
-                container.innerHTML = allUsers.map(user => {
-                    const isOnline = onlineUsernames.has(user.username);
-                    const indicatorClass = isOnline ? 'online-indicator' : 'offline-indicator';
-                    console.log(`User ${user.username} is ${isOnline ? 'online' : 'offline'}`);
-                    
-                    return `
-                        <div class="all-user">
-                            <div class="${indicatorClass}"></div>
-                            <div>${escapeHtml(user.username)}</div>
-                            <button class="private-chat-btn" onclick="openPrivateChat('${escapeHtml(user.username)}')">💬</button>
-                        </div>
-                    `;
-                }).join('');
-                console.log('All users HTML updated');
+                container.innerHTML = '<div style="color: #888; background: yellow; font-size: 1.5em;">No users found</div>';
+                return;
             }
+            
+            console.log('Rendering', allUsers.length, 'all users');
+            // Check which users are currently online
+            const onlineUsernames = new Set((originalOnlineUsers || []).map(user => user.username));
+            console.log('Online usernames for comparison:', Array.from(onlineUsernames));
+            
+            container.innerHTML = allUsers.map(user => {
+                const isOnline = onlineUsernames.has(user.username);
+                const indicatorClass = isOnline ? 'online-indicator' : 'offline-indicator';
+                console.log(`User ${user.username} is ${isOnline ? 'online' : 'offline'}`);
+                
+                return `
+                    <div class="all-user" style="background: lime !important; border: 2px solid blue !important; margin: 5px 0; padding: 10px;">
+                        <div class="${indicatorClass}"></div>
+                        <div>${escapeHtml(user.username)}</div>
+                        <button class="private-chat-btn" onclick="openPrivateChat('${escapeHtml(user.username)}')">💬</button>
+                    </div>
+                `;
+            }).join('');
+            
+            // EXTRA VISUAL DEBUG
+            setTimeout(() => {
+                container.style.background = 'orange !important';
+                container.innerHTML += '<div style="background: yellow; color: black; padding: 10px; font-size: 1.2em; font-weight: bold;">ALL USERS SHOULD BE VISIBLE!</div>';
+            }, 500);
+            
+            console.log('All users HTML updated');
+            console.log('Container HTML after render:', container.innerHTML);
         }
 
         // Filter all users
