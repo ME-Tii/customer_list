@@ -1382,7 +1382,7 @@
                 <div class="online-users-search">
                     <input type="text" id="onlineUsersSearch" placeholder="🔍 Search online users..." oninput="filterOnlineUsers()">
                 </div>
-                <div class="online-users-list" id="onlineUsersList" style="border: 1px solid #ff0000; min-height: 50px;">Loading online users...</div>
+                <div class="online-users-list" id="onlineUsersList"></div>
 </div>
         </div>
 
@@ -1444,7 +1444,7 @@
                     <span class="expand-icon">▼</span>
                 </div>
                 <div class="all-users-content">
-                    <div id="allUsersList" style="border: 1px solid #0000ff; min-height: 50px;">Loading all users...</div>
+                    <div id="allUsersList"></div>
                 </div>
             </div>
         </div>
@@ -1530,17 +1530,28 @@
             sendHeartbeat();
             
             loadMessages();
-            updateOnlineUsers();
-            updateAllUsers();
+            
+            // Load users immediately and then set intervals
+            console.log('Loading initial user data...');
+            await updateOnlineUsers();
+            await updateAllUsers();
+            
+            console.log('Setting up periodic updates...');
             
             // Auto-refresh messages every 2 seconds
             setInterval(loadMessages, 2000);
             
             // Update online users every 3 seconds (more frequent)
-            setInterval(updateOnlineUsers, 3000);
+            setInterval(async () => {
+                console.log('Periodic online users update...');
+                await updateOnlineUsers();
+            }, 3000);
             
             // Update all users every 10 seconds (less frequent)
-            setInterval(updateAllUsers, 10000);
+            setInterval(async () => {
+                console.log('Periodic all users update...');
+                await updateAllUsers();
+            }, 10000);
             
             // Send heartbeat every 30 seconds to stay "online" (more frequent)
             setInterval(sendHeartbeat, 30000);
