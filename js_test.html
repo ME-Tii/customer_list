@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JS Test</title>
+    <style>
+        body { font-family: monospace; background: #000; color: #00ff00; padding: 20px; }
+        #result { margin: 20px 0; padding: 10px; background: rgba(0, 50, 0, 0.5); }
+        .pass { color: #00ff00; }
+        .fail { color: #ff4444; }
+    </style>
+</head>
+<body>
+    <h1>JavaScript Execution Test</h1>
+    <div id="result">Testing JavaScript...</div>
+    
+    <script>
+        // Test 1: Basic JavaScript
+        document.getElementById('result').innerHTML = '✅ Test 1 PASSED: JavaScript is executing';
+        
+        // Test 2: setTimeout
+        setTimeout(() => {
+            document.getElementById('result').innerHTML += '<br>✅ Test 2 PASSED: setTimeout works';
+        }, 1000);
+        
+        // Test 3: Event listener
+        document.addEventListener('click', function() {
+            document.getElementById('result').innerHTML += '<br>✅ Test 3 PASSED: Click events work';
+        });
+        
+        // Test 4: DOM manipulation
+        const testEl = document.createElement('div');
+        testEl.textContent = '✅ Test 4 PASSED: DOM manipulation works';
+        testEl.style.color = '#ffff00';
+        testEl.style.marginTop = '10px';
+        document.body.appendChild(testEl);
+        
+        // Test 5: Console logging
+        console.log('JavaScript is working!');
+        console.log('Test completed successfully');
+        
+        // Test 6: Array and object manipulation
+        const testData = [
+            {name: 'user1', online: true},
+            {name: 'user2', online: false},
+            {name: 'user3', online: false}
+        ];
+        
+        let html = '<h3>User List Test:</h3>';
+        testData.forEach(user => {
+            const status = user.online ? '🟢' : '⚫';
+            html += `<div>${status} ${user.name}</div>`;
+        });
+        
+        setTimeout(() => {
+            const listDiv = document.createElement('div');
+            listDiv.innerHTML = html;
+            listDiv.style.marginTop = '20px';
+            listDiv.style.padding = '10px';
+            listDiv.style.background = 'rgba(0, 30, 0, 0.5)';
+            document.body.appendChild(listDiv);
+        }, 2000);
+        
+        // Final test
+        setTimeout(() => {
+            document.getElementById('result').innerHTML += '<br>🎉 ALL TESTS PASSED - JavaScript is fully functional!';
+            document.getElementById('result').style.color = '#00ff00';
+        }, 3000);
+    </script>
+</body>
+</html>

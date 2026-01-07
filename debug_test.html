@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Test</title>
+    <style>
+        body { font-family: monospace; background: #000; color: #00ff00; padding: 20px; }
+        #output { margin: 20px 0; padding: 10px; background: rgba(0, 50, 0, 0.5); }
+        .success { color: #00ff00; }
+        .error { color: #ff4444; }
+        .info { color: #ffff00; }
+    </style>
+</head>
+<body>
+    <h1>🔍 JavaScript Debug Test</h1>
+    <div id="output">Testing...</div>
+    
+    <script>
+        const output = document.getElementById('output');
+        let log = '';
+        
+        function addLog(message, type = 'info') {
+            console.log(message);
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+            log += `<div class="${className}">${message}</div>`;
+            output.innerHTML = log;
+        }
+        
+        addLog('🚀 Page loaded', 'success');
+        addLog('📍 Testing fetch API...', 'info');
+        
+        // Test basic fetch
+        fetch('/api/users/me', { credentials: 'include' })
+            .then(response => {
+                addLog(`✅ Fetch response status: ${response.status}`, 'success');
+                return response.json();
+            })
+            .then(data => {
+                addLog(`✅ User data: ${JSON.stringify(data)}`, 'success');
+            })
+            .catch(error => {
+                addLog(`❌ Fetch error: ${error.message}`, 'error');
+            });
+        
+        // Test DOM manipulation
+        setTimeout(() => {
+            addLog('🎯 Testing DOM manipulation...', 'info');
+            
+            const testDiv = document.createElement('div');
+            testDiv.textContent = '✅ JavaScript is working!';
+            testDiv.style.color = '#00ff00';
+            testDiv.style.padding = '10px';
+            testDiv.style.background = 'rgba(0, 100, 0, 0.5)';
+            testDiv.style.margin = '10px 0';
+            
+            document.body.appendChild(testDiv);
+            addLog('✅ Test element added to page', 'success');
+        }, 1000);
+        
+        // Test if other APIs work
+        setTimeout(async () => {
+            try {
+                addLog('🔄 Testing async/await...', 'info');
+                
+                const onlineResponse = await fetch('/api/online-users', { credentials: 'include' });
+                addLog(`✅ Online users status: ${onlineResponse.status}`, 'success');
+                
+                const usersResponse = await fetch('/api/users', { credentials: 'include' });
+                addLog(`✅ All users status: ${usersResponse.status}`, 'success');
+                
+                addLog('🎉 All tests completed successfully!', 'success');
+                
+            } catch (error) {
+                addLog(`❌ Async test error: ${error.message}`, 'error');
+            }
+        }, 2000);
+    </script>
+</body>
+</html>
