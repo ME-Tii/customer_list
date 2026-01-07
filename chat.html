@@ -1096,8 +1096,31 @@
             background: #00cc00;
         }
 
+        .mobile-chat-toggle {
+            display: none;
+            background: #0088cc;
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-weight: bold;
+            position: fixed;
+            top: 10px;
+            left: 60px;
+            z-index: 1004;
+            border-radius: 5px;
+        }
+
+        .mobile-chat-toggle:hover {
+            background: #0066aa;
+        }
+
         @media (max-width: 768px) {
             .mobile-menu-toggle {
+                display: block;
+            }
+
+            .mobile-chat-toggle {
                 display: block;
             }
 
@@ -1148,6 +1171,7 @@
 </head>
 <body>
     <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">☰</button>
+    <button class="mobile-chat-toggle" onclick="toggleMobileChatView()">💬</button>
     <div class="chat-container">
         <div class="sidebar">
             <div class="sidebar-header">
@@ -1858,7 +1882,10 @@
                     
                     // On mobile, restore main view when closing last private chat
                     if (window.innerWidth <= 768) {
-                        document.querySelector('.main-chat').style.display = 'flex';
+                        // Restore main chat visibility
+                        document.querySelector('.main-chat').style.transform = 'scale(1)';
+                        document.querySelector('.main-chat').style.opacity = '1';
+                        document.querySelector('.main-chat').style.pointerEvents = 'auto';
                         document.querySelector('.sidebar').style.display = 'flex';
                         document.querySelector('.right-sidebar').style.display = 'flex';
                         document.querySelector('.mobile-menu-toggle').style.display = 'block';
@@ -2472,6 +2499,8 @@ function renderPrivateMessages(username) {
         }
         
         // Mobile navigation functions
+        let mobileInPrivateChat = false;
+
         function toggleMobileMenu() {
             const sidebar = document.querySelector('.sidebar');
             const rightSidebar = document.querySelector('.right-sidebar');
@@ -2481,6 +2510,31 @@ function renderPrivateMessages(username) {
             // Close right sidebar when opening left sidebar
             if (sidebar.classList.contains('mobile-open')) {
                 rightSidebar.classList.remove('mobile-open');
+            }
+        }
+
+        function toggleMobileChatView() {
+            const mainChat = document.querySelector('.main-chat');
+            const privateChatWindow = document.querySelector('.private-chat-window.active');
+            
+            if (!privateChatWindow) {
+                return; // No private chat open
+            }
+            
+            if (mobileInPrivateChat) {
+                // Switch to public chat view
+                mainChat.style.transform = 'scale(1)';
+                mainChat.style.opacity = '1';
+                mainChat.style.pointerEvents = 'auto';
+                privateChatWindow.style.display = 'none';
+                mobileInPrivateChat = false;
+            } else {
+                // Switch to private chat view
+                mainChat.style.transform = 'scale(0.1)';
+                mainChat.style.opacity = '0.1';
+                mainChat.style.pointerEvents = 'none';
+                privateChatWindow.style.display = 'flex';
+                mobileInPrivateChat = true;
             }
         }
 
@@ -2531,13 +2585,14 @@ function renderPrivateMessages(username) {
                 loadPrivateMessages(username);
             }
             
-            // On mobile, always show full screen for private chat
+            // On mobile, prepare private chat but don't auto-hide main chat
             if (window.innerWidth <= 768) {
-                // Hide other elements on mobile
-                document.querySelector('.main-chat').style.display = 'none';
-                document.querySelector('.sidebar').style.display = 'none';
-                document.querySelector('.right-sidebar').style.display = 'none';
-                document.querySelector('.mobile-menu-toggle').style.display = 'none';
+                // Close mobile menus
+                document.querySelector('.sidebar').classList.remove('mobile-open');
+                document.querySelector('.right-sidebar').classList.remove('mobile-open');
+                
+                // Let user toggle between views with chat toggle button
+                // Don't auto-hide main chat
             }
             
             // Switch to this chat
