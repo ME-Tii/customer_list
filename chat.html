@@ -1122,12 +1122,113 @@
             background: #cc0000;
         }
 
+        /* Mobile Public Chat Input */
+        .mobile-public-chat-input {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 50, 0, 0.95);
+            border-top: 2px solid #00ff00;
+            padding: 10px;
+            z-index: 1006;
+        }
+
+        .mobile-input-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .mobile-message-input {
+            flex: 1;
+            background: rgba(0, 20, 0, 0.9);
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+        }
+
+        .mobile-message-input:focus {
+            outline: none;
+            border-color: #00ffff;
+        }
+
+        .mobile-file-btn, .mobile-send-btn {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .mobile-file-btn {
+            background: #0088cc;
+            color: #fff;
+        }
+
+        .mobile-send-btn:hover {
+            background: #00cc00;
+        }
+
+        .mobile-file-btn:hover {
+            background: #0066aa;
+        }
+
+        .mobile-file-preview {
+            margin-top: 8px;
+            padding: 8px;
+            background: rgba(0, 30, 0, 0.8);
+            border: 1px solid #0088cc;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mobile-file-preview img {
+            max-width: 60px;
+            max-height: 60px;
+            border-radius: 3px;
+        }
+
+        .mobile-file-preview-info {
+            flex: 1;
+            color: #00ffff;
+            font-size: 0.9em;
+        }
+
+        .mobile-file-preview-remove {
+            background: #ff4444;
+            color: #fff;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+
+        .mobile-file-preview-remove:hover {
+            background: #cc0000;
+        }
+
         @media (max-width: 768px) {
             .mobile-menu-toggle {
                 display: block;
             }
 
             .mobile-chat-toggle {
+                display: block;
+            }
+
+            .mobile-public-chat-input {
                 display: block;
             }
 
@@ -1179,6 +1280,32 @@
 <body>
     <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">☰</button>
     <button class="mobile-chat-toggle" onclick="toggleMobileChatView()">❌</button>
+    
+    <!-- Mobile Public Chat Input -->
+    <div class="mobile-public-chat-input" id="mobilePublicChatInput">
+        <div class="mobile-input-group">
+            <input 
+                type="text" 
+                class="mobile-message-input" 
+                id="mobileMessageInput" 
+                placeholder="Type public message..."
+                onkeypress="handleMobileKeyPress(event)"
+                oninput="handleTyping()"
+            >
+            <input 
+                type="file" 
+                id="mobileFileInput" 
+                class="mobile-file-input" 
+                accept="image/*,.pdf,.txt,.doc,.docx" 
+                style="display: none"
+                onchange="handleMobileFileSelect(event)"
+            >
+            <button class="mobile-file-btn" onclick="document.getElementById('mobileFileInput').click()">📎</button>
+            <button class="mobile-send-btn" onclick="sendMobileMessage()">Send</button>
+        </div>
+        <div id="mobileFilePreview" class="mobile-file-preview" style="display: none;"></div>
+    </div>
+    
     <div class="chat-container">
         <div class="sidebar">
             <div class="sidebar-header">
@@ -2699,6 +2826,90 @@ function renderPrivateMessages(username) {
                 });
             });
         }
+
+        // Mobile public chat functions
+        function handleMobileKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMobileMessage();
+            }
+        }
+
+        function sendMobileMessage() {
+            const input = document.getElementById('mobileMessageInput');
+            const content = input.value.trim();
+            
+            if (!content && !mobileSelectedFile) return;
+            
+            // Clear input immediately
+            input.value = '';
+            
+            // Use the existing sendMessage function but with mobile file
+            if (mobileSelectedFile) {
+                // Temporarily set the global selectedFile for the existing function
+                const originalFile = selectedFile;
+                selectedFile = mobileSelectedFile;
+                
+                // Call existing sendMessage
+                sendMessage();
+                
+                // Restore original file and clear mobile file
+                selectedFile = originalFile;
+                mobileSelectedFile = null;
+                document.getElementById('mobileFileInput').value = '';
+                document.getElementById('mobileFilePreview').style.display = 'none';
+            } else {
+                // Call existing sendMessage for text only
+                sendMessage();
+            }
+        }
+
+        function handleMobileFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                mobileSelectedFile = file;
+                showMobileFilePreview(file);
+            }
+        }
+
+        function showMobileFilePreview(file) {
+            const preview = document.getElementById('mobileFilePreview');
+            const isImage = file.type.startsWith('image/');
+            
+            if (isImage) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `
+                        <img src="${e.target.result}" alt="${file.name}">
+                        <div class="mobile-file-preview-info">
+                            <div>${file.name}</div>
+                            <div style="font-size: 0.8em; color: #888;">${formatFileSize(file.size)}</div>
+                        </div>
+                        <button class="mobile-file-preview-remove" onclick="removeMobileFile()">✕</button>
+                    `;
+                    preview.style.display = 'flex';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.innerHTML = `
+                    <div style="font-size: 1.5em;">📄</div>
+                    <div class="mobile-file-preview-info">
+                        <div>${file.name}</div>
+                        <div style="font-size: 0.8em; color: #888;">${formatFileSize(file.size)}</div>
+                    </div>
+                    <button class="mobile-file-preview-remove" onclick="removeMobileFile()">✕</button>
+                `;
+                preview.style.display = 'flex';
+            }
+        }
+
+        function removeMobileFile() {
+            mobileSelectedFile = null;
+            document.getElementById('mobileFileInput').value = '';
+            document.getElementById('mobileFilePreview').style.display = 'none';
+        }
+
+        // Mobile file variable
+        let mobileSelectedFile = null;
 
         // Initialize mobile features
         document.addEventListener('DOMContentLoaded', function() {
