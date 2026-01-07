@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Public Chat</title>
     <style>
         * {
@@ -792,9 +792,362 @@
         .emoji:hover {
             background: rgba(0, 255, 0, 0.2);
         }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .chat-container {
+                flex-direction: column;
+                height: 100vh;
+                position: relative;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 30vh;
+                border-right: none;
+                border-bottom: 2px solid #00ff00;
+                order: 1;
+            }
+
+            .main-chat {
+                flex: 1;
+                margin-right: 0;
+                order: 2;
+                min-height: 50vh;
+            }
+
+            .right-sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 20vh;
+                border-left: none;
+                border-top: 2px solid #00ff00;
+                position: relative;
+                right: auto;
+                top: auto;
+                order: 3;
+            }
+
+            .sidebar-header h2 {
+                font-size: 1em;
+            }
+
+            .right-sidebar .sidebar-header h2 {
+                font-size: 1em;
+            }
+
+            .user-info {
+                padding: 8px;
+            }
+
+            .chat-controls {
+                padding: 5px 10px;
+            }
+
+            .control-btn, .back-btn {
+                font-size: 0.8em;
+                padding: 6px 10px;
+                margin: 1px;
+            }
+
+            .online-users {
+                max-height: 150px;
+                min-height: 80px;
+                padding: 8px;
+            }
+
+            .all-users-content {
+                padding: 8px;
+                max-height: 120px;
+            }
+
+            .messages-container {
+                padding: 10px;
+            }
+
+            .message {
+                max-width: 85%;
+                font-size: 0.9em;
+            }
+
+            .message-input-container {
+                padding: 8px;
+            }
+
+            .message-input {
+                font-size: 0.9em;
+                padding: 8px;
+            }
+
+            .send-btn, .file-btn {
+                padding: 8px 12px;
+                font-size: 0.9em;
+            }
+
+            .emoji-panel {
+                grid-template-columns: repeat(4, 1fr);
+                padding: 5px;
+            }
+
+            .emoji {
+                font-size: 1.2em;
+                padding: 3px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar {
+                max-height: 25vh;
+            }
+
+            .right-sidebar {
+                max-height: 25vh;
+            }
+
+            .main-chat {
+                min-height: 40vh;
+            }
+
+            .online-users {
+                max-height: 100px;
+                min-height: 60px;
+                padding: 5px;
+            }
+
+            .all-users-content {
+                max-height: 80px;
+            }
+
+            .message {
+                max-width: 90%;
+                font-size: 0.85em;
+                padding: 8px 12px;
+            }
+
+            .messages-container {
+                padding: 5px;
+            }
+
+            .message-input-container {
+                padding: 5px;
+            }
+
+            .message-input {
+                font-size: 0.85em;
+                padding: 6px;
+            }
+
+            .send-btn, .file-btn {
+                padding: 6px 8px;
+                font-size: 0.8em;
+            }
+
+            .chat-controls {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                padding: 3px 5px;
+            }
+
+            .control-btn, .back-btn {
+                font-size: 0.7em;
+                padding: 4px 6px;
+                margin: 0 1px;
+                white-space: nowrap;
+            }
+
+            .emoji-panel {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .emoji {
+                font-size: 1em;
+                padding: 2px;
+            }
+
+            .sidebar-header h2 {
+                font-size: 0.9em;
+            }
+
+            .user-name {
+                font-size: 0.9em;
+            }
+
+            .online-user, .all-user {
+                padding: 4px 6px;
+                font-size: 0.8em;
+            }
+
+            .private-chat-btn {
+                font-size: 0.7em;
+                padding: 3px 6px;
+                margin-left: 3px;
+            }
+        }
+
+        /* Mobile Private Chat Styles */
+        @media (max-width: 768px) {
+            .private-chat-window {
+                position: fixed;
+                bottom: 0;
+                right: 0;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                border-radius: 0;
+                border: none;
+                z-index: 1002;
+            }
+
+            .private-chat-tabs {
+                display: none;
+            }
+
+            .private-chat-window.active {
+                display: flex !important;
+            }
+
+            .private-chat-messages {
+                height: 60vh;
+                padding: 8px;
+            }
+
+            .private-chat-header {
+                padding: 8px;
+                position: sticky;
+                top: 0;
+                z-index: 1003;
+                background: rgba(0, 20, 0, 0.95);
+            }
+
+            .private-chat-input-container {
+                padding: 8px;
+                position: sticky;
+                bottom: 0;
+                background: rgba(0, 20, 0, 0.95);
+                border-top: 1px solid #00ff00;
+            }
+
+            .private-chat-title {
+                font-size: 0.9em;
+            }
+
+            .private-message {
+                font-size: 0.9em;
+                padding: 6px 10px;
+                margin-bottom: 8px;
+            }
+
+            .private-message-content {
+                font-size: 0.9em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .private-chat-messages {
+                height: 50vh;
+                padding: 5px;
+            }
+
+            .private-chat-header {
+                padding: 6px;
+            }
+
+            .private-chat-input-container {
+                padding: 6px;
+            }
+
+            .private-chat-title {
+                font-size: 0.8em;
+            }
+
+            .private-message {
+                font-size: 0.85em;
+                padding: 5px 8px;
+            }
+
+            .private-message-header {
+                font-size: 0.7em;
+            }
+
+            .private-message-content {
+                font-size: 0.85em;
+            }
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-weight: bold;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1004;
+            border-radius: 5px;
+        }
+
+        .mobile-menu-toggle:hover {
+            background: #00cc00;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease-in-out;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 80%;
+                max-width: 300px;
+                height: 100vh;
+                z-index: 1005;
+                border-right: 2px solid #00ff00;
+                order: unset;
+            }
+
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .main-chat {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .right-sidebar {
+                width: 100%;
+                height: auto;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                top: auto;
+                border-top: 2px solid #00ff00;
+                border-left: none;
+                z-index: 999;
+                transform: translateY(100%);
+                transition: transform 0.3s ease-in-out;
+                order: unset;
+            }
+
+            .right-sidebar.mobile-open {
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 <body>
+    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">☰</button>
     <div class="chat-container">
         <div class="sidebar">
             <div class="sidebar-header">
@@ -1395,7 +1748,7 @@
             tab.id = `private-chat-tab-${username}`;
             tab.innerHTML = `
                 <span class="tab-username">${username} ${statusIndicator}</span>
-                <button class="tab-close" onclick="closePrivateChat('${username}')">✕</button>
+                <button class="tab-close" onclick="closeMobilePrivateChat('${username}')">✕</button>
             `;
             tab.onclick = function(e) {
                 if (!e.target.classList.contains('tab-close')) {
@@ -1410,7 +1763,7 @@
             window.innerHTML = `
                 <div class="private-chat-header">
                     <div class="private-chat-title">Private Chat with ${username} ${statusIndicator}</div>
-                    <button class="private-chat-close" onclick="closePrivateChat('${username}')">✕</button>
+                    <button class="private-chat-close" onclick="closeMobilePrivateChat('${username}')">✕</button>
                 </div>
                 <div class="private-chat-messages" id="private-chat-messages-${username}"></div>
                 <div class="private-chat-input-container">
@@ -1502,6 +1855,14 @@
                     switchToPrivateChat(remainingChats[0]);
                 } else {
                     currentPrivateChat = null;
+                    
+                    // On mobile, restore main view when closing last private chat
+                    if (window.innerWidth <= 768) {
+                        document.querySelector('.main-chat').style.display = 'flex';
+                        document.querySelector('.sidebar').style.display = 'flex';
+                        document.querySelector('.right-sidebar').style.display = 'flex';
+                        document.querySelector('.mobile-menu-toggle').style.display = 'block';
+                    }
                 }
             }
         }
@@ -2110,7 +2471,200 @@ function renderPrivateMessages(username) {
             renderOnlineUsers([]);
         }
         
-        // Initialize chat when DOM is ready
-        document.addEventListener('DOMContentLoaded', initChat);
+        // Mobile navigation functions
+        function toggleMobileMenu() {
+            const sidebar = document.querySelector('.sidebar');
+            const rightSidebar = document.querySelector('.right-sidebar');
+            
+            sidebar.classList.toggle('mobile-open');
+            
+            // Close right sidebar when opening left sidebar
+            if (sidebar.classList.contains('mobile-open')) {
+                rightSidebar.classList.remove('mobile-open');
+            }
+        }
+
+        function toggleRightSidebar() {
+            const rightSidebar = document.querySelector('.right-sidebar');
+            const sidebar = document.querySelector('.sidebar');
+            
+            rightSidebar.classList.toggle('mobile-open');
+            
+            // Close left sidebar when opening right sidebar
+            if (rightSidebar.classList.contains('mobile-open')) {
+                sidebar.classList.remove('mobile-open');
+            }
+        }
+
+        // Close mobile menus when clicking outside
+        function closeMobileMenus(event) {
+            const sidebar = document.querySelector('.sidebar');
+            const rightSidebar = document.querySelector('.right-sidebar');
+            const menuToggle = document.querySelector('.mobile-menu-toggle');
+            
+            // Check if click is outside both sidebars and menu toggle
+            if (!sidebar.contains(event.target) && 
+                !rightSidebar.contains(event.target) && 
+                !menuToggle.contains(event.target)) {
+                sidebar.classList.remove('mobile-open');
+                rightSidebar.classList.remove('mobile-open');
+            }
+        }
+
+        // Enhanced mobile private chat handling
+        function openPrivateChat(username) {
+            if (username === currentUser) {
+                alert('You cannot chat with yourself!');
+                return;
+            }
+            
+            // Close mobile menus when opening private chat
+            const sidebar = document.querySelector('.sidebar');
+            const rightSidebar = document.querySelector('.right-sidebar');
+            sidebar.classList.remove('mobile-open');
+            rightSidebar.classList.remove('mobile-open');
+            
+            // Initialize chat data if not exists
+            if (!activePrivateChats.has(username)) {
+                activePrivateChats.add(username);
+                createPrivateChatWindow(username);
+                loadPrivateMessages(username);
+            }
+            
+            // On mobile, always show full screen for private chat
+            if (window.innerWidth <= 768) {
+                // Hide other elements on mobile
+                document.querySelector('.main-chat').style.display = 'none';
+                document.querySelector('.sidebar').style.display = 'none';
+                document.querySelector('.right-sidebar').style.display = 'none';
+                document.querySelector('.mobile-menu-toggle').style.display = 'none';
+            }
+            
+            // Switch to this chat
+            switchToPrivateChat(username);
+            
+            // Check if user is online
+            const onlineUsers = Array.from(document.querySelectorAll('#onlineUsersList .online-user div')).map(div => div.textContent.trim());
+            const isUserOnline = onlineUsers.includes(username);
+            
+            // Only add system message if user is online (for real-time chat)
+            if (isUserOnline && !privateMessages[username] || privateMessages[username].length === 0) {
+                addSystemMessage(`${currentUser} started a private chat with ${username}`);
+            }
+        }
+
+        function closeMobilePrivateChat(username) {
+            closePrivateChat(username);
+            
+            // Restore mobile layout
+            if (window.innerWidth <= 768) {
+                document.querySelector('.main-chat').style.display = 'flex';
+                document.querySelector('.sidebar').style.display = 'flex';
+                document.querySelector('.right-sidebar').style.display = 'flex';
+                document.querySelector('.mobile-menu-toggle').style.display = 'block';
+            }
+        }
+
+        // Mobile touch gesture support
+        function addTouchGestures() {
+            let startX = 0;
+            let startY = 0;
+            let isSwipe = false;
+            
+            document.addEventListener('touchstart', function(e) {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+                isSwipe = true;
+            });
+            
+            document.addEventListener('touchmove', function(e) {
+                if (!isSwipe) return;
+                
+                const currentX = e.touches[0].clientX;
+                const currentY = e.touches[0].clientY;
+                const diffX = currentX - startX;
+                const diffY = currentY - startY;
+                
+                // Detect horizontal swipe
+                if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                    if (diffX > 0) {
+                        // Swipe right - open left sidebar
+                        toggleMobileMenu();
+                    } else {
+                        // Swipe left - open right sidebar
+                        toggleRightSidebar();
+                    }
+                    isSwipe = false;
+                }
+            });
+            
+            document.addEventListener('touchend', function() {
+                isSwipe = false;
+            });
+        }
+
+        // Handle window resize for responsive behavior
+        function handleResize() {
+            const isMobile = window.innerWidth <= 768;
+            
+            if (!isMobile) {
+                // Desktop mode - reset mobile-specific changes
+                const sidebar = document.querySelector('.sidebar');
+                const rightSidebar = document.querySelector('.right-sidebar');
+                const mainChat = document.querySelector('.main-chat');
+                const menuToggle = document.querySelector('.mobile-menu-toggle');
+                
+                sidebar.classList.remove('mobile-open');
+                rightSidebar.classList.remove('mobile-open');
+                sidebar.style.display = 'flex';
+                rightSidebar.style.display = 'flex';
+                mainChat.style.display = 'flex';
+                menuToggle.style.display = 'none';
+                
+                // Close all private chats on desktop resize
+                activePrivateChats.forEach(username => {
+                    closeMobilePrivateChat(username);
+                });
+            }
+        }
+
+        // Mobile input handling
+        function handleMobileInput() {
+            const inputs = document.querySelectorAll('input[type="text"]');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    // Zoom out slightly on mobile to prevent keyboard zoom
+                    if (window.innerWidth <= 480) {
+                        document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=device-width, initial-scale=0.9, maximum-scale=1.0, user-scalable=yes');
+                    }
+                });
+                
+                input.addEventListener('blur', function() {
+                    // Reset zoom
+                    if (window.innerWidth <= 480) {
+                        document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes');
+                    }
+                });
+            });
+        }
+
+        // Initialize mobile features
+        document.addEventListener('DOMContentLoaded', function() {
+            initChat();
+            
+            // Add click outside listener for mobile menus
+            document.addEventListener('click', closeMobileMenus);
+            
+            // Add window resize listener
+            window.addEventListener('resize', handleResize);
+            
+            // Add touch gestures
+            if ('ontouchstart' in window) {
+                addTouchGestures();
+            }
+            
+            // Handle mobile input
+            handleMobileInput();
+        });
     </script>
 </html>
