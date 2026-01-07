@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Display Only</title>
+    <style>
+        body { font-family: monospace; background: #000; color: #00ff00; padding: 20px; }
+        .test-container { display: flex; gap: 20px; }
+        .test-section { 
+            flex: 1; 
+            padding: 20px; 
+            background: rgba(0, 50, 0, 0.5); 
+            border: 2px solid #00ff00; 
+            border-radius: 5px; 
+        }
+        .section-title { color: #00ffff; margin: 0 0 15px 0; }
+        .user-item { 
+            margin: 8px 0; 
+            padding: 10px; 
+            background: rgba(0, 30, 0, 0.7); 
+            border-left: 3px solid #00ff00;
+            border-radius: 3px;
+        }
+        .online-dot { 
+            width: 8px; 
+            height: 8px; 
+            background: #00ff00; 
+            border-radius: 50%; 
+            display: inline-block; 
+            margin-right: 10px;
+            box-shadow: 0 0 5px #00ff00;
+        }
+        .offline-dot { 
+            width: 8px; 
+            height: 8px; 
+            background: #888; 
+            border-radius: 50%; 
+            display: inline-block; 
+            margin-right: 10px;
+        }
+        .status-text { color: #ffff00; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>🔍 User Display Test - Isolated</h1>
+    
+    <div class="test-container">
+        <!-- Left: Online Users -->
+        <div class="test-section">
+            <h2 class="section-title">📱 ONLINE USERS</h2>
+            <div id="onlineUsers">
+                <div class="user-item">
+                    <span class="online-dot"></span>
+                    <span class="status-text">KidWhyLit</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: All Users -->
+        <div class="test-section">
+            <h2 class="section-title">👥 ALL USERS</h2>
+            <div id="allUsers">
+                <div class="user-item">
+                    <span class="offline-dot"></span>
+                    <span class="status-text">user1</span>
+                </div>
+                <div class="user-item">
+                    <span class="offline-dot"></span>
+                    <span class="status-text">user2</span>
+                </div>
+                <div class="user-item">
+                    <span class="offline-dot"></span>
+                    <span class="status-text">user3</span>
+                </div>
+                <div class="user-item">
+                    <span class="offline-dot"></span>
+                    <span class="status-text">user4</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('🔍 User display test loaded');
+        
+        // Test if elements are visible
+        function checkVisibility() {
+            const onlineContainer = document.getElementById('onlineUsers');
+            const allContainer = document.getElementById('allUsers');
+            
+            console.log('🔍 Checking visibility...');
+            
+            if (onlineContainer) {
+                console.log('✅ Online container found');
+                console.log('Content:', onlineContainer.innerHTML);
+                console.log('Visible:', onlineContainer.offsetWidth > 0 && onlineContainer.offsetHeight > 0);
+            } else {
+                console.error('❌ Online container NOT found');
+            }
+            
+            if (allContainer) {
+                console.log('✅ All users container found');
+                console.log('Content:', allContainer.innerHTML);
+                console.log('Visible:', allContainer.offsetWidth > 0 && allContainer.offsetHeight > 0);
+            } else {
+                console.error('❌ All users container NOT found');
+            }
+            
+            // Check computed styles
+            const onlineItems = document.querySelectorAll('.user-item');
+            onlineItems.forEach((item, index) => {
+                const style = window.getComputedStyle(item);
+                console.log(`User ${index + 1}:`, {
+                    display: style.display,
+                    visibility: style.visibility,
+                    opacity: style.opacity,
+                    height: style.height
+                });
+            });
+        }
+        
+        // Run visibility check immediately
+        checkVisibility();
+        
+        // Run again after page renders
+        setTimeout(checkVisibility, 1000);
+        
+        // Add test button
+        const testBtn = document.createElement('button');
+        testBtn.textContent = '🔍 Check Visibility Again';
+        testBtn.style.cssText = `
+            position: fixed; bottom: 20px; right: 20px;
+            background: #00ff00; color: #000; padding: 10px;
+            border: none; border-radius: 5px; cursor: pointer;
+            font-weight: bold;
+        `;
+        testBtn.onclick = checkVisibility;
+        document.body.appendChild(testBtn);
+    </script>
+</body>
+</html>
