@@ -2458,8 +2458,8 @@ function renderPrivateMessages(username) {
                 return;
             }
             
-            // VISUAL DEBUG: Make container visible
-            container.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; background: red !important; min-height: 100px !important;';
+            // Make container visible and styled
+            container.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
             
             if (!onlineUsers || onlineUsers.length === 0) {
                 console.log('No online users to display');
@@ -2473,16 +2473,12 @@ function renderPrivateMessages(username) {
                 var user = onlineUsers[i];
                 if (user && user.username) {
                     var username = escapeHtml(user.username);
-                    html = html + '<div class="online-user" style="background: lime !important; border: 2px solid red !important; margin: 5px 0; padding: 10px;"><div class="online-indicator"></div><div>' + username + '</div><button class="private-chat-btn" onclick="openPrivateChat(\'' + username + '\')">💬</button></div>';
+                    html = html + '<div class="online-user"><div class="online-indicator"></div><div>' + username + '</div><button class="private-chat-btn" onclick="openPrivateChat(\'' + username + '\')">💬</button></div>';
                 }
             }
             container.innerHTML = html;
             
-            // EXTRA VISUAL DEBUG
-            setTimeout(() => {
-                container.style.background = 'yellow !important';
-                container.innerHTML += '<div style="background: orange; color: black; padding: 5px;">USERS SHOULD BE VISIBLE!</div>';
-            }, 500);
+
             
             console.log('Online users HTML updated');
             console.log('Container HTML after render:', container.innerHTML);
@@ -2550,8 +2546,8 @@ function renderPrivateMessages(username) {
                 return;
             }
             
-            // VISUAL DEBUG: Force container to be visible
-            container.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; background: red !important; min-height: 200px !important;';
+            // Make container visible and styled
+            container.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
             
             if (allUsers.length === 0) {
                 console.log('No all users to display');
@@ -2570,7 +2566,7 @@ function renderPrivateMessages(username) {
                 console.log(`User ${user.username} is ${isOnline ? 'online' : 'offline'}`);
                 
                 return `
-                    <div class="all-user" style="background: lime !important; border: 2px solid blue !important; margin: 5px 0; padding: 10px;">
+                    <div class="all-user">
                         <div class="${indicatorClass}"></div>
                         <div>${escapeHtml(user.username)}</div>
                         <button class="private-chat-btn" onclick="openPrivateChat('${escapeHtml(user.username)}')">💬</button>
@@ -2578,11 +2574,7 @@ function renderPrivateMessages(username) {
                 `;
             }).join('');
             
-            // EXTRA VISUAL DEBUG
-            setTimeout(() => {
-                container.style.background = 'orange !important';
-                container.innerHTML += '<div style="background: yellow; color: black; padding: 10px; font-size: 1.2em; font-weight: bold;">ALL USERS SHOULD BE VISIBLE!</div>';
-            }, 500);
+
             
             console.log('All users HTML updated');
             console.log('Container HTML after render:', container.innerHTML);
