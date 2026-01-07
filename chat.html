@@ -97,10 +97,9 @@
 
         .online-users {
             flex: 0 1 auto;
-            padding: 15px;
-            padding-top: 10px;
-            max-height: 300px;
-            min-height: 100px;
+            padding: 8px;
+            max-height: 120px;
+            min-height: 60px;
             border-bottom: 1px solid #003300;
             margin-bottom: 5px;
             display: flex;
@@ -161,7 +160,7 @@
         }
 
         .all-users {
-            flex: 1;
+            flex: 0 1 60px;
             overflow: hidden;
             transition: all 0.3s ease-in-out;
             display: flex;
@@ -230,7 +229,7 @@
         }
 
         .chat-header {
-            padding: 15px;
+            padding: 10px 15px;
             border-bottom: 2px solid #00ff00;
             background: rgba(0, 50, 0, 0.8);
             display: flex;
@@ -238,9 +237,17 @@
             align-items: center;
         }
 
+        .chat-header-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+
         .chat-header h1 {
             color: #00ff00;
-            font-size: 1.3em;
+            font-size: 1.2em;
+            margin: 0;
         }
 
         .chat-stats {
@@ -801,33 +808,52 @@
                 position: relative;
             }
 
-            .sidebar {
-                width: 100%;
-                height: auto;
-                max-height: 30vh;
-                border-right: none;
-                border-bottom: 2px solid #00ff00;
-                order: 1;
-            }
+.sidebar {
+            width: 100%;
+            height: auto;
+            max-height: 25vh;
+            border-right: none;
+            border-bottom: 2px solid #00ff00;
+            order: 1;
+        }
 
-            .main-chat {
-                flex: 1;
-                margin-right: 0;
-                order: 2;
-                min-height: 50vh;
-            }
+        .main-chat {
+            flex: 1;
+            margin-right: 0;
+            order: 2;
+            min-height: 55vh;
+        }
 
-            .right-sidebar {
-                width: 100%;
-                height: auto;
-                max-height: 20vh;
-                border-left: none;
-                border-top: 2px solid #00ff00;
-                position: relative;
-                right: auto;
-                top: auto;
-                order: 3;
-            }
+        .right-sidebar {
+            width: 100%;
+            height: auto;
+            max-height: 15vh;
+            border-left: none;
+            border-top: 2px solid #00ff00;
+            position: relative;
+            right: auto;
+            top: auto;
+            order: 3;
+        }
+
+        .main-chat {
+            flex: 1;
+            margin-right: 0;
+            order: 2;
+            min-height: 55vh;
+        }
+
+        .right-sidebar {
+            width: 100%;
+            height: auto;
+            max-height: 15vh;
+            border-left: none;
+            border-top: 2px solid #00ff00;
+            position: relative;
+            right: auto;
+            top: auto;
+            order: 3;
+        }
 
             .sidebar-header h2 {
                 font-size: 1em;
@@ -857,10 +883,12 @@
                 padding: 8px;
             }
 
-            .all-users-content {
-                padding: 8px;
-                max-height: 120px;
-            }
+.all-users-content {
+            padding: 5px;
+            overflow-y: auto;
+            flex: 1;
+            max-height: 80px;
+        }
 
             .messages-container {
                 padding: 10px;
@@ -1121,7 +1149,7 @@
             font-weight: bold;
             position: fixed;
             top: 10px;
-            right: 10px;
+            left: 10px;
             z-index: 1004;
             border-radius: 5px;
         }
@@ -1359,10 +1387,12 @@
 
         <div class="main-chat">
             <div class="chat-header">
-                <h1>Public Chat Room</h1>
-                <div class="chat-stats">
-                    <div class="stat">Messages: <span class="stat-value" id="messageCount">0</span></div>
-                    <div class="stat">Online: <span class="stat-value" id="onlineCount">0</span></div>
+                <div class="chat-header-info">
+                    <h1>Public Chat Room</h1>
+                    <div class="chat-stats">
+                        <div class="stat">Messages: <span class="stat-value" id="messageCount">0</span></div>
+                        <div class="stat">Online: <span class="stat-value" id="onlineCount">0</span></div>
+                    </div>
                 </div>
             </div>
 
