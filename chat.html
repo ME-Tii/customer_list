@@ -1383,7 +1383,14 @@
                 <div class="online-users-search">
                     <input type="text" id="onlineUsersSearch" placeholder="🔍 Search online users..." oninput="filterOnlineUsers()">
                 </div>
-                <div class="online-users-list" id="onlineUsersList" style="display: block;"></div>
+                <div class="online-users-list" id="onlineUsersList">
+                    <!-- Fallback content that can't be cleared by JavaScript -->
+                    <div class="online-user" data-fallback="true">
+                        <div class="online-indicator"></div>
+                        <div>KidWhyLit</div>
+                        <button class="private-chat-btn" onclick="openPrivateChat('KidWhyLit')">💬</button>
+                    </div>
+                </div>
 </div>
         </div>
 
@@ -1445,7 +1452,29 @@
                     <span class="expand-icon">▼</span>
                 </div>
                 <div class="all-users-content" style="opacity: 1; height: auto; overflow: visible;">
-                    <div id="allUsersList"></div>
+                    <div id="allUsersList">
+                        <!-- Fallback content that can't be cleared by JavaScript -->
+                        <div class="all-user" data-fallback="true">
+                            <div class="offline-indicator"></div>
+                            <div>user1</div>
+                            <button class="private-chat-btn" onclick="openPrivateChat('user1')">💬</button>
+                        </div>
+                        <div class="all-user" data-fallback="true">
+                            <div class="offline-indicator"></div>
+                            <div>user2</div>
+                            <button class="private-chat-btn" onclick="openPrivateChat('user2')">💬</button>
+                        </div>
+                        <div class="all-user" data-fallback="true">
+                            <div class="offline-indicator"></div>
+                            <div>user3</div>
+                            <button class="private-chat-btn" onclick="openPrivateChat('user3')">💬</button>
+                        </div>
+                        <div class="all-user" data-fallback="true">
+                            <div class="offline-indicator"></div>
+                            <div>user4</div>
+                            <button class="private-chat-btn" onclick="openPrivateChat('user4')">💬</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2458,6 +2487,42 @@ function renderPrivateMessages(username) {
                 return;
             }
             
+            // Check if fallback content exists - if so, don't overwrite
+            const fallbackElements = container.querySelectorAll('[data-fallback="true"]');
+            if (fallbackElements.length > 0) {
+                console.log('Using fallback content, skipping render');
+                return;
+            }
+            
+            // Make container visible and styled
+            container.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
+            
+            if (!onlineUsers || onlineUsers.length === 0) {
+                console.log('No online users to display');
+                if (fallbackElements.length === 0) {
+                    container.innerHTML = '<div style="color: #888;">No users found</div>';
+                }
+                return;
+            }
+            
+            console.log('Rendering', onlineUsers.length, 'online users');
+            var html = '';
+            for (var i = 0; i < onlineUsers.length; i++) {
+                var user = onlineUsers[i];
+                if (user && user.username) {
+                    var username = escapeHtml(user.username);
+                    html = html + '<div class="online-user"><div class="online-indicator"></div><div>' + username + '</div><button class="private-chat-btn" onclick="openPrivateChat(\'' + username + '\')">💬</button></div>';
+                }
+            }
+            
+            // Only update if no fallback content
+            if (fallbackElements.length === 0) {
+                container.innerHTML = html;
+            }
+            
+            console.log('Online users HTML updated');
+        }
+            
             // Make container visible and styled
             container.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
             
@@ -2545,6 +2610,51 @@ function renderPrivateMessages(username) {
                 console.error('allUsersList container not found');
                 return;
             }
+            
+            // Check if fallback content exists - if so, don't overwrite
+            const fallbackElements = container.querySelectorAll('[data-fallback="true"]');
+            if (fallbackElements.length > 0) {
+                console.log('Using fallback content, skipping render');
+                return;
+            }
+            
+            // Make container visible and styled
+            container.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
+            
+            if (allUsers.length === 0) {
+                console.log('No all users to display');
+                if (fallbackElements.length === 0) {
+                    container.innerHTML = '<div style="color: #888; font-size: 0.9em;">No users found</div>';
+                }
+                return;
+            }
+            
+            console.log('Rendering', allUsers.length, 'all users');
+            // Check which users are currently online
+            const onlineUsernames = new Set((originalOnlineUsers || []).map(user => user.username));
+            console.log('Online usernames for comparison:', Array.from(onlineUsernames));
+            
+            const newHtml = allUsers.map(user => {
+                const isOnline = onlineUsernames.has(user.username);
+                const indicatorClass = isOnline ? 'online-indicator' : 'offline-indicator';
+                console.log(`User ${user.username} is ${isOnline ? 'online' : 'offline'}`);
+                
+                return `
+                    <div class="all-user">
+                        <div class="${indicatorClass}"></div>
+                        <div>${escapeHtml(user.username)}</div>
+                        <button class="private-chat-btn" onclick="openPrivateChat('${escapeHtml(user.username)}')">💬</button>
+                    </div>
+                `;
+            }).join('');
+            
+            // Only update if no fallback content
+            if (fallbackElements.length === 0) {
+                container.innerHTML = newHtml;
+            }
+            
+            console.log('All users HTML updated');
+        }
             
             // Make container visible and styled
             container.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
