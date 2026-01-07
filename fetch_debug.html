@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fetch Debug</title>
+    <style>
+        body { font-family: monospace; background: #000; color: #00ff00; padding: 20px; }
+        #output { margin: 20px 0; padding: 10px; background: rgba(0, 50, 0, 0.5); }
+        .success { color: #00ff00; }
+        .error { color: #ff4444; }
+        .info { color: #ffff00; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Fetch API Debug</h1>
+    <div id="output">Testing different fetch approaches...</div>
+    
+    <script>
+        const output = document.getElementById('output');
+        let log = '';
+        
+        function addLog(message, type = 'info') {
+            console.log(message);
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+            log += `<div class="${className}">${message}</div>`;
+            output.innerHTML = log;
+        }
+        
+        // Test 1: Basic fetch without credentials
+        addLog('🧪 Test 1: fetch() without credentials', 'info');
+        fetch('/api/users/me')
+            .then(response => {
+                addLog(`✅ Test 1 Response: ${response.status}`, 'success');
+                return response.json().catch(() => ({}));
+            })
+            .then(data => {
+                addLog(`✅ Test 1 Data: ${JSON.stringify(data)}`, 'success');
+            })
+            .catch(error => {
+                addLog(`❌ Test 1 Error: ${error.message}`, 'error');
+            });
+        
+        // Test 2: Fetch with credentials
+        setTimeout(() => {
+            addLog('🧪 Test 2: fetch() with credentials', 'info');
+            fetch('/api/users/me', { credentials: 'include' })
+                .then(response => {
+                    addLog(`✅ Test 2 Response: ${response.status}`, 'success');
+                    return response.json().catch(() => ({}));
+                })
+                .then(data => {
+                    addLog(`✅ Test 2 Data: ${JSON.stringify(data)}`, 'success');
+                })
+                .catch(error => {
+                    addLog(`❌ Test 2 Error: ${error.message}`, 'error');
+                });
+        }, 1500);
+        
+        // Test 3: XHR (traditional approach)
+        setTimeout(() => {
+            addLog('🧪 Test 3: XMLHttpRequest', 'info');
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', '/api/users/me', true);
+            xhr.withCredentials = true;
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    addLog(`✅ Test 3 Response: ${xhr.status}`, 'success');
+                    try {
+                        const data = JSON.parse(xhr.responseText);
+                        addLog(`✅ Test 3 Data: ${JSON.stringify(data)}`, 'success');
+                    } catch (e) {
+                        addLog(`❌ Test 3 Parse Error: ${e.message}`, 'error');
+                    }
+                } else {
+                    addLog(`❌ Test 3 Failed: ${xhr.status}`, 'error');
+                }
+            };
+            xhr.onerror = function() {
+                addLog(`❌ Test 3 Network Error`, 'error');
+            };
+            xhr.send();
+        }, 3000);
+        
+        // Test 4: Different API endpoint
+        setTimeout(() => {
+            addLog('🧪 Test 4: Simple endpoint test', 'info');
+            fetch('/api/online-users')
+                .then(response => {
+                    addLog(`✅ Test 4 Response: ${response.status}`, 'success');
+                    return response.json().catch(() => ({}));
+                })
+                .then(data => {
+                    addLog(`✅ Test 4 Data: ${JSON.stringify(data)}`, 'success');
+                })
+                .catch(error => {
+                    addLog(`❌ Test 4 Error: ${error.message}`, 'error');
+                });
+        }, 4500);
+        
+        // Test 5: Check browser info
+        setTimeout(() => {
+            addLog('🧪 Test 5: Browser compatibility check', 'info');
+            addLog(`User Agent: ${navigator.userAgent}`, 'info');
+            addLog(`Cookies enabled: ${navigator.cookieEnabled}`, 'info');
+            addLog(`Online status: ${navigator.onLine}`, 'info');
+            
+            // Check for common blocking issues
+            if (window.fetch) {
+                addLog('✅ Fetch API supported', 'success');
+            } else {
+                addLog('❌ Fetch API NOT supported', 'error');
+            }
+            
+            if (window.XMLHttpRequest) {
+                addLog('✅ XMLHttpRequest supported', 'success');
+            } else {
+                addLog('❌ XMLHttpRequest NOT supported', 'error');
+            }
+        }, 6000);
+        
+        // Test 6: Try manual URL construction
+        setTimeout(() => {
+            addLog('🧪 Test 6: Full URL fetch', 'info');
+            const fullUrl = window.location.origin + '/api/users/me';
+            addLog(`Full URL: ${fullUrl}`, 'info');
+            
+            fetch(fullUrl, { credentials: 'include' })
+                .then(response => {
+                    addLog(`✅ Test 6 Response: ${response.status}`, 'success');
+                    return response.json().catch(() => ({}));
+                })
+                .then(data => {
+                    addLog(`✅ Test 6 Data: ${JSON.stringify(data)}`, 'success');
+                    addLog('🎉 At least one method works!', 'success');
+                })
+                .catch(error => {
+                    addLog(`❌ Test 6 Error: ${error.message}`, 'error');
+                });
+        }, 7500);
+    </script>
+</body>
+</html>
