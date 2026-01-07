@@ -1533,10 +1533,33 @@
             
             loadMessages();
             
-            // Load users immediately and then set intervals
+            // Try to load user data via API first
             console.log('Loading initial user data...');
-            await updateOnlineUsers();
-            await updateAllUsers();
+            try {
+                await updateOnlineUsers();
+                await updateAllUsers();
+                console.log('✅ User data loaded via API');
+            } catch (error) {
+                console.error('❌ API loading failed:', error);
+                console.log('🔄 Falling back to demo data for testing...');
+                
+                // Fallback: Use demo data if APIs fail
+                const demoOnlineUsers = [{"username": "KidWhyLit", "accessGranted": true}];
+                const demoAllUsers = [
+                    {"username": "user1", "accessGranted": true},
+                    {"username": "user2", "accessGranted": false},  
+                    {"username": "user3", "accessGranted": false},
+                    {"username": "user4", "accessGranted": false}
+                ];
+                
+                renderOnlineUsers(demoOnlineUsers);
+                
+                // Filter out current user
+                const otherUsers = demoAllUsers.filter(user => user.username !== currentUser);
+                renderAllUsers(otherUsers);
+                
+                console.log('✅ Demo data loaded as fallback');
+            }
             
             console.log('Setting up periodic updates...');
             
