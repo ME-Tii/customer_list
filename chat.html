@@ -1008,6 +1008,13 @@
                 display: flex !important;
             }
 
+            /* Ensure public chat is always visible on mobile */
+            .main-chat {
+                position: relative !important;
+                z-index: 998 !important;
+                background: rgba(0, 20, 0, 0.95) !important;
+            }
+
             .private-chat-messages {
                 height: 60vh;
                 padding: 8px;
@@ -1098,7 +1105,7 @@
 
         .mobile-chat-toggle {
             display: none;
-            background: #0088cc;
+            background: #ff4444;
             color: #fff;
             border: none;
             padding: 8px 12px;
@@ -1112,7 +1119,7 @@
         }
 
         .mobile-chat-toggle:hover {
-            background: #0066aa;
+            background: #cc0000;
         }
 
         @media (max-width: 768px) {
@@ -1171,7 +1178,7 @@
 </head>
 <body>
     <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">☰</button>
-    <button class="mobile-chat-toggle" onclick="toggleMobileChatView()">💬</button>
+    <button class="mobile-chat-toggle" onclick="toggleMobileChatView()">❌</button>
     <div class="chat-container">
         <div class="sidebar">
             <div class="sidebar-header">
@@ -2521,21 +2528,14 @@ function renderPrivateMessages(username) {
                 return; // No private chat open
             }
             
-            if (mobileInPrivateChat) {
-                // Switch to public chat view
-                mainChat.style.transform = 'scale(1)';
-                mainChat.style.opacity = '1';
-                mainChat.style.pointerEvents = 'auto';
-                privateChatWindow.style.display = 'none';
-                mobileInPrivateChat = false;
-            } else {
-                // Switch to private chat view
-                mainChat.style.transform = 'scale(0.1)';
-                mainChat.style.opacity = '0.1';
-                mainChat.style.pointerEvents = 'none';
-                privateChatWindow.style.display = 'flex';
-                mobileInPrivateChat = true;
-            }
+            // Always restore public chat to full visibility
+            mainChat.style.transform = 'scale(1)';
+            mainChat.style.opacity = '1';
+            mainChat.style.pointerEvents = 'auto';
+            
+            // Close private chat completely when toggling
+            privateChatWindow.style.display = 'none';
+            mobileInPrivateChat = false;
         }
 
         function toggleRightSidebar() {
@@ -2585,14 +2585,11 @@ function renderPrivateMessages(username) {
                 loadPrivateMessages(username);
             }
             
-            // On mobile, prepare private chat but don't auto-hide main chat
+            // On mobile, just close menus - keep public chat fully visible
             if (window.innerWidth <= 768) {
                 // Close mobile menus
                 document.querySelector('.sidebar').classList.remove('mobile-open');
                 document.querySelector('.right-sidebar').classList.remove('mobile-open');
-                
-                // Let user toggle between views with chat toggle button
-                // Don't auto-hide main chat
             }
             
             // Switch to this chat
