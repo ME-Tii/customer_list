@@ -1382,7 +1382,7 @@
                 <div class="online-users-search">
                     <input type="text" id="onlineUsersSearch" placeholder="🔍 Search online users..." oninput="filterOnlineUsers()">
                 </div>
-                <div class="online-users-list" id="onlineUsersList"></div>
+                <div class="online-users-list" id="onlineUsersList" style="border: 1px solid #ff0000; min-height: 50px;">Loading online users...</div>
 </div>
         </div>
 
@@ -1444,7 +1444,7 @@
                     <span class="expand-icon">▼</span>
                 </div>
                 <div class="all-users-content">
-                    <div id="allUsersList"></div>
+                    <div id="allUsersList" style="border: 1px solid #0000ff; min-height: 50px;">Loading all users...</div>
                 </div>
             </div>
         </div>
@@ -2673,10 +2673,12 @@ function renderPrivateMessages(username) {
             const allUsersExpanded = localStorage.getItem('allUsersExpanded');
             const allUsersSection = document.getElementById('allUsersSection');
             
-            if (allUsersExpanded === 'true') {
-                allUsersSection.classList.remove('collapsed');
-            } else {
+            if (allUsersExpanded === 'false') {
                 allUsersSection.classList.add('collapsed');
+            } else {
+                // Default to expanded if not explicitly set to false
+                allUsersSection.classList.remove('collapsed');
+                localStorage.setItem('allUsersExpanded', 'true');
             }
         }
 
