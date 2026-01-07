@@ -2529,13 +2529,12 @@ function renderPrivateMessages(username) {
             }
         }
 
-        // Escape HTML
+// Escape HTML
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
         }
-
 
 
         
@@ -2836,9 +2835,8 @@ function renderPrivateMessages(username) {
         function handleMobileKeyPress(event) {
             if (event.key === 'Enter') {
                 sendMobileMessage();
-            }
-        }
-
+}
+        
         function sendMobileMessage() {
             const input = document.getElementById('mobileMessageInput');
             const content = input.value.trim();
