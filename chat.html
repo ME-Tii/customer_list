@@ -2342,10 +2342,9 @@ function renderPrivateMessages(username) {
                 
                 if (!onlineUsers || onlineUsers.length === 0) {
                     container.innerHTML = '<div style="color: #888;">No users online</div>';
-                    return;
+                } else {
+                    renderOnlineUsersList(onlineUsers);
                 }
-                
-                renderOnlineUsersList(onlineUsers);
                 
                 var countElement = document.getElementById('onlineCount');
                 if (countElement) {
@@ -2355,6 +2354,11 @@ function renderPrivateMessages(username) {
                 var headerElement = document.querySelector('.stat-value');
                 if (headerElement) {
                     headerElement.textContent = onlineUsers.length;
+                }
+                
+                // Update the all users list to reflect online/offline status changes
+                if (originalAllUsers.length > 0) {
+                    renderAllUsersList(originalAllUsers);
                 }
             } catch (e) {
                 console.error('renderOnlineUsers error:', e);
@@ -2441,13 +2445,21 @@ function renderPrivateMessages(username) {
             if (allUsers.length === 0) {
                 container.innerHTML = '<div style="color: #888; font-size: 0.9em;">No users found</div>';
             } else {
-                container.innerHTML = allUsers.map(user => `
-                    <div class="all-user">
-                        <div class="offline-indicator"></div>
-                        <div>${escapeHtml(user.username)}</div>
-                        <button class="private-chat-btn" onclick="openPrivateChat('${escapeHtml(user.username)}')">💬</button>
-                    </div>
-                `).join('');
+                // Check which users are currently online
+                const onlineUsernames = new Set(originalOnlineUsers.map(user => user.username));
+                
+                container.innerHTML = allUsers.map(user => {
+                    const isOnline = onlineUsernames.has(user.username);
+                    const indicatorClass = isOnline ? 'online-indicator' : 'offline-indicator';
+                    
+                    return `
+                        <div class="all-user">
+                            <div class="${indicatorClass}"></div>
+                            <div>${escapeHtml(user.username)}</div>
+                            <button class="private-chat-btn" onclick="openPrivateChat('${escapeHtml(user.username)}')">💬</button>
+                        </div>
+                    `;
+                }).join('');
             }
         }
 
