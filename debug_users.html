@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Users</title>
+    <style>
+        body { font-family: monospace; background: #000; color: #00ff00; padding: 20px; }
+        .debug { margin: 10px 0; padding: 10px; border: 1px solid #00ff00; }
+        .error { color: #ff4444; }
+        .success { color: #44ff44; }
+    </style>
+</head>
+<body>
+    <h1>Debug User Display</h1>
+    <div id="debug"></div>
+    
+    <script>
+        async function debugUsers() {
+            const debug = document.getElementById('debug');
+            let output = '<div class="debug">';
+            
+            try {
+                // Test online users
+                output += '<h3>Testing /api/online-users</h3>';
+                const onlineResponse = await fetch('/api/online-users', { credentials: 'include' });
+                output += `<p>Status: ${onlineResponse.status}</p>`;
+                
+                if (onlineResponse.ok) {
+                    const onlineUsers = await onlineResponse.json();
+                    output += `<p class="success">Online users: ${JSON.stringify(onlineUsers, null, 2)}</p>`;
+                } else {
+                    output += `<p class="error">Failed to get online users</p>`;
+                }
+                
+                // Test all users
+                output += '<h3>Testing /api/users</h3>';
+                const usersResponse = await fetch('/api/users', { credentials: 'include' });
+                output += `<p>Status: ${usersResponse.status}</p>`;
+                
+                if (usersResponse.ok) {
+                    const allUsers = await usersResponse.json();
+                    output += `<p class="success">All users: ${JSON.stringify(allUsers, null, 2)}</p>`;
+                } else {
+                    output += `<p class="error">Failed to get all users</p>`;
+                }
+                
+                // Test current user
+                output += '<h3>Testing /api/users/me</h3>';
+                const meResponse = await fetch('/api/users/me', { credentials: 'include' });
+                output += `<p>Status: ${meResponse.status}</p>`;
+                
+                if (meResponse.ok) {
+                    const currentUser = await meResponse.json();
+                    output += `<p class="success">Current user: ${JSON.stringify(currentUser, null, 2)}</p>`;
+                } else {
+                    output += `<p class="error">Failed to get current user</p>`;
+                }
+                
+            } catch (error) {
+                output += `<p class="error">Error: ${error.message}</p>`;
+            }
+            
+            output += '</div>';
+            debug.innerHTML = output;
+        }
+        
+        // Run test when page loads
+        window.onload = debugUsers;
+    </script>
+</body>
+</html>

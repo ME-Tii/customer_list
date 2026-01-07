@@ -2357,7 +2357,7 @@ function renderPrivateMessages(username) {
                 }
                 
                 // Update the all users list to reflect online/offline status changes
-                if (originalAllUsers.length > 0) {
+                if (typeof originalAllUsers !== 'undefined' && originalAllUsers && originalAllUsers.length > 0) {
                     renderAllUsersList(originalAllUsers);
                 }
             } catch (e) {
@@ -2367,14 +2367,20 @@ function renderPrivateMessages(username) {
 
         // Render online users list (used by both renderOnlineUsers and filterOnlineUsers)
         function renderOnlineUsersList(onlineUsers) {
+            console.log('renderOnlineUsersList called with:', onlineUsers);
             var container = document.getElementById('onlineUsersList');
-            if (!container) return;
+            if (!container) {
+                console.error('onlineUsersList container not found');
+                return;
+            }
             
             if (!onlineUsers || onlineUsers.length === 0) {
+                console.log('No online users to display');
                 container.innerHTML = '<div style="color: #888;">No users found</div>';
                 return;
             }
             
+            console.log('Rendering', onlineUsers.length, 'online users');
             var html = '';
             for (var i = 0; i < onlineUsers.length; i++) {
                 var user = onlineUsers[i];
@@ -2384,6 +2390,7 @@ function renderPrivateMessages(username) {
                 }
             }
             container.innerHTML = html;
+            console.log('Online users HTML updated');
         }
 
         // Filter online users
@@ -2440,17 +2447,27 @@ function renderPrivateMessages(username) {
 
         // Render all users list (used by both renderAllUsers and filterAllUsers)
         function renderAllUsersList(allUsers) {
+            console.log('renderAllUsersList called with:', allUsers);
             const container = document.getElementById('allUsersList');
             
+            if (!container) {
+                console.error('allUsersList container not found');
+                return;
+            }
+            
             if (allUsers.length === 0) {
+                console.log('No all users to display');
                 container.innerHTML = '<div style="color: #888; font-size: 0.9em;">No users found</div>';
             } else {
+                console.log('Rendering', allUsers.length, 'all users');
                 // Check which users are currently online
-                const onlineUsernames = new Set(originalOnlineUsers.map(user => user.username));
+                const onlineUsernames = new Set((originalOnlineUsers || []).map(user => user.username));
+                console.log('Online usernames for comparison:', Array.from(onlineUsernames));
                 
                 container.innerHTML = allUsers.map(user => {
                     const isOnline = onlineUsernames.has(user.username);
                     const indicatorClass = isOnline ? 'online-indicator' : 'offline-indicator';
+                    console.log(`User ${user.username} is ${isOnline ? 'online' : 'offline'}`);
                     
                     return `
                         <div class="all-user">
@@ -2460,6 +2477,7 @@ function renderPrivateMessages(username) {
                         </div>
                     `;
                 }).join('');
+                console.log('All users HTML updated');
             }
         }
 
