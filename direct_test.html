@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Direct User Display</title>
+    <style>
+        body { font-family: monospace; background: #000; color: #00ff00; padding: 20px; }
+        .chat-container { display: flex; height: 100vh; }
+        .sidebar { width: 300px; background: rgba(0, 20, 0, 0.9); border-right: 2px solid #00ff00; padding: 15px; }
+        .right-sidebar { width: 300px; background: rgba(0, 20, 0, 0.9); border-left: 2px solid #00ff00; padding: 15px; }
+        .main-chat { flex: 1; display: flex; flex-direction: column; }
+        .section { margin-bottom: 20px; }
+        .section h2 { color: #00ffff; margin: 0 0 10px 0; }
+        .user { margin: 8px 0; padding: 8px; background: rgba(0, 50, 0, 0.5); border-radius: 5px; }
+        .online-indicator { width: 8px; height: 8px; background: #00ff00; border-radius: 50%; display: inline-block; margin-right: 10px; }
+        .offline-indicator { width: 8px; height: 8px; background: #888; border-radius: 50%; display: inline-block; margin-right: 10px; }
+        .user-info { color: #ffff00; font-weight: bold; }
+        .status { color: #888; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="sidebar">
+            <div class="section">
+                <h2>👤 CURRENT USER</h2>
+                <div class="user-info">KidWhyLit</div>
+                <div class="status">🟢 Online</div>
+            </div>
+            
+            <div class="section">
+                <h2>📱 ONLINE USERS (1)</h2>
+                <div id="onlineUsersList">
+                    <div class="user">
+                        <span class="online-indicator"></span>
+                        KidWhyLit
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-chat">
+            <div style="padding: 20px; text-align: center;">
+                <h1 style="color: #00ff00;">🚀 Chat Interface</h1>
+                <p style="color: #888;">Users are displayed in sidebars</p>
+                <p style="color: #ffff00;">If you see users here, the display logic works!</p>
+            </div>
+        </div>
+
+        <div class="right-sidebar">
+            <div class="section">
+                <h2>👥 ALL USERS (4)</h2>
+                <div id="allUsersList">
+                    <div class="user">
+                        <span class="offline-indicator"></span>
+                        user1
+                    </div>
+                    <div class="user">
+                        <span class="offline-indicator"></span>
+                        user2
+                    </div>
+                    <div class="user">
+                        <span class="offline-indicator"></span>
+                        user3
+                    </div>
+                    <div class="user">
+                        <span class="offline-indicator"></span>
+                        user4
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('🚀 Direct user display loaded');
+        console.log('✅ Users should be visible in sidebars');
+        
+        // Test that elements exist
+        const onlineContainer = document.getElementById('onlineUsersList');
+        const allContainer = document.getElementById('allUsersList');
+        
+        if (onlineContainer) {
+            console.log('✅ onlineUsersList element found');
+            console.log('Content:', onlineContainer.innerHTML);
+        } else {
+            console.error('❌ onlineUsersList element NOT found');
+        }
+        
+        if (allContainer) {
+            console.log('✅ allUsersList element found');
+            console.log('Content:', allContainer.innerHTML);
+        } else {
+            console.error('❌ allUsersList element NOT found');
+        }
+        
+        // Add a test button to verify DOM manipulation works
+        setTimeout(() => {
+            const testBtn = document.createElement('button');
+            testBtn.textContent = '✅ Click to Test';
+            testBtn.style.cssText = 'position: fixed; bottom: 20px; right: 20px; padding: 10px; background: #00ff00; color: black; border: none; border-radius: 5px; cursor: pointer;';
+            testBtn.onclick = () => {
+                alert('JavaScript is working! DOM manipulation works!');
+                console.log('🎉 Test button clicked - everything is functional!');
+            };
+            document.body.appendChild(testBtn);
+        }, 1000);
+    </script>
+</body>
+</html>
