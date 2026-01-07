@@ -2827,11 +2827,107 @@ function renderPrivateMessages(username) {
             });
         }
 
-        // Mobile public chat functions
+// Mobile public chat functions
         function handleMobileKeyPress(event) {
             if (event.key === 'Enter') {
                 sendMobileMessage();
             }
+        }
+
+        function sendMobileMessage() {
+            const input = document.getElementById('mobileMessageInput');
+            const content = input.value.trim();
+            
+            if (!content && !mobileSelectedFile) return;
+            
+            // Clear input immediately
+            input.value = '';
+            
+            // Create mobile-specific message sending
+            sendMobileMessageToServer(content, mobileSelectedFile);
+        }
+
+        async function sendMobileMessageToServer(content, file) {
+            try {
+                let messageData;
+                
+                if (file) {
+                    // Send file using FormData
+                    const formData = new FormData();
+                    formData.append('username', currentUser);
+                    formData.append('content', content || '');
+                    formData.append('timestamp', new Date().toISOString());
+                    formData.append('file', file);
+                    
+                    // Add session info as fallback authentication
+                    formData.append('auth_username', currentUser);
+                    formData.append('auth_timestamp', Date.now());
+                    
+                    console.log('Sending mobile file upload request...');
+                    
+                    const response = await fetch('/api/messages', {
+                        method: 'POST',
+                        credentials: 'include',
+                        body: formData
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        console.log('Mobile file upload response:', result);
+                        messageData = result.message;
+                        removeMobileFile();
+                        
+                        // Small delay to ensure file is fully written
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                    } else if (response.status === 401) {
+                        console.error('401 Unauthorized - Authentication failed');
+                        alert('Your session has expired. Please log in again.');
+                        window.location.href = '/';
+                        return;
+                    } else {
+                        const errorText = await response.text();
+                        console.error('Mobile file upload failed:', response.status, errorText);
+                        alert('Failed to send file. Please try again.');
+                        return;
+                    }
+                } else {
+                    // Send text message using JSON
+                    messageData = {
+                        username: currentUser,
+                        content: content,
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    const response = await fetch('/api/messages', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify(messageData)
+                    });
+                    
+                    if (!response.ok) {
+                        console.error('Mobile message send failed:', response.status);
+                        alert('Failed to send message');
+                        return;
+                    }
+                }
+                
+                // Add message to local array immediately for instant display
+                messages.push(messageData);
+                
+                // Trigger render messages to update display
+                loadMessages();
+                
+                // Also refresh from server to ensure consistency
+                setTimeout(loadMessages, 500);
+                
+            } catch (error) {
+                console.error('Error sending mobile message:', error);
+                alert('Network error sending message');
+            }
+        }
         }
 
         function sendMobileMessage() {
