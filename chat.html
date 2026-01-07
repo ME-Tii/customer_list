@@ -1078,9 +1078,36 @@
                 font-size: 0.7em;
             }
 
-            .private-message-content {
-                font-size: 0.85em;
+.private-message-content {
+            font-size: 0.85em;
+        }
+
+        /* Mobile Private Chat Input Fixes */
+        @media (max-width: 768px) {
+            .private-chat-input-container {
+                padding: 10px;
+                background: rgba(0, 20, 0, 0.95);
             }
+
+            .private-chat-input-container input {
+                background: rgba(0, 40, 0, 0.9) !important;
+                border: 1px solid #00ff00 !important;
+                color: #00ff00 !important;
+                padding: 10px !important;
+                font-size: 1em !important;
+            }
+
+            .private-chat-input-container input:focus {
+                outline: none;
+                border-color: #00ffff !important;
+            }
+
+            .private-chat-input-container button {
+                padding: 10px 15px !important;
+                font-size: 0.9em !important;
+                margin-top: 5px;
+            }
+        }
         }
 
         /* Mobile Menu Toggle */
@@ -1094,7 +1121,7 @@
             font-weight: bold;
             position: fixed;
             top: 10px;
-            left: 10px;
+            right: 10px;
             z-index: 1004;
             border-radius: 5px;
         }
@@ -1103,24 +1130,7 @@
             background: #00cc00;
         }
 
-        .mobile-chat-toggle {
-            display: none;
-            background: #ff4444;
-            color: #fff;
-            border: none;
-            padding: 8px 12px;
-            cursor: pointer;
-            font-weight: bold;
-            position: fixed;
-            top: 10px;
-            left: 60px;
-            z-index: 1004;
-            border-radius: 5px;
-        }
-
-        .mobile-chat-toggle:hover {
-            background: #cc0000;
-        }
+        
 
         /* Mobile Public Chat Input */
         .mobile-public-chat-input {
@@ -1224,10 +1234,6 @@
                 display: block;
             }
 
-            .mobile-chat-toggle {
-                display: block;
-            }
-
             .mobile-public-chat-input {
                 display: block;
             }
@@ -1279,7 +1285,6 @@
 </head>
 <body>
     <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">☰</button>
-    <button class="mobile-chat-toggle" onclick="toggleMobileChatView()">❌</button>
     
     <!-- Mobile Public Chat Input -->
     <div class="mobile-public-chat-input" id="mobilePublicChatInput">
