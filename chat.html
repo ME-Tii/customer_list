@@ -1341,6 +1341,7 @@
     </div>
     
     <div class="chat-container">
+        <div id="jsTest" style="position: fixed; top: 0; right: 0; background: red; color: white; padding: 5px; z-index: 9999; display: none;">JS LOADED</div>
         <div class="sidebar">
             <div class="sidebar-header">
                 <h2>💬 PUBLIC CHAT</h2>
@@ -1510,6 +1511,7 @@
         async function initChat() {
             console.log('Chat initializing...');
             currentUser = await getCurrentUser();
+            console.log('Got current user:', currentUser);
             console.log('Current user from server:', currentUser);
             
             if (!currentUser) {
@@ -1537,6 +1539,9 @@
             await updateAllUsers();
             
             console.log('Setting up periodic updates...');
+            
+            // Show JS loaded indicator
+            document.getElementById('jsTest').style.display = 'block';
             
             // Auto-refresh messages every 2 seconds
             setInterval(loadMessages, 2000);
@@ -3086,6 +3091,7 @@ function renderPrivateMessages(username) {
 
         // Initialize mobile features
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('Chat page loaded - version 2.0');
             initChat();
             
             // Add click outside listener for mobile menus
