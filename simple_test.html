@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple User Test</title>
+    <style>
+        body { font-family: monospace; background: #000; color: #00ff00; padding: 20px; }
+        .online { color: #00ff00; }
+        .offline { color: #888; }
+        .user { margin: 10px 0; padding: 10px; background: rgba(0, 50, 0, 0.5); }
+        .section { margin: 20px 0; }
+        h1 { color: #00ffff; }
+        h2 { color: #ffff00; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Simple User Display Test</h1>
+    
+    <div class="section">
+        <h2>📱 ONLINE USERS</h2>
+        <div id="online">Loading...</div>
+    </div>
+    
+    <div class="section">
+        <h2>👥 ALL USERS</h2>
+        <div id="all">Loading...</div>
+    </div>
+    
+    <div class="section">
+        <h2>🔧 DEBUG INFO</h2>
+        <div id="debug"></div>
+    </div>
+    
+    <script>
+        let debugInfo = '';
+        
+        function log(msg) {
+            console.log(msg);
+            debugInfo += msg + '<br>';
+            document.getElementById('debug').innerHTML = debugInfo;
+        }
+        
+        async function loadUsers() {
+            try {
+                log('🚀 Starting user load test...');
+                
+                // Test current user
+                const meResponse = await fetch('/api/users/me', { credentials: 'include' });
+                if (meResponse.ok) {
+                    const me = await meResponse.json();
+                    log(`✅ Current user: ${me.username}`);
+                } else {
+                    log(`❌ Current user failed: ${meResponse.status}`);
+                    return;
+                }
+                
+                // Load online users
+                const onlineResponse = await fetch('/api/online-users', { credentials: 'include' });
+                if (onlineResponse.ok) {
+                    const onlineUsers = await onlineResponse.json();
+                    log(`✅ Online users loaded: ${onlineUsers.length}`);
+                    
+                    const onlineDiv = document.getElementById('online');
+                    if (onlineUsers.length === 0) {
+                        onlineDiv.innerHTML = '<div class="user">No users online</div>';
+                    } else {
+                        onlineDiv.innerHTML = onlineUsers.map(user => 
+                            `<div class="user">🟢 ${user.username}</div>`
+                        ).join('');
+                    }
+                } else {
+                    log(`❌ Online users failed: ${onlineResponse.status}`);
+                }
+                
+                // Load all users
+                const allResponse = await fetch('/api/users', { credentials: 'include' });
+                if (allResponse.ok) {
+                    const allUsers = await allResponse.json();
+                    log(`✅ All users loaded: ${allUsers.length}`);
+                    
+                    const onlineUsernames = onlineUsers.ok ? 
+                        new Set(onlineUsers.map(u => u.username)) : 
+                        new Set();
+                    
+                    const allDiv = document.getElementById('all');
+                    if (allUsers.length === 0) {
+                        allDiv.innerHTML = '<div class="user">No users found</div>';
+                    } else {
+                        allDiv.innerHTML = allUsers.map(user => {
+                            const isOnline = onlineUsernames.has(user.username);
+                            const status = isOnline ? '🟢 ONLINE' : '⚫ OFFLINE';
+                            return `<div class="user">${status} ${user.username}</div>`;
+                        }).join('');
+                    }
+                } else {
+                    log(`❌ All users failed: ${allResponse.status}`);
+                }
+                
+                log('✅ User loading complete!');
+                
+            } catch (error) {
+                log(`❌ ERROR: ${error.message}`);
+                console.error(error);
+            }
+        }
+        
+        // Load users when page loads
+        window.addEventListener('load', loadUsers);
+        
+        // Auto-refresh every 5 seconds
+        setInterval(loadUsers, 5000);
+    </script>
+</body>
+</html>
