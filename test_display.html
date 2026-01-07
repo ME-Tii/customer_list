@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test User Display</title>
+    <style>
+        body { font-family: monospace; background: #000; color: #00ff00; padding: 20px; }
+        .online-indicator { width: 8px; height: 8px; background: #00ff00; border-radius: 50%; display: inline-block; margin-right: 10px; }
+        .offline-indicator { width: 8px; height: 8px; background: #888; border-radius: 50%; display: inline-block; margin-right: 10px; }
+        .user { margin: 5px 0; padding: 5px; background: rgba(0, 50, 0, 0.5); }
+        .section { margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <h1>User Display Test</h1>
+    
+    <div class="section">
+        <h2>Online Users (<span id="onlineCount">0</span>)</h2>
+        <div id="onlineUsersList"></div>
+    </div>
+    
+    <div class="section">
+        <h2>All Users</h2>
+        <div id="allUsersList"></div>
+    </div>
+    
+    <script>
+        let originalOnlineUsers = [];
+        let originalAllUsers = [];
+        let currentUser = null;
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        async function getCurrentUser() {
+            try {
+                const response = await fetch('/api/users/me', { credentials: 'include' });
+                if (response.ok) {
+                    const userData = await response.json();
+                    return userData.username;
+                }
+            } catch (error) {
+                console.error('Error getting current user:', error);
+            }
+            return null;
+        }
+        
+        async function loadOnlineUsers() {
+            try {
+                const response = await fetch('/api/online-users', { credentials: 'include' });
+                if (response.ok) {
+                    const onlineUsers = await response.json();
+                    console.log('Online users loaded:', onlineUsers);
+                    originalOnlineUsers = onlineUsers;
+                    renderOnlineUsersList(onlineUsers);
+                    document.getElementById('onlineCount').textContent = onlineUsers.length;
+                }
+            } catch (error) {
+                console.error('Error loading online users:', error);
+            }
+        }
+        
+        async function loadAllUsers() {
+            try {
+                const response = await fetch('/api/users', { credentials: 'include' });
+                if (response.ok) {
+                    const allUsers = await response.json();
+                    console.log('All users loaded:', allUsers);
+                    originalAllUsers = allUsers.filter(user => user.username !== currentUser);
+                    renderAllUsersList(originalAllUsers);
+                }
+            } catch (error) {
+                console.error('Error loading all users:', error);
+            }
+        }
+        
+        function renderOnlineUsersList(onlineUsers) {
+            console.log('Rendering online users:', onlineUsers);
+            const container = document.getElementById('onlineUsersList');
+            
+            if (!onlineUsers || onlineUsers.length === 0) {
+                container.innerHTML = '<div style="color: #888;">No users online</div>';
+                return;
+            }
+            
+            let html = '';
+            for (let i = 0; i < onlineUsers.length; i++) {
+                const user = onlineUsers[i];
+                if (user && user.username) {
+                    const username = escapeHtml(user.username);
+                    html += `<div class="user"><span class="online-indicator"></span>${username}</div>`;
+                }
+            }
+            container.innerHTML = html;
+            console.log('Online users rendered');
+        }
+        
+        function renderAllUsersList(allUsers) {
+            console.log('Rendering all users:', allUsers);
+            const container = document.getElementById('allUsersList');
+            
+            if (!allUsers || allUsers.length === 0) {
+                container.innerHTML = '<div style="color: #888;">No users found</div>';
+                return;
+            }
+            
+            const onlineUsernames = new Set((originalOnlineUsers || []).map(user => user.username));
+            console.log('Online usernames for comparison:', Array.from(onlineUsernames));
+            
+            let html = '';
+            for (let i = 0; i < allUsers.length; i++) {
+                const user = allUsers[i];
+                const isOnline = onlineUsernames.has(user.username);
+                const indicatorClass = isOnline ? 'online-indicator' : 'offline-indicator';
+                console.log(`User ${user.username} is ${isOnline ? 'online' : 'offline'}`);
+                
+                html += `<div class="user"><span class="${indicatorClass}"></span>${escapeHtml(user.username)}</div>`;
+            }
+            container.innerHTML = html;
+            console.log('All users rendered');
+        }
+        
+        async function init() {
+            console.log('Initializing test page...');
+            currentUser = await getCurrentUser();
+            console.log('Current user:', currentUser);
+            
+            await loadOnlineUsers();
+            await loadAllUsers();
+            
+            // Auto-refresh every 5 seconds
+            setInterval(async () => {
+                await loadOnlineUsers();
+                await loadAllUsers();
+            }, 5000);
+        }
+        
+        // Initialize when page loads
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
