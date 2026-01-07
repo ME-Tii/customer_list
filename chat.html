@@ -32,6 +32,42 @@
             max-height: 100vh;
         }
 
+        .right-sidebar {
+            width: 300px;
+            background: rgba(0, 20, 0, 0.9);
+            border-left: 2px solid #00ff00;
+            display: flex;
+            flex-direction: column;
+            max-height: 100vh;
+            flex-shrink: 0;
+        }
+
+        .right-sidebar .sidebar-header h2 {
+            color: #ffff00;
+            font-size: 1.2em;
+        }
+
+        .all-users-search {
+            padding: 10px 15px;
+            border-bottom: 1px solid #003300;
+        }
+
+        .all-users-search input {
+            width: 100%;
+            background: rgba(0, 30, 0, 0.9);
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 8px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .all-users-search input:focus {
+            outline: none;
+            border-color: #00ffff;
+        }
+
         .sidebar-header {
             padding: 15px;
             border-bottom: 1px solid #00ff00;
@@ -61,12 +97,40 @@
 
         .online-users {
             flex: 0 1 auto;
-            overflow-y: auto;
             padding: 15px;
-            max-height: 250px;
+            padding-top: 10px;
+            max-height: 300px;
             min-height: 100px;
             border-bottom: 1px solid #003300;
             margin-bottom: 5px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .online-users-search {
+            margin-bottom: 10px;
+        }
+
+        .online-users-search input {
+            width: 100%;
+            background: rgba(0, 30, 0, 0.9);
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 8px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .online-users-search input:focus {
+            outline: none;
+            border-color: #00ffff;
+        }
+
+        .online-users-list {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 5px;
         }
 
         .online-user {
@@ -97,17 +161,15 @@
         }
 
         .all-users {
-            border-top: 1px solid #00ff00;
-            margin-top: 15px;
-            padding-top: 10px;
-            max-height: 300px;
+            flex: 1;
             overflow: hidden;
             transition: all 0.3s ease-in-out;
+            display: flex;
+            flex-direction: column;
         }
 
         .all-users.collapsed {
-            max-height: 45px;
-            padding-top: 5px;
+            flex: 0 0 45px;
         }
 
         .all-users-header {
@@ -126,9 +188,9 @@
 
         .all-users-content {
             transition: opacity 0.3s ease-in-out;
-            padding-right: 5px;
+            padding: 15px;
             overflow-y: auto;
-            max-height: 250px;
+            flex: 1;
         }
 
         .all-users.collapsed .all-users-content {
@@ -489,6 +551,86 @@
             z-index: 1000;
         }
 
+        .private-chat-container {
+            position: fixed;
+            bottom: 20px;
+            right: 320px;
+            z-index: 999;
+        }
+
+        .private-chat-tab {
+            background: rgba(0, 50, 0, 0.9);
+            border: 1px solid #00ff00;
+            border-radius: 8px 8px 0 0;
+            padding: 8px 12px;
+            margin-bottom: 2px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 200px;
+            max-width: 250px;
+        }
+
+        .private-chat-tab.active {
+            background: rgba(0, 100, 0, 0.9);
+            border-color: #00ffff;
+        }
+
+        .private-chat-tab:hover {
+            background: rgba(0, 80, 0, 0.9);
+        }
+
+        .tab-username {
+            color: #00ffff;
+            font-weight: bold;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tab-close {
+            color: #ff4444;
+            font-weight: bold;
+            margin-left: 8px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 1.2em;
+        }
+
+        .tab-close:hover {
+            color: #ff6666;
+        }
+
+        .private-chat-window {
+            position: fixed;
+            bottom: 20px;
+            right: 320px;
+            width: 400px;
+            height: 300px;
+            background: rgba(0, 20, 0, 0.95);
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            display: none;
+            z-index: 1001;
+        }
+
+        .private-chat-window.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .private-chat-tabs {
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            bottom: 320px;
+            right: 320px;
+            z-index: 1000;
+        }
+
         .private-chat-header {
             background: rgba(0, 50, 0, 0.8);
             padding: 10px;
@@ -692,18 +834,11 @@
             
             <div class="online-users">
                 <h3 style="margin-bottom: 10px; color: #00ffff;">👥 Online Users (<span id="onlineCount">0</span>)</h3>
-                <div id="onlineUsersList"></div>
-            </div>
-            
-            <div class="all-users collapsed" id="allUsersSection">
-                <div class="all-users-header" onclick="toggleAllUsers()">
-                    <h3 style="margin: 0; color: #ffff00; font-size: 1em;">👤 All Users (Private Messages)</h3>
-                    <span class="expand-icon">▼</span>
+                <div class="online-users-search">
+                    <input type="text" id="onlineUsersSearch" placeholder="🔍 Search online users..." oninput="filterOnlineUsers()">
                 </div>
-                <div class="all-users-content">
-                    <div id="allUsersList"></div>
-                </div>
-            </div>
+                <div class="online-users-list" id="onlineUsersList"></div>
+</div>
         </div>
 
         <div class="main-chat">
@@ -746,31 +881,30 @@
             </div>
         </div>
 
-        <!-- Private Chat Modal -->
-        <div id="privateChatModal" class="private-chat-modal">
-            <div class="private-chat-header">
-                <div class="private-chat-title" id="privateChatTitle">Private Chat</div>
-                <button class="private-chat-close" onclick="closePrivateChat()">✕</button>
+        <!-- Right Sidebar for All Users -->
+        <div class="right-sidebar" id="rightSidebar">
+            <div class="sidebar-header">
+                <h2>👤 ALL USERS</h2>
             </div>
-            <div class="private-chat-messages" id="privateChatMessages"></div>
-            <div class="private-chat-input-container">
-                <input 
-                    type="text" 
-                    id="privateMessageInput" 
-                    placeholder="Type private message..."
-                    onkeypress="handlePrivateKeyPress(event)"
-                >
-                <input 
-                    type="file" 
-                    id="privateFileInput" 
-                    accept="image/*,.pdf,.txt,.doc,.docx" 
-                    style="display: none"
-                    onchange="handlePrivateFileSelect(event)"
-                >
-                <button onclick="document.getElementById('privateFileInput').click()">📎</button>
-                <button onclick="sendPrivateMessage()">Send</button>
+            
+            <div class="all-users-search">
+                <input type="text" id="allUsersSearch" placeholder="🔍 Search all users..." oninput="filterAllUsers()">
+            </div>
+            
+            <div class="all-users" id="allUsersSection">
+                <div class="all-users-header" onclick="toggleAllUsers()">
+                    <h3 style="margin: 0; color: #ffff00; font-size: 1em;">👤 All Users (Private Messages)</h3>
+                    <span class="expand-icon">▼</span>
+                </div>
+                <div class="all-users-content">
+                    <div id="allUsersList"></div>
+                </div>
             </div>
         </div>
+
+        <!-- Private Chat Container -->
+        <div id="privateChatTabs" class="private-chat-tabs"></div>
+        <div id="privateChatWindows" class="private-chat-container"></div>
     </div>
 
     <script>
@@ -780,13 +914,12 @@
         let typingTimer = null;
         let currentPrivateChat = null;
         let privateMessages = {};
-        let privateFile = null;
-        let userIsScrollingPrivate = false;
-        let privateChatScrollPosition = 0;
-
-        // Declare variables early to ensure they're in global scope
-        let privateChatUserScrolled = false;
+        let privateFiles = {};
+        let userIsScrollingPrivate = {};
+        let privateChatScrollPosition = {};
+        let privateChatUserScrolled = {};
         let lastMessageCount = {};
+        let activePrivateChats = new Set();
 
         // Get current user from server session
         async function getCurrentUser() {
@@ -837,7 +970,10 @@
                 return;
             }
             
-            document.getElementById('currentUserName').textContent = currentUser;
+            const currentUserNameElement = document.getElementById('currentUserName');
+            if (currentUserNameElement) {
+                currentUserNameElement.textContent = currentUser;
+            }
             
             // Restore UI state
             restoreAllUsersState();
@@ -983,10 +1119,10 @@
                         console.log('File details - filename:', message.filename, 'originalname:', message.originalname, 'filetype:', message.filetype);
                         
                         // ALWAYS show file info as fallback
-                        messageHtml += `
+                            messageHtml += `
                             <div class="message-file-container" style="border: 2px solid yellow; padding: 10px; margin: 5px 0;">
-                                <div class="file-info" style="color: yellow; font-weight: bold;">📁 FILE: ${message.originalname || message.filename}</div>
-                                <div style="color: #888; font-size: 0.8em;">Type: ${message.filetype || 'unknown'}</div>
+                                <div class="file-info" style="color: yellow; font-weight: bold;">📁 FILE: ${escapeHtml(message.originalname || message.filename)}</div>
+                                <div style="color: #888; font-size: 0.8em;">Type: ${escapeHtml(message.filetype || 'unknown')}</div>
                         `;
                         
                         if (message.filetype && message.filetype.startsWith('image/')) {
@@ -999,7 +1135,7 @@
                             const safeImageUrl = `/uploads/${message.filename}?t=${timestamp}`;
                             messageHtml += `
                                 <div style="margin-top: 5px;">
-                                    <img src="${safeImageUrl}" alt="${message.originalname}" class="message-image" onclick="window.open('/uploads/${escapedFilename}', '_blank')" onerror="console.error('Failed to load image:', this.src); this.style.display='none'; this.nextElementSibling.style.display='block';" onload="console.log('Image loaded successfully:', this.src); console.log('Image dimensions:', this.naturalWidth, 'x', this.naturalHeight, 'display:', window.getComputedStyle(this).display, 'visibility:', window.getComputedStyle(this).visibility);">
+                                    <img src="${safeImageUrl}" alt="${escapeHtml(message.originalname)}" class="message-image" onclick="window.open('/uploads/${escapedFilename}', '_blank')" onerror="console.error('Failed to load image:', this.src); this.style.display='none'; this.nextElementSibling.style.display='block';" onload="console.log('Image loaded successfully:', this.src); console.log('Image dimensions:', this.naturalWidth, 'x', this.naturalHeight, 'display:', window.getComputedStyle(this).display, 'visibility:', window.getComputedStyle(this).visibility);">
                                     <div style="display: none; color: #ff6666; margin-top: 5px;">❌ Image failed to load - <a href="/uploads/${message.filename}" target="_blank" style="color: #00ff00;">Open file</a></div>
                                 </div>
                             `;
@@ -1009,7 +1145,7 @@
                             messageHtml += `
                                 <div class="message-file">
                                     <a href="/uploads/${message.filename}" target="_blank" class="message-file-link">
-                                        📄 ${message.originalname}
+                                        📄 ${escapeHtml(message.originalname)}
                                     </a>
                                 </div>
                             `;
@@ -1223,20 +1359,108 @@
                 return;
             }
             
-            currentPrivateChat = username;
+            // Initialize chat data if not exists
+            if (!activePrivateChats.has(username)) {
+                activePrivateChats.add(username);
+                createPrivateChatWindow(username);
+                loadPrivateMessages(username);
+            }
+            
+            // Switch to this chat
+            switchToPrivateChat(username);
             
             // Check if user is online
             const onlineUsers = Array.from(document.querySelectorAll('#onlineUsersList .online-user div')).map(div => div.textContent.trim());
             const isUserOnline = onlineUsers.includes(username);
             
-            const statusIndicator = isUserOnline ? '🟢' : '⚫';
-            document.getElementById('privateChatTitle').textContent = `Private Chat with ${username} ${statusIndicator}`;
-            document.getElementById('privateChatModal').style.display = 'block';
-            loadPrivateMessages(username);
-            
             // Only add system message if user is online (for real-time chat)
-            if (isUserOnline) {
+            if (isUserOnline && !privateMessages[username] || privateMessages[username].length === 0) {
                 addSystemMessage(`${currentUser} started a private chat with ${username}`);
+            }
+        }
+
+        // Create private chat window and tab
+        function createPrivateChatWindow(username) {
+            const tabsContainer = document.getElementById('privateChatTabs');
+            const windowsContainer = document.getElementById('privateChatWindows');
+            
+            // Check if user is online for status indicator
+            const onlineUsers = Array.from(document.querySelectorAll('#onlineUsersList .online-user div')).map(div => div.textContent.trim());
+            const isUserOnline = onlineUsers.includes(username);
+            const statusIndicator = isUserOnline ? '🟢' : '⚫';
+            
+            // Create tab
+            const tab = document.createElement('div');
+            tab.className = 'private-chat-tab';
+            tab.id = `private-chat-tab-${username}`;
+            tab.innerHTML = `
+                <span class="tab-username">${username} ${statusIndicator}</span>
+                <button class="tab-close" onclick="closePrivateChat('${username}')">✕</button>
+            `;
+            tab.onclick = function(e) {
+                if (!e.target.classList.contains('tab-close')) {
+                    switchToPrivateChat(username);
+                }
+            };
+            
+            // Create window
+            const window = document.createElement('div');
+            window.className = 'private-chat-window';
+            window.id = `private-chat-window-${username}`;
+            window.innerHTML = `
+                <div class="private-chat-header">
+                    <div class="private-chat-title">Private Chat with ${username} ${statusIndicator}</div>
+                    <button class="private-chat-close" onclick="closePrivateChat('${username}')">✕</button>
+                </div>
+                <div class="private-chat-messages" id="private-chat-messages-${username}"></div>
+                <div class="private-chat-input-container">
+                    <input 
+                        type="text" 
+                        id="private-message-input-${username}" 
+                        placeholder="Type private message..."
+                        onkeypress="handlePrivateKeyPress(event, '${username}')"
+                    >
+                    <input 
+                        type="file" 
+                        id="private-file-input-${username}" 
+                        accept="image/*,.pdf,.txt,.doc,.docx" 
+                        style="display: none"
+                        onchange="handlePrivateFileSelect(event, '${username}')"
+                    >
+                    <button onclick="document.getElementById('private-file-input-${username}').click()">📎</button>
+                    <button onclick="sendPrivateMessage('${username}')">Send</button>
+                </div>
+            `;
+            
+            tabsContainer.appendChild(tab);
+            windowsContainer.appendChild(window);
+            
+            // Initialize scroll tracking
+            userIsScrollingPrivate[username] = false;
+            privateChatUserScrolled[username] = false;
+            privateChatScrollPosition[username] = 0;
+            lastMessageCount[username] = 0;
+            privateFiles[username] = null;
+        }
+
+        // Switch to a specific private chat
+        function switchToPrivateChat(username) {
+            // Hide all windows
+            document.querySelectorAll('.private-chat-window').forEach(w => w.classList.remove('active'));
+            document.querySelectorAll('.private-chat-tab').forEach(t => t.classList.remove('active'));
+            
+            // Show selected window and tab
+            const window = document.getElementById(`private-chat-window-${username}`);
+            const tab = document.getElementById(`private-chat-tab-${username}`);
+            
+            if (window && tab) {
+                window.classList.add('active');
+                tab.classList.add('active');
+                currentPrivateChat = username;
+                
+                // Focus input
+                const input = document.getElementById(`private-message-input-${username}`);
+                if (input) input.focus();
             }
         }
         
@@ -1256,11 +1480,30 @@
             container.insertBefore(messageDiv, typingIndicator);
         }
         
-        function closePrivateChat() {
-            document.getElementById('privateChatModal').style.display = 'none';
-            currentPrivateChat = null;
-            privateFile = null;
-            document.getElementById('privateFileInput').value = '';
+        function closePrivateChat(username) {
+            const tab = document.getElementById(`private-chat-tab-${username}`);
+            const window = document.getElementById(`private-chat-window-${username}`);
+            
+            if (tab) tab.remove();
+            if (window) window.remove();
+            
+            activePrivateChats.delete(username);
+            delete privateMessages[username];
+            delete privateFiles[username];
+            delete userIsScrollingPrivate[username];
+            delete privateChatUserScrolled[username];
+            delete privateChatScrollPosition[username];
+            delete lastMessageCount[username];
+            
+            // If this was the active chat, switch to another one if available
+            if (currentPrivateChat === username) {
+                const remainingChats = Array.from(activePrivateChats);
+                if (remainingChats.length > 0) {
+                    switchToPrivateChat(remainingChats[0]);
+                } else {
+                    currentPrivateChat = null;
+                }
+            }
         }
         
         async function loadPrivateMessages(username) {
@@ -1270,16 +1513,22 @@
                 });
                 
                 if (response.ok) {
-                    const messages = await response.json();
-                    privateMessages[username] = messages;
+                    const allMessages = await response.json();
+                    // Filter messages for this specific user
+                    const userMessages = allMessages.filter(msg => 
+                        (msg.from_user === currentUser && msg.to_user === username) ||
+                        (msg.from_user === username && msg.to_user === currentUser)
+                    );
+                    
+                    privateMessages[username] = userMessages;
+                    lastMessageCount[username] = userMessages.length;
                     
                     // Reset scroll state when opening new chat
-                    userIsScrollingPrivate = false;
-                    privateChatUserScrolled = false;
-                    privateChatScrollPosition = 0;
-                    lastMessageCount[username] = messages.length;
+                    userIsScrollingPrivate[username] = false;
+                    privateChatUserScrolled[username] = false;
+                    privateChatScrollPosition[username] = 0;
                     
-                    // Render without auto-scroll (let renderPrivateMessages decide)
+                    // Render messages
                     renderPrivateMessages(username);
                 } else {
                     console.error('Failed to load private messages');
@@ -1289,8 +1538,10 @@
             }
         }
         
-        function renderPrivateMessages(username) {
-            const container = document.getElementById('privateChatMessages');
+function renderPrivateMessages(username) {
+            const container = document.getElementById(`private-chat-messages-${username}`);
+            if (!container) return;
+            
             const messages = privateMessages[username] || [];
             
             // Check if new messages were added
@@ -1317,7 +1568,7 @@
             });
             
             container.innerHTML = uniqueMessages.map(msg => {
-                const isSent = msg.sent === 'true' || msg.sent === true;
+                const isSent = msg.from_user === currentUser;
                 const time = new Date(msg.timestamp).toLocaleTimeString();
                 
                 return `
@@ -1338,8 +1589,23 @@
             // Update message count tracker
             lastMessageCount[username] = currentMessageCount;
             
+            // Add scroll event listener
+            container.addEventListener('scroll', function() {
+                const wasAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 50;
+                
+                userIsScrollingPrivate[username] = true;
+                privateChatUserScrolled[username] = true;
+                privateChatScrollPosition[username] = container.scrollTop;
+                
+                // Clear scrolling flag after user stops scrolling
+                clearTimeout(window['scrollTimer_' + username]);
+                window['scrollTimer_' + username] = setTimeout(function() {
+                    userIsScrollingPrivate[username] = false;
+                }, 200);
+            });
+            
             // Scroll logic: Only auto-scroll if appropriate
-            const shouldAutoScroll = (!privateChatUserScrolled && !userIsScrollingPrivate) || 
+            const shouldAutoScroll = (!privateChatUserScrolled[username] && !userIsScrollingPrivate[username]) || 
                                   (newMessagesAdded && wasAtBottom) ||
                                   (!newMessagesAdded && wasAtBottom);
             
@@ -1348,7 +1614,7 @@
                 setTimeout(() => {
                     container.scrollTop = container.scrollHeight;
                 }, 0);
-            } else if (privateChatUserScrolled && !newMessagesAdded) {
+            } else if (privateChatUserScrolled[username] && !newMessagesAdded) {
                 // Restore scroll position if user was manually scrolling and no new messages
                 setTimeout(() => {
                     container.scrollTop = currentScrollTop;
@@ -1357,30 +1623,31 @@
             
             // Reset scroll flags
             if (!newMessagesAdded) {
-                privateChatUserScrolled = false;
+                privateChatUserScrolled[username] = false;
             }
         }
         
-        async function sendPrivateMessage() {
-            if (!currentPrivateChat) return;
+        async function sendPrivateMessage(username) {
+            if (!username) return;
             
-            const input = document.getElementById('privateMessageInput');
-            const content = input.value.trim();
+            const input = document.getElementById(`private-message-input-${username}`);
+            const content = input ? input.value.trim() : '';
+            const file = privateFiles[username];
             
-            if (!content && !privateFile) return;
+            if (!content && !file) return;
             
-            // Clear input
-            input.value = '';
+            // Clear input immediately
+            if (input) input.value = '';
             
             try {
                 const formData = new FormData();
                 formData.append('from_user', currentUser);
-                formData.append('to_user', currentPrivateChat);
+                formData.append('to_user', username);
                 formData.append('content', content);
                 formData.append('timestamp', new Date().toISOString());
                 
-                if (privateFile) {
-                    formData.append('file', privateFile);
+                if (file) {
+                    formData.append('file', file);
                 }
                 
                 const response = await fetch('/api/private-messages/send', {
@@ -1392,46 +1659,47 @@
                 if (response.ok) {
                     const result = await response.json();
                     // Add to local messages
-                    if (!privateMessages[currentPrivateChat]) {
-                        privateMessages[currentPrivateChat] = [];
+                    if (!privateMessages[username]) {
+                        privateMessages[username] = [];
                     }
-                    privateMessages[currentPrivateChat].push(result.message);
+                    privateMessages[username].push(result.message);
                     
                     // Reset scroll state and auto-scroll after sending
-                    userIsScrollingPrivate = false;
-                    privateChatUserScrolled = false;
-                    renderPrivateMessages(currentPrivateChat);
+                    userIsScrollingPrivate[username] = false;
+                    privateChatUserScrolled[username] = false;
+                    renderPrivateMessages(username);
                     
                     // Clear file
-                    privateFile = null;
-                    document.getElementById('privateFileInput').value = '';
+                    privateFiles[username] = null;
+                    const fileInput = document.getElementById(`private-file-input-${username}`);
+                    if (fileInput) fileInput.value = '';
                 } else {
                     // Put text back if failed
-                    input.value = content;
+                    if (input) input.value = content;
                     const errorText = await response.text();
                     console.error('Private message failed:', errorText);
                     alert(`Failed to send private message: ${errorText}`);
                 }
             } catch (error) {
                 // Put text back if failed
-                input.value = content;
+                if (input) input.value = content;
                 console.error('Error sending private message:', error);
                 alert('Network error sending private message');
             }
         }
         
-        function handlePrivateKeyPress(event) {
+        function handlePrivateKeyPress(event, username) {
             if (event.key === 'Enter' && !event.shiftKey) {
                 event.preventDefault();
-                sendPrivateMessage();
+                sendPrivateMessage(username);
             }
         }
         
-        function handlePrivateFileSelect(event) {
+        function handlePrivateFileSelect(event, username) {
             const file = event.target.files[0];
             if (file) {
-                privateFile = file;
-                console.log('Selected private file:', file.name);
+                privateFiles[username] = file;
+                console.log('Selected private file:', file.name, 'for user:', username);
             }
         }
 
@@ -1501,27 +1769,25 @@
             }
         }
 
+        // Store original data for filtering
+        let originalOnlineUsers = [];
+        let originalAllUsers = [];
+
         // Render online users
         function renderOnlineUsers(onlineUsers) {
             try {
                 var container = document.getElementById('onlineUsersList');
                 if (!container) return;
                 
+                // Store original data for filtering
+                originalOnlineUsers = onlineUsers || [];
+                
                 if (!onlineUsers || onlineUsers.length === 0) {
                     container.innerHTML = '<div style="color: #888;">No users online</div>';
                     return;
                 }
                 
-                var html = '<div class="online-users">';
-                for (var i = 0; i < onlineUsers.length; i++) {
-                    var user = onlineUsers[i];
-                    if (user && user.username) {
-                        var username = escapeHtml(user.username);
-                        html = html + '<div class="online-user"><div class="online-indicator"></div><div>' + username + '</div><button class="private-chat-btn" onclick="openPrivateChat(\'' + username + '\')">💬</button></div>';
-                    }
-                }
-                html = html + '</div>';
-                container.innerHTML = html;
+                renderOnlineUsersList(onlineUsers);
                 
                 var countElement = document.getElementById('onlineCount');
                 if (countElement) {
@@ -1535,6 +1801,44 @@
             } catch (e) {
                 console.error('renderOnlineUsers error:', e);
             }
+        }
+
+        // Render online users list (used by both renderOnlineUsers and filterOnlineUsers)
+        function renderOnlineUsersList(onlineUsers) {
+            var container = document.getElementById('onlineUsersList');
+            if (!container) return;
+            
+            if (!onlineUsers || onlineUsers.length === 0) {
+                container.innerHTML = '<div style="color: #888;">No users found</div>';
+                return;
+            }
+            
+            var html = '';
+            for (var i = 0; i < onlineUsers.length; i++) {
+                var user = onlineUsers[i];
+                if (user && user.username) {
+                    var username = escapeHtml(user.username);
+                    html = html + '<div class="online-user"><div class="online-indicator"></div><div>' + username + '</div><button class="private-chat-btn" onclick="openPrivateChat(\'' + username + '\')">💬</button></div>';
+                }
+            }
+            container.innerHTML = html;
+        }
+
+        // Filter online users
+        function filterOnlineUsers() {
+            const searchInput = document.getElementById('onlineUsersSearch');
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            
+            if (!searchTerm) {
+                renderOnlineUsersList(originalOnlineUsers);
+                return;
+            }
+            
+            const filteredUsers = originalOnlineUsers.filter(user => 
+                user && user.username && user.username.toLowerCase().includes(searchTerm)
+            );
+            
+            renderOnlineUsersList(filteredUsers);
         }
 
         // Update all users (including offline)
@@ -1557,16 +1861,29 @@
         }
 
         // Render all users (including offline)
+        
+
+        // Render all users (including offline)
         function renderAllUsers(allUsers) {
             const container = document.getElementById('allUsersList');
             
             // Filter out current user from the list
             const otherUsers = allUsers.filter(user => user.username !== currentUser);
             
-            if (otherUsers.length === 0) {
-                container.innerHTML = '<div style="color: #888; font-size: 0.9em;">No other users</div>';
+            // Store original data for filtering
+            originalAllUsers = otherUsers;
+            
+            renderAllUsersList(otherUsers);
+        }
+
+        // Render all users list (used by both renderAllUsers and filterAllUsers)
+        function renderAllUsersList(allUsers) {
+            const container = document.getElementById('allUsersList');
+            
+            if (allUsers.length === 0) {
+                container.innerHTML = '<div style="color: #888; font-size: 0.9em;">No users found</div>';
             } else {
-                container.innerHTML = otherUsers.map(user => `
+                container.innerHTML = allUsers.map(user => `
                     <div class="all-user">
                         <div class="offline-indicator"></div>
                         <div>${escapeHtml(user.username)}</div>
@@ -1574,6 +1891,23 @@
                     </div>
                 `).join('');
             }
+        }
+
+        // Filter all users
+        function filterAllUsers() {
+            const searchInput = document.getElementById('allUsersSearch');
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            
+            if (!searchTerm) {
+                renderAllUsersList(originalAllUsers);
+                return;
+            }
+            
+            const filteredUsers = originalAllUsers.filter(user => 
+                user && user.username && user.username.toLowerCase().includes(searchTerm)
+            );
+            
+            renderAllUsersList(filteredUsers);
         }
 
         function checkPrivateChatRequests() {
@@ -1594,10 +1928,13 @@
         }
         
         function checkNewPrivateMessages() {
-            // Only refresh if user is not actively scrolling
-            if (currentPrivateChat && !userIsScrollingPrivate) {
-                loadPrivateMessages(currentPrivateChat);
-            }
+            // Check all active private chats for new messages
+            activePrivateChats.forEach(username => {
+                // Only refresh if user is not actively scrolling
+                if (!userIsScrollingPrivate[username]) {
+                    loadPrivateMessages(username);
+                }
+            });
         }
 
         // Toggle emoji panel
@@ -1675,8 +2012,14 @@
 
 
         
+        // Store interval IDs for cleanup
+        const intervals = [];
+        
         // Handle page unload to clean up session
         window.addEventListener('beforeunload', async (event) => {
+            // Clear all intervals to prevent memory leaks
+            intervals.forEach(intervalId => clearInterval(intervalId));
+            
             // Send logout request when user closes tab (using sendBeacon for reliability)
             navigator.sendBeacon('/api/logout', JSON.stringify({}));
         });
@@ -1736,32 +2079,7 @@
             }
         });
 
-        // Add scroll event listeners when DOM is loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            const privateChatMessages = document.getElementById('privateChatMessages');
-            if (privateChatMessages) {
-                privateChatMessages.addEventListener('scroll', function() {
-                    const wasAtBottom = privateChatMessages.scrollHeight - privateChatMessages.scrollTop <= privateChatMessages.clientHeight + 50;
-                    
-                    userIsScrollingPrivate = true;
-                    privateChatUserScrolled = true;
-                    privateChatScrollPosition = privateChatMessages.scrollTop;
-                    
-                    // Clear scrolling flag after user stops scrolling
-                    clearTimeout(window.scrollTimer);
-                    window.scrollTimer = setTimeout(function() {
-                        userIsScrollingPrivate = false;
-                    }, 200);
-                    
-                    // Log for debugging
-                    console.log('Private chat scroll:', {
-                        scrollTop: privateChatMessages.scrollTop,
-                        wasAtBottom: wasAtBottom,
-                        userScrolled: privateChatUserScrolled
-                    });
-                });
-            }
-        });
+        
         
         // Restore all users section state
         function restoreAllUsersState() {
